@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+
+	<include resource="org/springframework/boot/logging/logback/base.xml" />
+
+	<property name="JOB_LOG_PATH" value="${LOG_PATH:-${java.io.tmpdir:-/tmp}/}"/>
+
+	<!-- Appender for Loggging per JobExecution in a separate File -->
+	<appender name="JOBLOGGER" class="ch.qos.logback.classic.sift.SiftingAppender">
+		<!-- in the absence of the class attribute, it is assumed that the desired discriminator type is ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+		<discriminator>
+			<key>jobInfo</key>
+			<defaultValue>batch-common.log</defaultValue>
+		</discriminator>
+		<sift>
+			<appender name="${jobInfo}-protocol" class="ch.qos.logback.core.FileAppender">
+				<file>${JOB_LOG_PATH}${jobInfo}</file>
+				<append>true</append>
+				<layout class="ch.qos.logback.classic.PatternLayout">
+					<pattern>${FILE_LOG_PATTERN}</pattern>
+				</layout>
+			</appender>
+		</sift>
+	</appender>
+	<root level="INFO">
+		<appender-ref ref="JOBLOGGER" />
+	</root>
+	
+</included>
