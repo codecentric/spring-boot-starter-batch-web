@@ -18,12 +18,18 @@ package de.codecentric.batch.web;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.codecentric.batch.monitoring.RunningExecutionTracker;
@@ -32,14 +38,16 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * Controller for delivering monitoring information, like
  * 	which jobs are deployed?
  * 	which jobs are currently running on this machine?
- * 	detailed information on any running job.
+ * 	detailed information on any running or finished job.
  *
  * @author Tobias Flohre
  *
  */
 @RestController
-@RequestMapping("/batch/monitoring")
+@RequestMapping("${batch.web.monitoring.base:/batch/monitoring}")
 public class JobMonitoringController {
+
+	private static final Logger LOG = LoggerFactory.getLogger(JobMonitoringController.class);
 
 	private JobOperator jobOperator;
 	private JobExplorer jobExplorer;
@@ -70,8 +78,19 @@ public class JobMonitoringController {
 	}
 
 	@RequestMapping(value = "/executions/{executionId}", method = RequestMethod.GET)
-	public JobExecution findExecution(@PathVariable long executionId) {
-		return jobExplorer.getJobExecution(executionId);
+	public JobExecution findExecution(@PathVariable long executionId) throws NoSuchJobExecutionException {
+		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
+		if (jobExecution == null){
+			throw new NoSuchJobExecutionException("JobExecution with id "+executionId+" not found.");
+		}
+		return jobExecution;
+	}
+
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	@ExceptionHandler(NoSuchJobExecutionException.class)
+	public String handleNotFound(Exception ex) {
+		LOG.warn("JobExecution not found.",ex);
+	    return ex.getMessage();
 	}
 
 }

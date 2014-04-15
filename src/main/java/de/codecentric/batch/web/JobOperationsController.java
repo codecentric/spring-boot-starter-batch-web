@@ -18,6 +18,7 @@ package de.codecentric.batch.web;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -36,18 +37,23 @@ import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.converter.DefaultJobParametersConverter;
 import org.springframework.batch.core.converter.JobParametersConverter;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyExistsException;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobException;
+import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.support.PropertiesConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.codecentric.batch.logging.DefaultJobLogFileNameCreator;
@@ -62,7 +68,7 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  *
  */
 @RestController
-@RequestMapping("/batch/operations")
+@RequestMapping("${batch.web.operations.base:/batch/operations}")
 public class JobOperationsController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JobOperationsController.class);
@@ -87,98 +93,125 @@ public class JobOperationsController {
 	}
 
 	@RequestMapping(value = "/jobs/{jobName}", method = RequestMethod.POST)
-	public String launch(@PathVariable String jobName, @RequestParam MultiValueMap<String, String> payload) {
-		try {
-			String parameters = payload.getFirst(JOB_PARAMETERS);
-			JobParameters jobParameters = jobParametersConverter.getJobParameters(PropertiesConverter.stringToProperties(parameters));
-
-			// get a job 
-			Job job = jobRegistry.getJob(jobName);
-			// use JobParametersIncrementer to create JobParameters if incrementer is set and only if the job is no restart
-			if (job.getJobParametersIncrementer() != null){
-				JobExecution lastJobExecution = jobRepository.getLastJobExecution(jobName, jobParameters);
-				boolean restart = false;
-				// check if job failed before
-				if (lastJobExecution != null) {
-					BatchStatus status = lastJobExecution.getStatus();
-					if (status.isUnsuccessful() && status != BatchStatus.ABANDONED) {
-						restart = true;
-					}
-				}
-				// if it's not a restart, create new JobParameters with the incrementer
-				if (!restart) {
-					jobParameters = job.getJobParametersIncrementer().getNext(jobParameters);
-					Properties newParameters = jobParametersConverter.getProperties(jobParameters);
-					parameters = PropertiesConverter.propertiesToString(newParameters);
+	public String launch(@PathVariable String jobName, @RequestParam MultiValueMap<String, String> payload) throws NoSuchJobException, JobInstanceAlreadyExistsException, JobParametersInvalidException {
+		String parameters = payload.getFirst(JOB_PARAMETERS);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Attempt to start job with name " + jobName + " and parameters "+parameters+".");
+		}
+		Job job = jobRegistry.getJob(jobName);
+		parameters = createJobParametersWithIncrementerIfAvailable(parameters, job);
+		Long id = jobOperator.start(jobName, parameters);
+		return String.valueOf(id);
+	}
+	
+	private String createJobParametersWithIncrementerIfAvailable(String parameters, Job job) {
+		JobParameters jobParameters = jobParametersConverter.getJobParameters(PropertiesConverter.stringToProperties(parameters));
+		// use JobParametersIncrementer to create JobParameters if incrementer is set and only if the job is no restart
+		if (job.getJobParametersIncrementer() != null){
+			JobExecution lastJobExecution = jobRepository.getLastJobExecution(job.getName(), jobParameters);
+			boolean restart = false;
+			// check if job failed before
+			if (lastJobExecution != null) {
+				BatchStatus status = lastJobExecution.getStatus();
+				if (status.isUnsuccessful() && status != BatchStatus.ABANDONED) {
+					restart = true;
 				}
 			}
-			Long id = jobOperator.start(jobName, parameters);
-			return String.valueOf(id);
-		} catch (UnexpectedJobExecutionException e) {
-			LOG.error("Fehler beim Starten des Jobs", e);
-			return e.getMessage();
-		} catch (NoSuchJobException e) {
-			return e.getMessage();
-		} catch (JobInstanceAlreadyExistsException e) {
-			return e.getMessage();
-		} catch (JobParametersInvalidException e) {
-			return e.getMessage();
+			// if it's not a restart, create new JobParameters with the incrementer
+			if (!restart) {
+				jobParameters = job.getJobParametersIncrementer().getNext(jobParameters);
+				Properties newParameters = jobParametersConverter.getProperties(jobParameters);
+				parameters = PropertiesConverter.propertiesToString(newParameters);
+			}
 		}
+		return parameters;
 	}
 
 	@RequestMapping(value = "/executions/{executionId}", method = RequestMethod.GET)
-	public String getStatus(@PathVariable long executionId) {
+	public String getStatus(@PathVariable long executionId) throws NoSuchJobExecutionException {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Ermittle Status zu Job mit ExecutionId: " + executionId);
+			LOG.debug("Get BatchStatus for JobExecution with id: " + executionId+".");
 		}
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		if (jobExecution != null){
 			return jobExecution.getStatus().toString();
 		} else {
-			// TODO 404 werfen
-			return "Not found";
+			throw new NoSuchJobExecutionException("JobExecution with id "+executionId+" not found.");
 		}
 	}
 
 	@RequestMapping(value = "/executions/{executionId}/log", method = RequestMethod.GET)
-	public void getLogFile(HttpServletResponse response, @PathVariable long executionId) {
+	public void getLogFile(HttpServletResponse response, @PathVariable long executionId) throws NoSuchJobExecutionException, IOException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Get log file for job with executionId: " + executionId);
 		}
-	    try {
-	    	String loggingPath = System.getProperty("LOG_PATH");
-	    	if (loggingPath == null){
-	    		loggingPath = System.getProperty("java.io.tmpdir");
-	    	}
-	    	if (loggingPath == null){
-	    		loggingPath = "/tmp";
-	    	}
-	    	if (!loggingPath.endsWith("/")){
-	    		loggingPath = loggingPath+"/";
-	    	}
-	        // get your file as InputStream
-			JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
-	        File downloadFile = new File(loggingPath+jobLogFileNameCreator.createJobLogFileName(jobExecution));
-	        InputStream is = new FileInputStream(downloadFile);	        
-	        // copy it to response's OutputStream
-	        FileCopyUtils.copy(is, response.getOutputStream());
-	        response.flushBuffer();
-	      } catch (IOException ex) {
-	        LOG.info("Error writing file to output stream.");
-	        throw new RuntimeException("IOError writing file to output stream");
-	      }		
+    	String loggingPath = createLoggingPath();
+		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
+		if (jobExecution == null){
+			throw new NoSuchJobExecutionException("JobExecution with id "+executionId+" not found.");
+		}
+        File downloadFile = new File(loggingPath+jobLogFileNameCreator.createJobLogFileName(jobExecution));
+        InputStream is = new FileInputStream(downloadFile);	        
+        FileCopyUtils.copy(is, response.getOutputStream());
+        response.flushBuffer();
+	}
+
+	private String createLoggingPath() {
+		String loggingPath = System.getProperty("LOG_PATH");
+    	if (loggingPath == null){
+    		loggingPath = System.getProperty("java.io.tmpdir");
+    	}
+    	if (loggingPath == null){
+    		loggingPath = "/tmp";
+    	}
+    	if (!loggingPath.endsWith("/")){
+    		loggingPath = loggingPath+"/";
+    	}
+		return loggingPath;
 	}
 
 	@RequestMapping(value = "/executions/{executionId}", method = RequestMethod.DELETE)
-	public String stop(@PathVariable long executionId) {
-		LOG.info("Stoppe Job mit ExecutionId: " + executionId);
-		try {
-			Boolean successful = jobOperator.stop(executionId);
-			return successful.toString();
-		} catch (Exception e) {
-			LOG.error("Fehler beim Stoppen des Jobs", e);
-			return Boolean.FALSE.toString();
+	public String stop(@PathVariable long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Stop JobExecution with id: " + executionId);
 		}
+		Boolean successful = jobOperator.stop(executionId);
+		return successful.toString();
+	}
+
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	@ExceptionHandler({NoSuchJobException.class, NoSuchJobExecutionException.class})
+	public String handleNotFound(Exception ex) {
+		LOG.warn("Job or JobExecution not found.",ex);
+	    return ex.getMessage();
+	}
+
+	@ResponseStatus(HttpStatus.CONFLICT)
+	@ExceptionHandler({UnexpectedJobExecutionException.class, JobInstanceAlreadyExistsException.class})
+	public String handleAlreadyExists(Exception ex) {
+		LOG.warn("JobInstance or JobExecution already exists.",ex);
+	    return ex.getMessage();
+	}
+
+	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+	@ExceptionHandler(JobParametersInvalidException.class)
+	public String handleParametersInvalid(Exception ex) {
+		LOG.warn("Job parameters are invalid.",ex);
+	    return ex.getMessage();
+	}
+
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	@ExceptionHandler(FileNotFoundException.class)
+	public String handleFileNotFound(Exception ex) {
+		LOG.warn("Logfile not found.",ex);
+	    return ex.getMessage();
+	}
+
+	@ResponseStatus(HttpStatus.CONFLICT)
+	@ExceptionHandler(JobExecutionNotRunningException.class)
+	public String handleNotRunning(Exception ex) {
+		LOG.warn("JobExecution is not running.",ex);
+	    return ex.getMessage();
 	}
 
 	@Autowired(required=false)
