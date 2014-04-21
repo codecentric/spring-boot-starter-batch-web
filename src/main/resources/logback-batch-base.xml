@@ -9,12 +9,12 @@
 	<appender name="JOBLOGGER" class="ch.qos.logback.classic.sift.SiftingAppender">
 		<!-- in the absence of the class attribute, it is assumed that the desired discriminator type is ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
 		<discriminator>
-			<key>jobInfo</key>
+			<key>jobLogFileName</key>
 			<defaultValue>batch-common.log</defaultValue>
 		</discriminator>
 		<sift>
-			<appender name="${jobInfo}-protocol" class="ch.qos.logback.core.FileAppender">
-				<file>${JOB_LOG_PATH}${jobInfo}</file>
+			<appender name="${jobLogFileName}-protocol" class="ch.qos.logback.core.FileAppender">
+				<file>${JOB_LOG_PATH}${jobLogFileName}</file>
 				<append>true</append>
 				<layout class="ch.qos.logback.classic.PatternLayout">
 					<pattern>${FILE_LOG_PATTERN}</pattern>

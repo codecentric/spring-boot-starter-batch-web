@@ -33,6 +33,21 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/**
+ * This batch infrastructure configuration is quite similar to the 
+ * {@link org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer}, it only
+ * introduces a {@link org.springframework.core.task.TaskExecutor} used in the 
+ * {@link org.springframework.batch.core.launch.support.SimpleJobLauncher} for starting jobs
+ * asynchronously. Its thread pool is configured to four threads by default, which can be changed
+ * by setting the property batch.max.pool.size to a different number.
+ * The {@link org.springframework.core.task.TaskExecutor} may also be used in job configurations 
+ * for multi-threaded job execution. In XML you can use it by name, which is taskExecutor. In JavaConfig,
+ * you can either autowire {@link org.springframework.core.task.TaskExecutor} or, if you want to know
+ * where it's configured, this class.
+ * 
+ * @author Tobias Flohre
+ *
+ */
 @Configuration
 public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 

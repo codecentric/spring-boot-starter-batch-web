@@ -28,6 +28,13 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.core.Ordered;
 
+/**
+ * This listener adds a protocol header and a protocol summary to the log.
+ * 
+ * @author Tobias Flohre
+ * @author Dennis Schulte
+ *
+ */
 public class ProtocolListener implements JobExecutionListener, Ordered {
 
 	private static final Log LOGGER = LogFactory.getLog(ProtocolListener.class);
@@ -54,6 +61,7 @@ public class ProtocolListener implements JobExecutionListener, Ordered {
 		for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
 			protocol.append("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n");
 			protocol.append("Step " + stepExecution.getStepName() + " \n");
+			protocol.append("ReadCount: " + stepExecution.getReadCount() + "\n");
 			protocol.append("WriteCount: " + stepExecution.getWriteCount() + "\n");
 			protocol.append("Commits: " + stepExecution.getCommitCount() + "\n");
 			protocol.append("SkipCount: " + stepExecution.getSkipCount() + "\n");

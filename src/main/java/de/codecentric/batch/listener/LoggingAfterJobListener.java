@@ -26,29 +26,26 @@ import de.codecentric.batch.logging.DefaultJobLogFileNameCreator;
 import de.codecentric.batch.logging.JobLogFileNameCreator;
 
 /**
- * @author tobias.flohre
+ * This extra listener is needed, because the {@link LoggingListener} removes the variable from the MDC
+ * in its afterStep method. We re-set it here at the beginning of the execution of all afterJob methods
+ * of JobExecutionListeners.
+ * @see LoggingListener
+ * 
+ * @author Tobias Flohre
  *
  */
 public class LoggingAfterJobListener implements JobExecutionListener, Ordered {
 
 	private JobLogFileNameCreator jobLogFileNameCreator = new DefaultJobLogFileNameCreator();
 
-	public static final String JOB_INFO = "jobInfo";
-
-	/* (non-Javadoc)
-	 * @see org.springframework.batch.core.JobExecutionListener#beforeJob(org.springframework.batch.core.JobExecution)
-	 */
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
 	}
 
 	private void insertValuesIntoMDC(JobExecution jobExecution) {
-		MDC.put(JOB_INFO, jobLogFileNameCreator.createJobLogFileName(jobExecution));
+		MDC.put(LoggingListener.JOBLOG_FILENAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.batch.core.JobExecutionListener#afterJob(org.springframework.batch.core.JobExecution)
-	 */
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		insertValuesIntoMDC(jobExecution);

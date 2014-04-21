@@ -21,6 +21,21 @@ import org.springframework.batch.core.JobExecutionListener;
 
 import de.codecentric.batch.monitoring.RunningExecutionTracker;
 
+/**
+ * This listener is needed for tracking the running JobExecutions on this server. 
+ * It's easy to find out which jobs are running in general by looking into the database, but it has 
+ * some drawbacks:
+ * - Data in the database might be corrupted. A job may be in status STARTED simply because someone
+ *   killed the process and Spring Batch didn't have the chance to update the status.
+ * - We cannot tell from the database on which server the job is running.
+ * - We might just use an in-memory database, then we cannot access it.
+ *  
+ * This listener uses the {@link RunningExecutionTracker} to keep this information in memory and 
+ * accessible for the http endpoints.
+ * 
+ * @author Tobias Flohre
+ *
+ */
 public class RunningExecutionTrackerListener implements JobExecutionListener {
 	
 	private RunningExecutionTracker runningExecutionTracker;

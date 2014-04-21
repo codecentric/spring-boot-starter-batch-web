@@ -33,6 +33,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import de.codecentric.batch.web.JobMonitoringController;
 import de.codecentric.batch.web.JobOperationsController;
 
+/**
+ * This configuration adds the controllers for the two endpoints, and it adds a Jackson MixIn to the
+ * message converter to avoid a stack overflow through circular references in the JobExecution /
+ * StepExecution.
+ * 
+ * @author Tobias Flohre
+ *
+ */
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
 
