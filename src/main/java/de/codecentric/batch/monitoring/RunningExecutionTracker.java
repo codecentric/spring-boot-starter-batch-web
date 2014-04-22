@@ -22,6 +22,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.codecentric.batch.listener.RunningExecutionTrackerListener;
+import de.codecentric.batch.web.JobMonitoringController;
+
+/**
+ * Container for keeping track of running JobExecutions in this application.
+ * 
+ * @see RunningExecutionTrackerListener
+ * @see JobMonitoringController
+ * @author Tobias Flohre
+ *
+ */
 public class RunningExecutionTracker {
 	
 	private Map<Long,String> runningExecutions = new ConcurrentHashMap<Long,String>();

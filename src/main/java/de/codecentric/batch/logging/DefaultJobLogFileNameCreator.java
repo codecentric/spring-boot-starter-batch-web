@@ -18,6 +18,13 @@ package de.codecentric.batch.logging;
 
 import org.springframework.batch.core.JobExecution;
 
+/**
+ * Default implementation used when there's no other Spring bean implementing {@link JobLogFileNameCreator}
+ * in the ApplicationContext.
+ * 
+ * @author Tobias Flohre
+ *
+ */
 public class DefaultJobLogFileNameCreator implements JobLogFileNameCreator {
 
 	@Override
