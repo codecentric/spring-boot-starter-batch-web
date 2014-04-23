@@ -8,3 +8,5 @@ The project spring-boot-starter-batch-web is a Spring Boot starter for Spring Ba
 * A monitoring http endpoint for retrieving detailed information on a job execution, for knowing all deployed jobs and all running job executions.
 
 All you have to do is configure your job in XML or JavaConfig, specify the DataSource for the job meta data (or don't, and you get an in-memory database), add a dependency to spring-boot-starter-batch-web, create a Spring Boot fat jar with maven package and start your server up by running java -jar. And, of course, you can benefit from Spring Boot's features, for example spring-boot-actuator is included by default.
+
+Take a look at the [Getting Started page](https://github.com/codecentric/spring-boot-starter-batch-web/wiki/Getting-Started)!
