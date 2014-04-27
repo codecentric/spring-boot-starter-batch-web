@@ -15,12 +15,6 @@
 		<spring.boot.version>1.0.2.RELEASE</spring.boot.version>
 	</properties>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starters</artifactId>
-		<version>1.0.2.RELEASE</version>
-	</parent>
-	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
