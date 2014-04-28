@@ -25,6 +25,7 @@ import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -48,6 +49,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @author Tobias Flohre
  *
  */
+@ConditionalOnMissingBean(BatchConfigurer.class)
 @Configuration
 public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 
@@ -101,6 +103,14 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 		JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
 		factory.setDataSource(dataSource);
 		factory.setTransactionManager(transactionManager);
+		String isolationLevelForCreate = env.getProperty("batch.repository.isolationlevelforcreate");
+		if (isolationLevelForCreate != null){
+			factory.setIsolationLevelForCreate(isolationLevelForCreate);
+		}
+		String tablePrefix = env.getProperty("batch.repository.tableprefix");
+		if (tablePrefix != null){
+			factory.setTablePrefix(tablePrefix);
+		}
 		factory.afterPropertiesSet();
 		return (JobRepository) factory.getObject();
 	}
