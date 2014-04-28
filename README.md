@@ -9,4 +9,10 @@ The project spring-boot-starter-batch-web is a Spring Boot starter for Spring Ba
 
 All you have to do is configure your job in XML or JavaConfig, specify the DataSource for the job meta data (or don't, and you get an in-memory database), add a dependency to spring-boot-starter-batch-web, create a Spring Boot fat jar with maven package and start your server up by running java -jar. And, of course, you can benefit from Spring Boot's features, for example spring-boot-actuator is included by default.
 
-Take a look at the [Getting Started page](https://github.com/codecentric/spring-boot-starter-batch-web/wiki/Getting-Started) and at [this sample project](https://github.com/codecentric/spring-samples/tree/master/batch-boot-simple) using it!
+Take a look at the [Getting Started page](https://github.com/codecentric/spring-boot-starter-batch-web/wiki/Getting-Started). 
+
+There are the following samples available:
+
+[batch-boot-simple](https://github.com/codecentric/spring-samples/tree/master/batch-boot-simple): a very simple JavaConfig sample with an embedded database.
+
+[batch-boot-file-to-db](https://github.com/codecentric/spring-samples/tree/master/batch-boot-file-to-db): a job configured in xml using job parameters that reads from a file and writes to a database. This sample demonstrates the usage of an external database.
