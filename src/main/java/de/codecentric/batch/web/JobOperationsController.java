@@ -62,46 +62,57 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
 /**
  * Very simple REST-API for starting and stopping jobs and keeping track of its status.
  * Made for script interaction.
- * The base url can be set via property batch.web.operations.base, its default is /batch/operations.
+ * 
+ * <p>The base url can be set via property batch.web.operations.base, its default is /batch/operations.
  * There are four endpoints available:
  * 
- * 1. Starting jobs
- * {base_url}/jobs/{jobName} / POST
+ * <ol>
+ * <li>Starting jobs<br>
+ * {base_url}/jobs/{jobName} / POST<br>
  * Optionally you may define job parameters via request param 'jobParameters'. If a JobParametersIncrementer
- * is specified in the job, it is used to increment the parameters.
- * On success, it returns the JobExecution's id as a plain string.
+ * is specified in the job, it is used to increment the parameters.<br>
+ * On success, it returns the JobExecution's id as a plain string.<br>
  * On failure, it returns the message of the Exception as a plain string. There are different failure 
  * possibilities:
- * HTTP response code 404 (NOT_FOUND): the job cannot be found, not deployed on this server.
- * HTTP response code 409 (CONFLICT): the JobExecution already exists and is either running or not restartable.
- * HTTP response code 422 (UNPROCESSABLE_ENTITY): the job parameters didn't pass the validator.
- * HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.
+ * <ul>
+ * <li>HTTP response code 404 (NOT_FOUND): the job cannot be found, not deployed on this server.</li>
+ * <li>HTTP response code 409 (CONFLICT): the JobExecution already exists and is either running or not restartable.</li>
+ * <li>HTTP response code 422 (UNPROCESSABLE_ENTITY): the job parameters didn't pass the validator.</li>
+ * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
+ * </ul></li>
  * 
- * 2. Retrieving an JobExecution's BatchStatus
- * {base_url}/executions/{executionId} / GET
- * On success, it returns the BatchStatus of the JobExecution specified by the executionId as a plain string.
+ * <li>Retrieving an JobExecution's BatchStatus<br>
+ * {base_url}/executions/{executionId} / GET<br>
+ * On success, it returns the BatchStatus of the JobExecution specified by the executionId as a plain string.<br>
  * On failure, it returns the message of the Exception as a plain string. There are different failure 
  * possibilities:
- * HTTP response code 404 (NOT_FOUND): the JobExecution cannot be found.
- * HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.
+ * <ul>
+ * <li>HTTP response code 404 (NOT_FOUND): the JobExecution cannot be found.</li>
+ * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
+ * </ul></li>
  * 
- * 3. Retrieving a log file for a specific JobExecution
- * {base_url}/executions/{executionId}/log / GET
+ * <li>Retrieving a log file for a specific JobExecution<br>
+ * {base_url}/executions/{executionId}/log / GET<br>
  * On success, it returns the log file belonging to the run of the JobExecution specified by the executionId 
- * as a plain string.
+ * as a plain string.<br>
  * On failure, it returns the message of the Exception as a plain string. There are different failure 
  * possibilities:
- * HTTP response code 404 (NOT_FOUND): the log file cannot be found.
- * HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.
+ * <ul>
+ * <li>HTTP response code 404 (NOT_FOUND): the log file cannot be found.</li>
+ * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
+ * </ul></li>
  * 
- * 4. Stopping jobs
- * {base_url}/executions/{executionId} / DELETE
- * On success, it returns true.
+ * <li>Stopping jobs<br>
+ * {base_url}/executions/{executionId} / DELETE<br>
+ * On success, it returns true.<br>
  * On failure, it returns the message of the Exception as a plain string. There are different failure 
  * possibilities:
- * HTTP response code 404 (NOT_FOUND): the JobExecution cannot be found.
- * HTTP response code 409 (CONFLICT): the JobExecution is not running.
- * HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.
+ * <ul>
+ * <li>HTTP response code 404 (NOT_FOUND): the JobExecution cannot be found.</li>
+ * <li>HTTP response code 409 (CONFLICT): the JobExecution is not running.</li>
+ * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
+ * </ul></li>
+ * </ol>
  * 
  *
  * @author Dennis Schulte
