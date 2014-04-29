@@ -55,15 +55,16 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 /**
  * This configuration class will be picked up by Spring Boot's auto configuration capabilities as soon as it's
  * on the classpath.
- * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer}
- * and imports the web endpoint configuration ({@link WebConfig}.
+ * 
+ * <p>It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer}
+ * and imports the web endpoint configuration ({@link WebConfig}.<br>
  * Then it looks for jobs in a modular fashion, which means that every job configuration file gets its own 
  * Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs, 
  * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs, 
- * overridable via property batch.config.package.javaconfig.
+ * overridable via property batch.config.package.javaconfig.<br>
  * In addition to collecting jobs a number of default listeners is added to each job. The 
  * {@link de.codecentric.batch.listener.ProtocolListener} adds a protocol to the log. It is activated by default
- * and can be deactivated by setting the property batch.protocol.enabled to false. 
+ * and can be deactivated by setting the property batch.protocol.enabled to false.<br> 
  * {@link de.codecentric.batch.listener.LoggingListener} and {@link de.codecentric.batch.listener.LoggingAfterJobListener} 
  * add a log file separation per job run, are activated by default and can be deactivated by setting the property
  * batch.logfileseparation.enabled to false. The {@link de.codecentric.batch.listener.RunningExecutionTrackerListener}
