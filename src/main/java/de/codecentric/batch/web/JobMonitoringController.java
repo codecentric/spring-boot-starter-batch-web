@@ -36,32 +36,36 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 
 /**
  * Controller for delivering monitoring information, like
- * 	which jobs are deployed?
- * 	which jobs are currently running on this machine?
- * 	detailed information on any running or finished job.
- *
- * The base url can be set via property batch.web.monitoring.base, its default is /batch/monitoring.
+ * <ul>
+ * <li>	which jobs are deployed?</li>
+ * <li>	which jobs are currently running on this machine?</li>
+ * <li>	detailed information on any running or finished job.</li>
+ * </ul>
+ * <p>The base url can be set via property batch.web.monitoring.base, its default is /batch/monitoring.
+ * 
  * There are four endpoints available:
  * 
- * 1. Retrieving the names of deployed jobs
- * {base_url}/jobs / GET
- * On success, it returns a JSON array of String containing the names of the deployed jobs.
+ * <ol>
+ * <li>Retrieving the names of deployed jobs<br>
+ * {base_url}/jobs / GET<br>
+ * On success, it returns a JSON array of String containing the names of the deployed jobs.</li>
  * 
- * 2. Retrieving the ids of JobExecutions running on this server
- * {base_url}/runningexecutions / GET
- * On success, it returns a JSON array containing the ids of the JobExecutions running on this server.
+ * <li>Retrieving the ids of JobExecutions running on this server<br>
+ * {base_url}/runningexecutions / GET<br>
+ * On success, it returns a JSON array containing the ids of the JobExecutions running on this server.</li>
  * 
- * 3. Retrieving the ids of JobExecutions running on this server for a certain job name
- * {base_url}/runningexecutions/{jobName} / GET
+ * <li>Retrieving the ids of JobExecutions running on this server for a certain job name<br>
+ * {base_url}/runningexecutions/{jobName} / GET<br>
  * On success, it returns a JSON array containing the ids of the JobExecutions running on this server
- * belonging to the specified job.
+ * belonging to the specified job.</li>
  * 
- * 4. Retrieving the JobExecution
- * {base_url}/executions/{executionId} / GET
+ * <li>Retrieving the JobExecution<br>
+ * {base_url}/executions/{executionId} / GET<br>
  * On success, it returns a JSON representation of the JobExecution specified by the id. This representation
  * contains everything you need to know about that job, from job name and BatchStatus to the number of 
- * processed items and time used and so on.
- * If the JobExecution cannot be found, a HTTP response code 404 is returned.
+ * processed items and time used and so on.<br>
+ * If the JobExecution cannot be found, a HTTP response code 404 is returned.</li>
+ * </ol>
  * 
  * 
  * @author Tobias Flohre
