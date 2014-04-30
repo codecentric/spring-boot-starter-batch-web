@@ -123,7 +123,7 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	}
 	
 	private void addListenerToJob() throws NoSuchJobException {
-		boolean addProtocolListener = env.getProperty("batch.protocol.enabled", boolean.class, true);
+		boolean addProtocolListener = env.getProperty("batch.defaultprotocol.enabled", boolean.class, true);
 		boolean addLoggingListener = env.getProperty("batch.logfileseparation.enabled", boolean.class, true);
 		for (String jobName : jobRegistry.getJobNames()) {
 			AbstractJob job = (AbstractJob)jobRegistry.getJob(jobName);
