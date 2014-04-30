@@ -82,7 +82,7 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * </ul></li>
  * 
  * <li>Retrieving an JobExecution's BatchStatus<br>
- * {base_url}/executions/{executionId} / GET<br>
+ * {base_url}/jobs/executions/{executionId} / GET<br>
  * On success, it returns the BatchStatus of the JobExecution specified by the executionId as a plain string.<br>
  * On failure, it returns the message of the Exception as a plain string. There are different failure 
  * possibilities:
@@ -92,7 +92,7 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * </ul></li>
  * 
  * <li>Retrieving a log file for a specific JobExecution<br>
- * {base_url}/executions/{executionId}/log / GET<br>
+ * {base_url}/jobs/executions/{executionId}/log / GET<br>
  * On success, it returns the log file belonging to the run of the JobExecution specified by the executionId 
  * as a plain string.<br>
  * On failure, it returns the message of the Exception as a plain string. There are different failure 
@@ -103,7 +103,7 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * </ul></li>
  * 
  * <li>Stopping jobs<br>
- * {base_url}/executions/{executionId} / DELETE<br>
+ * {base_url}/jobs/executions/{executionId} / DELETE<br>
  * On success, it returns true.<br>
  * On failure, it returns the message of the Exception as a plain string. There are different failure 
  * possibilities:
@@ -179,7 +179,7 @@ public class JobOperationsController {
 		return parameters;
 	}
 
-	@RequestMapping(value = "/executions/{executionId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.GET)
 	public String getStatus(@PathVariable long executionId) throws NoSuchJobExecutionException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Get BatchStatus for JobExecution with id: " + executionId+".");
@@ -192,7 +192,7 @@ public class JobOperationsController {
 		}
 	}
 
-	@RequestMapping(value = "/executions/{executionId}/log", method = RequestMethod.GET)
+	@RequestMapping(value = "/jobs/executions/{executionId}/log", method = RequestMethod.GET)
 	public void getLogFile(HttpServletResponse response, @PathVariable long executionId) throws NoSuchJobExecutionException, IOException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Get log file for job with executionId: " + executionId);
@@ -222,7 +222,7 @@ public class JobOperationsController {
 		return loggingPath;
 	}
 
-	@RequestMapping(value = "/executions/{executionId}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.DELETE)
 	public String stop(@PathVariable long executionId) throws NoSuchJobExecutionException, JobExecutionNotRunningException {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Stop JobExecution with id: " + executionId);

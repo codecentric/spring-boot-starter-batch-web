@@ -51,16 +51,16 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * On success, it returns a JSON array of String containing the names of the deployed jobs.</li>
  * 
  * <li>Retrieving the ids of JobExecutions running on this server<br>
- * {base_url}/runningexecutions / GET<br>
+ * {base_url}/jobs/runningexecutions / GET<br>
  * On success, it returns a JSON array containing the ids of the JobExecutions running on this server.</li>
  * 
  * <li>Retrieving the ids of JobExecutions running on this server for a certain job name<br>
- * {base_url}/runningexecutions/{jobName} / GET<br>
+ * {base_url}/jobs/runningexecutions/{jobName} / GET<br>
  * On success, it returns a JSON array containing the ids of the JobExecutions running on this server
  * belonging to the specified job.</li>
  * 
  * <li>Retrieving the JobExecution<br>
- * {base_url}/executions/{executionId} / GET<br>
+ * {base_url}/jobs/executions/{executionId} / GET<br>
  * On success, it returns a JSON representation of the JobExecution specified by the id. This representation
  * contains everything you need to know about that job, from job name and BatchStatus to the number of 
  * processed items and time used and so on.<br>
@@ -95,17 +95,17 @@ public class JobMonitoringController {
 		return jobOperator.getJobNames();
 	}
 
-	@RequestMapping(value = "/runningexecutions", method = RequestMethod.GET)
+	@RequestMapping(value = "/jobs/runningexecutions", method = RequestMethod.GET)
 	public Set<Long> findAllRunningExecutions() {
 		return runningExecutionTracker.getAllRunningExecutionIds();
 	}
 
-	@RequestMapping(value = "/runningexecutions/{jobName}", method = RequestMethod.GET)
+	@RequestMapping(value = "/jobs/runningexecutions/{jobName}", method = RequestMethod.GET)
 	public Set<Long> findRunningExecutionsForJobName(@PathVariable String jobName) {
 		return runningExecutionTracker.getRunningExecutionIdsForJobName(jobName);
 	}
 
-	@RequestMapping(value = "/executions/{executionId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.GET)
 	public JobExecution findExecution(@PathVariable long executionId) throws NoSuchJobExecutionException {
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		if (jobExecution == null){
