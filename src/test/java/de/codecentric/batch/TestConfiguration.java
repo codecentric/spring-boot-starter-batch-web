@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
-import de.codecentric.batch.configuration.AutomaticJobRegistrarAutoConfiguration;
+import de.codecentric.batch.configuration.AutomaticJobRegistrarConfiguration;
 import de.codecentric.batch.configuration.BatchWebAutoConfiguration;
 
 @Configuration
 @Import({ BatchWebAutoConfiguration.class, DataSourceAutoConfiguration.class, BatchAutoConfiguration.class,
-		PropertyPlaceholderAutoConfiguration.class, AutomaticJobRegistrarAutoConfiguration.class })
+		PropertyPlaceholderAutoConfiguration.class, AutomaticJobRegistrarConfiguration.class })
 @PropertySource("test.properties")
 public class TestConfiguration {
 

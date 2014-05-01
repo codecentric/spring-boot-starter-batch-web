@@ -18,7 +18,6 @@ package de.codecentric.batch.configuration;
 
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.support.AutomaticJobRegistrar;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.step.AbstractStep;
@@ -61,13 +60,12 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
-@Import({WebConfig.class,TaskExecutorBatchConfigurer.class})
+@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent> {
 
 	@Autowired
 	private Environment env;
-	@Autowired
-	private AutomaticJobRegistrar automaticJobRegistrar;
+
 	@Autowired
 	private JobRegistry jobRegistry;
 

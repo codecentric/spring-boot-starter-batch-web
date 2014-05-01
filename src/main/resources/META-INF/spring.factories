@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=de.codecentric.batch.configuration.BatchWebAutoConfiguration,de.codecentric.batch.configuration.AutomaticJobRegistrarAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=de.codecentric.batch.configuration.BatchWebAutoConfiguration
