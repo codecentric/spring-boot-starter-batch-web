@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 
 import de.codecentric.batch.listener.LoggingAfterJobListener;
@@ -42,13 +43,13 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * 
  * <p>It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer}
  * and imports the web endpoint configuration ({@link WebConfig}.<br>
- * Then it looks for jobs in a modular fashion, which means that every job configuration file gets its own 
- * Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs, 
- * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs, 
- * overridable via property batch.config.package.javaconfig.<br>
+ * It also imports {@link AutomaticJobRegistrarConfiguration} which looks for jobs in a modular fashion, meaning 
+ * that every job configuration file gets its own Child-ApplicationContext. Configuration files can be XML files in 
+ * the location /META-INF/spring/batch/jobs, overridable via property batch.config.path.xml, and JavaConfig classes 
+ * in the package spring.batch.jobs, overridable via property batch.config.package.javaconfig.<br>
  * In addition to collecting jobs a number of default listeners is added to each job. The 
  * {@link de.codecentric.batch.listener.ProtocolListener} adds a protocol to the log. It is activated by default
- * and can be deactivated by setting the property batch.protocol.enabled to false.<br> 
+ * and can be deactivated by setting the property batch.defaultprotocol.enabled to false.<br> 
  * {@link de.codecentric.batch.listener.LoggingListener} and {@link de.codecentric.batch.listener.LoggingAfterJobListener} 
  * add a log file separation per job run, are activated by default and can be deactivated by setting the property
  * batch.logfileseparation.enabled to false. The {@link de.codecentric.batch.listener.RunningExecutionTrackerListener}
@@ -61,7 +62,7 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
 @Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class })
-public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent> {
+public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	@Autowired
 	private Environment env;
@@ -125,4 +126,9 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 		}
 	}
 
+	@Override
+	public int getOrder() {
+		return Ordered.LOWEST_PRECEDENCE;
+	}
+	
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,13 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.SystemPropertyUtils;
 
 /**
- * Auto configuration for registration of {@link ApplicationContextFactory} with the {@link AutomaticJobRegistrar} that
- * is instanciated inside {@link ModularBatchConfiguration}.
+ * Configuration for registration of {@link ApplicationContextFactory} with the {@link AutomaticJobRegistrar} that
+ * is instantiated inside the {@link ModularBatchConfiguration}.
+ * 
+ * This configuration looks for jobs in a modular fashion, meaning that every job configuration file gets its own 
+ * Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs, 
+ * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs, 
+ * overridable via property batch.config.package.javaconfig.
  * 
  * Customization is done by adding a Configuration class that extends {@link AutomaticJobRegistrarConfigurationSupport}.
  * This will disable this auto configuration.
@@ -56,9 +61,6 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 
 	@Autowired
 	private Environment env;
-
-	@Autowired
-	private AutomaticJobRegistrar automaticJobRegistrar;
 
 	/**
 	 * @see de.codecentric.batch.configuration.AutomaticJobRegistrarConfigurationSupport#addApplicationContextFactories(org.springframework.batch.core.configuration.support.AutomaticJobRegistrar)

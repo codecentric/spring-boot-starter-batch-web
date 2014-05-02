@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.batch.core.configuration.support.ApplicationContextFactory;
 import org.springframework.batch.core.configuration.support.AutomaticJobRegistrar;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
 
 /**
  * Extend this class to add custom {@link ApplicationContextFactory}.
@@ -34,6 +35,11 @@ public abstract class AutomaticJobRegistrarConfigurationSupport {
 
 	@PostConstruct
 	public void initialize() throws Exception {
+		// Default order for the AutomaticJobRegistrar is Ordered.LOWEST_PRECEDENCE. Since we want to register
+		// listeners after the jobs are registered through the AutomaticJobRegistrar, we need to decrement its
+		// order value by one. The creation of the AutomaticJobRegistrar bean is hidden deep in the automatic
+		// batch configuration, so we unfortunately have to do it here.
+		automaticJobRegistrar.setOrder(Ordered.LOWEST_PRECEDENCE-1);
 		addApplicationContextFactories(automaticJobRegistrar);
 	}
 
