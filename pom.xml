@@ -8,7 +8,7 @@
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
-	
+
 	<groupId>de.codecentric</groupId>
 	<artifactId>spring-boot-starter-batch-web</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
@@ -17,7 +17,7 @@
 	<description>Boot starter for batch web applications</description>
 	<packaging>jar</packaging>
 	<url>https://github.com/codecentric/spring-boot-starter-batch-web</url>
-	
+
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -43,9 +43,10 @@
 		<developerConnection>scm:git:ssh://git@github.com/codecentric/spring-boot-starter-batch-web.git</developerConnection>
 		<url>https://github.com/codecentric/spring-boot-starter-batch-web</url>
 	</scm>
-	
+
 	<properties>
 		<spring.boot.version>1.0.2.RELEASE</spring.boot.version>
+		<spring.version>4.0.3.RELEASE</spring.version>
 		<keystore.password>dev_password</keystore.password>
 		<gpg.passphrase>dev</gpg.passphrase>
 		<passphrase>${gpg.passphrase}</passphrase>
@@ -71,6 +72,32 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 			<version>${spring.boot.version}</version>
+		</dependency>
+		
+		<!-- Test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -111,7 +138,15 @@
 					<pushChanges>false</pushChanges>
 				</configuration>
 			</plugin>
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

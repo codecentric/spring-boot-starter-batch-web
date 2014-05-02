@@ -16,16 +16,8 @@
 
 package de.codecentric.batch.configuration;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.support.AutomaticJobRegistrar;
-import org.springframework.batch.core.configuration.support.GenericApplicationContextFactory;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.step.AbstractStep;
@@ -37,17 +29,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
-import org.springframework.core.type.classreading.MetadataReader;
-import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.SystemPropertyUtils;
 
-import de.codecentric.batch.listener.LoggingListener;
 import de.codecentric.batch.listener.LoggingAfterJobListener;
+import de.codecentric.batch.listener.LoggingListener;
 import de.codecentric.batch.listener.ProtocolListener;
 import de.codecentric.batch.listener.RunningExecutionTrackerListener;
 import de.codecentric.batch.monitoring.RunningExecutionTracker;
@@ -76,13 +60,12 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
-@Import({WebConfig.class,TaskExecutorBatchConfigurer.class})
+@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent> {
 
 	@Autowired
 	private Environment env;
-	@Autowired
-	private AutomaticJobRegistrar automaticJobRegistrar;
+
 	@Autowired
 	private JobRegistry jobRegistry;
 
@@ -140,67 +123,6 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 				}
 			}
 		}
-	}
-
-	//################### Registering jobs from certain locations and packages #########################
-
-	@PostConstruct
-	public void initialize() throws Exception {
-		registerJobsFromXml();
-		registerJobsFromJavaConfig();
-	}
-
-	private void registerJobsFromXml() throws IOException {
-		// Add all XML-Configurations to the AutomaticJobRegistrar
-		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-		Resource[] xmlConfigurations = resourcePatternResolver.getResources("classpath*:"+ env.getProperty("batch.config.path.xml",
-								"/META-INF/spring/batch/jobs") + "/*.xml");
-		for (Resource resource : xmlConfigurations) {
-			automaticJobRegistrar.addApplicationContextFactory(new GenericApplicationContextFactory(resource));
-		}
-	}
-
-	private void registerJobsFromJavaConfig() throws ClassNotFoundException,
-			IOException {
-		List<Class<?>> classes = findMyTypes(env.getProperty("batch.config.package.javaconfig", "spring.batch.jobs"));
-		for (Class<?> clazz : classes) {
-			automaticJobRegistrar.addApplicationContextFactory(new GenericApplicationContextFactory(clazz));
-		}
-	}
-
-	private List<Class<?>> findMyTypes(String basePackage) throws IOException,
-			ClassNotFoundException {
-		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-		MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(resourcePatternResolver);
-
-		List<Class<?>> candidates = new ArrayList<Class<?>>();
-		String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX	+ resolveBasePackage(basePackage) + "/" + "**/*.class";
-		Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
-		for (Resource resource : resources) {
-			if (resource.isReadable()) {
-				MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
-				if (isCandidate(metadataReader)) {
-					candidates.add(Class.forName(metadataReader.getClassMetadata().getClassName()));
-				}
-			}
-		}
-		return candidates;
-	}
-
-	private String resolveBasePackage(String basePackage) {
-		return ClassUtils.convertClassNameToResourcePath(SystemPropertyUtils.resolvePlaceholders(basePackage));
-	}
-
-	private boolean isCandidate(MetadataReader metadataReader)
-			throws ClassNotFoundException {
-		try {
-			Class<?> c = Class.forName(metadataReader.getClassMetadata().getClassName());
-			if (c.getAnnotation(Configuration.class) != null) {
-				return true;
-			}
-		} catch (Throwable e) {
-		}
-		return false;
 	}
 
 }
