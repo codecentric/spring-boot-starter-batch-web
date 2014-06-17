@@ -71,7 +71,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 		registerJobsFromJavaConfig(automaticJobRegistrar);
 	}
 
-	private void registerJobsFromXml(AutomaticJobRegistrar automaticJobRegistrar) throws IOException {
+	protected void registerJobsFromXml(AutomaticJobRegistrar automaticJobRegistrar) throws IOException {
 		// Add all XML-Configurations to the AutomaticJobRegistrar
 		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 		Resource[] xmlConfigurations = resourcePatternResolver.getResources("classpath*:"
@@ -82,7 +82,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 		}
 	}
 
-	private void registerJobsFromJavaConfig(AutomaticJobRegistrar automaticJobRegistrar) throws ClassNotFoundException,
+	protected void registerJobsFromJavaConfig(AutomaticJobRegistrar automaticJobRegistrar) throws ClassNotFoundException,
 			IOException {
 		List<Class<?>> classes = findMyTypes(env.getProperty("batch.config.package.javaconfig", "spring.batch.jobs"));
 		for (Class<?> clazz : classes) {
