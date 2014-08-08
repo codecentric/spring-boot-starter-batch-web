@@ -21,8 +21,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
 
+import javax.batch.operations.JobExecutionAlreadyCompleteException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -39,10 +39,14 @@ import org.springframework.batch.core.converter.JobParametersConverter;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyExistsException;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.support.PropertiesConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -131,32 +135,34 @@ public class JobOperationsController {
 	private JobExplorer jobExplorer;
 	private JobRegistry jobRegistry;
 	private JobRepository jobRepository;
+	private JobLauncher jobLauncher;
 	private JobParametersConverter jobParametersConverter = new DefaultJobParametersConverter();
 	private JobLogFileNameCreator jobLogFileNameCreator = new DefaultJobLogFileNameCreator();
 	
 	public JobOperationsController(JobOperator jobOperator,
 			JobExplorer jobExplorer, JobRegistry jobRegistry,
-			JobRepository jobRepository) {
+			JobRepository jobRepository, JobLauncher jobLauncher) {
 		super();
 		this.jobOperator = jobOperator;
 		this.jobExplorer = jobExplorer;
 		this.jobRegistry = jobRegistry;
 		this.jobRepository = jobRepository;
+		this.jobLauncher = jobLauncher;
 	}
 
 	@RequestMapping(value = "/jobs/{jobName}", method = RequestMethod.POST)
-	public String launch(@PathVariable String jobName, @RequestParam MultiValueMap<String, String> payload) throws NoSuchJobException, JobInstanceAlreadyExistsException, JobParametersInvalidException {
+	public String launch(@PathVariable String jobName, @RequestParam MultiValueMap<String, String> payload) throws NoSuchJobException, JobInstanceAlreadyExistsException, JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
 		String parameters = payload.getFirst(JOB_PARAMETERS);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Attempt to start job with name " + jobName + " and parameters "+parameters+".");
 		}
 		Job job = jobRegistry.getJob(jobName);
-		parameters = createJobParametersWithIncrementerIfAvailable(parameters, job);
-		Long id = jobOperator.start(jobName, parameters);
+		JobParameters jobParameters = createJobParametersWithIncrementerIfAvailable(parameters, job);
+		Long id = jobLauncher.run(job, jobParameters).getId();
 		return String.valueOf(id);
 	}
 	
-	private String createJobParametersWithIncrementerIfAvailable(String parameters, Job job) {
+	private JobParameters createJobParametersWithIncrementerIfAvailable(String parameters, Job job) {
 		JobParameters jobParameters = jobParametersConverter.getJobParameters(PropertiesConverter.stringToProperties(parameters));
 		// use JobParametersIncrementer to create JobParameters if incrementer is set and only if the job is no restart
 		if (job.getJobParametersIncrementer() != null){
@@ -172,11 +178,9 @@ public class JobOperationsController {
 			// if it's not a restart, create new JobParameters with the incrementer
 			if (!restart) {
 				jobParameters = job.getJobParametersIncrementer().getNext(jobParameters);
-				Properties newParameters = jobParametersConverter.getProperties(jobParameters);
-				parameters = PropertiesConverter.propertiesToString(newParameters);
 			}
 		}
-		return parameters;
+		return jobParameters;
 	}
 
 	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.GET)
@@ -242,6 +246,13 @@ public class JobOperationsController {
 	@ExceptionHandler({UnexpectedJobExecutionException.class, JobInstanceAlreadyExistsException.class})
 	public String handleAlreadyExists(Exception ex) {
 		LOG.warn("JobInstance or JobExecution already exists.",ex);
+	    return ex.getMessage();
+	}
+
+	@ResponseStatus(HttpStatus.CONFLICT)
+	@ExceptionHandler({JobExecutionAlreadyRunningException.class, JobExecutionAlreadyCompleteException.class, JobRestartException.class})
+	public String handleAlreadyRunningOrComplete(Exception ex) {
+		LOG.warn("JobExecution already running or complete.",ex);
 	    return ex.getMessage();
 	}
 

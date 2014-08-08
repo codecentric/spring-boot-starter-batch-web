@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	@Autowired
 	private JobRepository jobRepository;
 	@Autowired
+	private JobLauncher jobLauncher;
+	@Autowired
 	private BatchWebAutoConfiguration batchWebAutoConfiguration;
 
 	@Override
@@ -73,7 +76,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	
 	@Bean
 	public JobOperationsController jobOperationsController(){
-		return new JobOperationsController(jobOperator,jobExplorer,jobRegistry,jobRepository);
+		return new JobOperationsController(jobOperator,jobExplorer,jobRegistry,jobRepository,jobLauncher);
 	}
 	
 }
