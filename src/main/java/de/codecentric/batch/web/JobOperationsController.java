@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.batch.operations.JobExecutionAlreadyCompleteException;
+import javax.batch.operations.JobStartException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.converter.DefaultJobParametersConverter;
 import org.springframework.batch.core.converter.JobParametersConverter;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.jsr.launch.JsrJobOperator;
 import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyExistsException;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -49,6 +51,8 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.batch.support.PropertiesConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.MultiValueMap;
@@ -136,18 +140,21 @@ public class JobOperationsController {
 	private JobRegistry jobRegistry;
 	private JobRepository jobRepository;
 	private JobLauncher jobLauncher;
+	private JsrJobOperator jsrJobOperator;
 	private JobParametersConverter jobParametersConverter = new DefaultJobParametersConverter();
 	private JobLogFileNameCreator jobLogFileNameCreator = new DefaultJobLogFileNameCreator();
 	
 	public JobOperationsController(JobOperator jobOperator,
 			JobExplorer jobExplorer, JobRegistry jobRegistry,
-			JobRepository jobRepository, JobLauncher jobLauncher) {
+			JobRepository jobRepository, JobLauncher jobLauncher,
+			JsrJobOperator jsrJobOperator) {
 		super();
 		this.jobOperator = jobOperator;
 		this.jobExplorer = jobExplorer;
 		this.jobRegistry = jobRegistry;
 		this.jobRepository = jobRepository;
 		this.jobLauncher = jobLauncher;
+		this.jsrJobOperator = jsrJobOperator;
 	}
 
 	@RequestMapping(value = "/jobs/{jobName}", method = RequestMethod.POST)
@@ -156,10 +163,22 @@ public class JobOperationsController {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Attempt to start job with name " + jobName + " and parameters "+parameters+".");
 		}
-		Job job = jobRegistry.getJob(jobName);
-		JobParameters jobParameters = createJobParametersWithIncrementerIfAvailable(parameters, job);
-		Long id = jobLauncher.run(job, jobParameters).getId();
-		return String.valueOf(id);
+		try {
+			Job job = jobRegistry.getJob(jobName);
+			JobParameters jobParameters = createJobParametersWithIncrementerIfAvailable(parameters, job);
+			Long id = jobLauncher.run(job, jobParameters).getId();
+			return String.valueOf(id);
+		} catch (NoSuchJobException e){
+			// Job hasn't been found in normal context, so let's check if there's a JSR-352 job.
+			String jobConfigurationLocation = "/META-INF/batch-jobs/" + jobName + ".xml";
+			Resource jobXml = new ClassPathResource(jobConfigurationLocation);
+			if (!jobXml.exists()) {
+				throw e;
+			} else {
+				Long id = jsrJobOperator.start(jobName, PropertiesConverter.stringToProperties(parameters));
+				return String.valueOf(id);
+			}
+		}
 	}
 	
 	private JobParameters createJobParametersWithIncrementerIfAvailable(String parameters, Job job) {
@@ -236,7 +255,7 @@ public class JobOperationsController {
 	}
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	@ExceptionHandler({NoSuchJobException.class, NoSuchJobExecutionException.class})
+	@ExceptionHandler({NoSuchJobException.class, NoSuchJobExecutionException.class, JobStartException.class})
 	public String handleNotFound(Exception ex) {
 		LOG.warn("Job or JobExecution not found.",ex);
 	    return ex.getMessage();

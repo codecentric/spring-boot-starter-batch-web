@@ -35,7 +35,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 @Configuration
-public class JobConfiguration {
+public class FlatFileJobConfiguration {
 
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
@@ -44,8 +44,8 @@ public class JobConfiguration {
 	private StepBuilderFactory stepBuilderFactory;
 
 	@Bean
-	public Job job() {
-		return jobBuilderFactory.get("job").start(step()).build();
+	public Job flatFileJob() {
+		return jobBuilderFactory.get("flatFileJob").start(step()).build();
 	}
 
 	@Bean

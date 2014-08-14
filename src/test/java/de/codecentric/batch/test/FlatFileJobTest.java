@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.codecentric.batch;
+package de.codecentric.batch.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,9 +31,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import de.codecentric.batch.TestConfiguration;
+
 @ContextConfiguration(classes = { TestConfiguration.class })
 @RunWith(SpringJUnit4ClassRunner.class)
-public class JobTest {
+public class FlatFileJobTest {
 
 	@Autowired
 	private JobOperator jobOperator;
@@ -45,11 +47,11 @@ public class JobTest {
 	public void runJavaConfigJob() throws Exception {
 		File file = new File("target/out-javaconfig.txt");
 		file.delete();
-		jobOperator.start("job", "");
-		while (jobRepository.getLastJobExecution("job", new JobParameters()).getStatus().isRunning()) {
+		jobOperator.start("flatFileJob", "");
+		while (jobRepository.getLastJobExecution("flatFileJob", new JobParameters()).getStatus().isRunning()) {
 			Thread.sleep(100);
 		}
-		assertEquals(BatchStatus.COMPLETED, jobRepository.getLastJobExecution("job", new JobParameters()).getStatus());
+		assertEquals(BatchStatus.COMPLETED, jobRepository.getLastJobExecution("flatFileJob", new JobParameters()).getStatus());
 		assertEquals(3, FileUtils.readLines(file).size());
 	}
 
@@ -57,11 +59,11 @@ public class JobTest {
 	public void runXmlJob() throws Exception {
 		File file = new File("target/out-xmlconfig.txt");
 		file.delete();
-		jobOperator.start("jobxml", "");
-		while (jobRepository.getLastJobExecution("jobxml", new JobParameters()).getStatus().isRunning()) {
+		jobOperator.start("flatFileJobXml", "");
+		while (jobRepository.getLastJobExecution("flatFileJobXml", new JobParameters()).getStatus().isRunning()) {
 			Thread.sleep(100);
 		}
-		assertEquals(BatchStatus.COMPLETED, jobRepository.getLastJobExecution("jobxml", new JobParameters()).getStatus());
+		assertEquals(BatchStatus.COMPLETED, jobRepository.getLastJobExecution("flatFileJobXml", new JobParameters()).getStatus());
 		assertEquals(10, FileUtils.readLines(file).size());
 	}
 

@@ -19,11 +19,7 @@ package de.codecentric.batch.configuration;
 import java.util.List;
 
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.configuration.JobRegistry;
-import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.JobOperator;
-import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.jsr.launch.JsrJobOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,17 +42,11 @@ import de.codecentric.batch.web.JobOperationsController;
 public class WebConfig extends WebMvcConfigurerAdapter {
 
 	@Autowired
-	private JobOperator jobOperator;
-	@Autowired
-	private JobExplorer jobExplorer;
-	@Autowired
-	private JobRegistry jobRegistry;
-	@Autowired
-	private JobRepository jobRepository;
-	@Autowired
-	private JobLauncher jobLauncher;
+	private BaseConfiguration baseConfig;
 	@Autowired
 	private BatchWebAutoConfiguration batchWebAutoConfiguration;
+	@Autowired(required=false)
+	private JsrJobOperator jsrJobOperator;
 
 	@Override
 	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -71,12 +61,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public JobMonitoringController jobMonitoringController(){
-		return new JobMonitoringController(jobOperator,jobExplorer,batchWebAutoConfiguration.runningExecutionTracker());
+		return new JobMonitoringController(baseConfig.jobOperator(),baseConfig.jobExplorer(),batchWebAutoConfiguration.runningExecutionTracker());
 	}
 	
 	@Bean
 	public JobOperationsController jobOperationsController(){
-		return new JobOperationsController(jobOperator,jobExplorer,jobRegistry,jobRepository,jobLauncher);
+		return new JobOperationsController(baseConfig.jobOperator(),baseConfig.jobExplorer(),baseConfig.jobRegistry(),baseConfig.jobRepository(),baseConfig.jobLauncher(),jsrJobOperator);
 	}
 	
 }

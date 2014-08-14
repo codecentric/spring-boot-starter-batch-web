@@ -29,7 +29,7 @@ import de.codecentric.batch.configuration.BatchWebAutoConfiguration;
 @Configuration
 @Import({ BatchWebAutoConfiguration.class, DataSourceAutoConfiguration.class, BatchAutoConfiguration.class,
 		PropertyPlaceholderAutoConfiguration.class, AutomaticJobRegistrarConfiguration.class })
-@PropertySource("test.properties")
+@PropertySource("application.properties")
 public class TestConfiguration {
 
 }

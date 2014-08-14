@@ -16,11 +16,9 @@
 
 package de.codecentric.batch.configuration;
 
-import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.launch.NoSuchJobException;
-import org.springframework.batch.core.step.AbstractStep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +29,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 
+import de.codecentric.batch.listener.AddListenerToJobService;
 import de.codecentric.batch.listener.LoggingAfterJobListener;
 import de.codecentric.batch.listener.LoggingListener;
 import de.codecentric.batch.listener.ProtocolListener;
@@ -61,14 +60,14 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
-@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class })
+@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class, Jsr352BatchConfiguration.class})
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	@Autowired
 	private Environment env;
 
 	@Autowired
-	private JobRegistry jobRegistry;
+	private BaseConfiguration baseConfig;
 
 	//################### Listeners automatically added to each job #################################
 	
@@ -78,7 +77,7 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	}
 	
 	@Bean
-	public LoggingAfterJobListener loggingReDoListener(){
+	public LoggingAfterJobListener loggingAfterJobListener(){
 		return new LoggingAfterJobListener();
 	}
 	
@@ -97,35 +96,25 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 		return new RunningExecutionTrackerListener(runningExecutionTracker());
 	}
 	
+	@Bean
+	public AddListenerToJobService addListenerToJobService(){
+		boolean addProtocolListener = env.getProperty("batch.defaultprotocol.enabled", boolean.class, true);
+		boolean addLoggingListener = env.getProperty("batch.logfileseparation.enabled", boolean.class, true);
+		return new AddListenerToJobService(addProtocolListener, addLoggingListener, protocolListener(), runningExecutionTrackerListener(), loggingListener(), loggingAfterJobListener());
+	}
+	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		try {
-			addListenerToJob();
+			for (String jobName : baseConfig.jobRegistry().getJobNames()) {
+				AbstractJob job = (AbstractJob)baseConfig.jobRegistry().getJob(jobName);
+				this.addListenerToJobService().addListenerToJob(job);
+			}
 		} catch (NoSuchJobException e) {
 			throw new IllegalStateException(e);
 		}
 	}
 	
-	private void addListenerToJob() throws NoSuchJobException {
-		boolean addProtocolListener = env.getProperty("batch.defaultprotocol.enabled", boolean.class, true);
-		boolean addLoggingListener = env.getProperty("batch.logfileseparation.enabled", boolean.class, true);
-		for (String jobName : jobRegistry.getJobNames()) {
-			AbstractJob job = (AbstractJob)jobRegistry.getJob(jobName);
-			if (addProtocolListener){
-				job.registerJobExecutionListener(protocolListener());
-			}
-			job.registerJobExecutionListener(runningExecutionTrackerListener());
-			if (addLoggingListener){
-				job.registerJobExecutionListener(loggingListener());
-				job.registerJobExecutionListener(loggingReDoListener());
-				for (String stepName: job.getStepNames()){
-					AbstractStep step = (AbstractStep)job.getStep(stepName);
-					step.registerStepExecutionListener(loggingListener());
-				}
-			}
-		}
-	}
-
 	@Override
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE;

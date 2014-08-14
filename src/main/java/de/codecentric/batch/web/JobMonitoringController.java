@@ -16,6 +16,8 @@
 
 package de.codecentric.batch.web;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -24,6 +26,9 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -91,8 +96,15 @@ public class JobMonitoringController {
 	}
 
 	@RequestMapping(value="/jobs", method = RequestMethod.GET)
-	public Set<String> findRegisteredJobs() {
-		return jobOperator.getJobNames();
+	public Set<String> findRegisteredJobs() throws IOException {
+		Set<String> registeredJobs = new HashSet<>(jobOperator.getJobNames());
+		// Add JSR-352 jobs
+		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+		Resource[] xmlConfigurations = resourcePatternResolver.getResources("classpath*:/META-INF/batch-jobs/*.xml");
+		for (Resource resource : xmlConfigurations) {
+			registeredJobs.add(resource.getFilename().substring(0, resource.getFilename().length()-4));
+		}
+		return registeredJobs;
 	}
 
 	@RequestMapping(value = "/jobs/runningexecutions", method = RequestMethod.GET)
