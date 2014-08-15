@@ -53,22 +53,22 @@ public class JavaConfigIntegrationTest {
 	
 	@Test
 	public void testRunJob() throws InterruptedException{
-		Long executionId = restTemplate.postForObject("http://localhost:8080/batch/operations/jobs/simpleJob", "",Long.class);
-		while (!restTemplate.getForObject("http://localhost:8080/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+		Long executionId = restTemplate.postForObject("http://localhost:8090/batch/operations/jobs/simpleJob", "",Long.class);
+		while (!restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
 			Thread.sleep(1000);
 		}
-		String log = restTemplate.getForObject("http://localhost:8080/batch/operations/jobs/executions/{executionId}/log", String.class, executionId);
+		String log = restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}/log", String.class, executionId);
 		assertThat(log.length()>20,is(true));
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		assertThat(jobExecution.getStatus(),is(BatchStatus.COMPLETED));
-		String jobExecutionString = restTemplate.getForObject("http://localhost:8080/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
+		String jobExecutionString = restTemplate.getForObject("http://localhost:8090/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"),is(true));
 	}
 
 	@Test
 	public void testGetJobNames(){
 		@SuppressWarnings("unchecked")
-		List<String> jobNames = restTemplate.getForObject("http://localhost:8080/batch/monitoring/jobs", List.class);
+		List<String> jobNames = restTemplate.getForObject("http://localhost:8090/batch/monitoring/jobs", List.class);
 		assertThat(jobNames.contains("simpleJob"), is(true));
 	}
 	
