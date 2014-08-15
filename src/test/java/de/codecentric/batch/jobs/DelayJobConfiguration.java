@@ -23,12 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import de.codecentric.batch.item.DelayItemProcessor;
 import de.codecentric.batch.item.DummyItemReader;
-import de.codecentric.batch.item.LogItemProcessor;
 import de.codecentric.batch.item.LogItemWriter;
 
 @Configuration
-public class SimpleJobConfiguration {
+public class DelayJobConfiguration {
 	
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
@@ -37,8 +37,8 @@ public class SimpleJobConfiguration {
 	private StepBuilderFactory stepBuilderFactory;
 	
 	@Bean
-	public Job simpleJob(){
-		return jobBuilderFactory.get("simpleJob")
+	public Job delayJob(){
+		return jobBuilderFactory.get("delayJob")
 				.start(step())
 				.build();
 	}
@@ -59,8 +59,8 @@ public class SimpleJobConfiguration {
 	}
 
 	@Bean
-	public LogItemProcessor processor() {
-		return new LogItemProcessor();
+	public DelayItemProcessor processor() {
+		return new DelayItemProcessor();
 	}
 
 	@Bean

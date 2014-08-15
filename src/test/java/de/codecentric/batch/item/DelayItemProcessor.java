@@ -17,33 +17,22 @@ package de.codecentric.batch.item;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemProcessor;
+
 
 /**
- * {@link ItemReader} with hard-coded input data.
+ * Dummy {@link ItemProcessor} which waits some time before proceeding.
+ * 
+ * @author Tobias Flohre
  */
-public class DummyItemReader implements ItemReader<String> {
+public class DelayItemProcessor implements ItemProcessor<String,String> {
+
+	private static final Log log = LogFactory.getLog(DelayItemProcessor.class);
 	
-	private static final Log log = LogFactory.getLog(DummyItemReader.class);
-	
-	private String[] input = {"Good", "morning!","This","is","your","ItemReader","speaking!"};
-	
-	private int index = 0;
-	
-	/**
-	 * Reads next record from input
-	 */
-	public String read() throws Exception {
-		String item = null;
-		if (index < input.length) {
-			item = input[index++];
-			log.info(item);
-			return item;
-		}
-		else {
-			return null;
-		}
-		
+	public String process(String item) throws Exception {
+		log.info(item);
+		Thread.sleep(1000);
+		return item;
 	}
 
 }

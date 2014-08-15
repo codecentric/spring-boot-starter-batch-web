@@ -36,7 +36,8 @@ import org.springframework.web.client.RestTemplate;
 import de.codecentric.batch.TestApplication;
 
 /**
- * This test class starts a JSR-352 type batch job and tests several endpoints.
+ * This test class starts a batch job that needs some time to finish. It tests the endpoints monitoring running jobs and then
+ * stops the job.
  * 
  * @author Tobias Flohre
  */
@@ -44,7 +45,7 @@ import de.codecentric.batch.TestApplication;
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
 @IntegrationTest
-public class Jsr352IntegrationTest {
+public class StopJobIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
 	
@@ -53,23 +54,26 @@ public class Jsr352IntegrationTest {
 	
 	@Test
 	public void testRunJob() throws InterruptedException{
-		Long executionId = restTemplate.postForObject("http://localhost:8080/batch/operations/jobs/simpleJsr352Job", "",Long.class);
-		while (!restTemplate.getForObject("http://localhost:8080/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
-			Thread.sleep(1000);
-		}
-		String log = restTemplate.getForObject("http://localhost:8080/batch/operations/jobs/executions/{executionId}/log", String.class, executionId);
-		assertThat(log.length()>20,is(true));
+		Long executionId = restTemplate.postForObject("http://localhost:8080/batch/operations/jobs/delayJob", "",Long.class);
+		Thread.sleep(500);
+		String runningExecutions = restTemplate.getForObject("http://localhost:8080/batch/monitoring/jobs/runningexecutions", String.class);
+		assertThat(runningExecutions.contains(executionId.toString()),is(true));
+		String runningExecutionsForDelayJob = restTemplate.getForObject("http://localhost:8080/batch/monitoring/jobs/runningexecutions/delayJob", String.class);
+		assertThat(runningExecutionsForDelayJob.contains(executionId.toString()),is(true));
+		restTemplate.delete("http://localhost:8080/batch/operations/jobs/executions/{executionId}",executionId);
+		Thread.sleep(1500);
+		
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
-		assertThat(jobExecution.getStatus(),is(BatchStatus.COMPLETED));
+		assertThat(jobExecution.getStatus(),is(BatchStatus.STOPPED));
 		String jobExecutionString = restTemplate.getForObject("http://localhost:8080/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
-		assertThat(jobExecutionString.contains("COMPLETED"),is(true));
+		assertThat(jobExecutionString.contains("STOPPED"),is(true));
 	}
 
 	@Test
 	public void testGetJobNames(){
 		@SuppressWarnings("unchecked")
 		List<String> jobNames = restTemplate.getForObject("http://localhost:8080/batch/monitoring/jobs", List.class);
-		assertThat(jobNames.contains("simpleJsr352Job"), is(true));
+		assertThat(jobNames.contains("delayJob"), is(true));
 	}
 	
 }
