@@ -18,3 +18,5 @@ There are the following samples available:
 [batch-boot-simple](https://github.com/codecentric/spring-samples/tree/master/batch-boot-simple): a very simple JavaConfig sample with an embedded database.
 
 [batch-boot-file-to-db](https://github.com/codecentric/spring-samples/tree/master/batch-boot-file-to-db): a job configured in xml using job parameters that reads from a file and writes to a database. This sample demonstrates the usage of an external database.
+
+[batch-boot-simple-jsr352](https://github.com/codecentric/spring-samples/tree/master/batch-boot-simple-jsr352): job samples in JSR-352 style.
