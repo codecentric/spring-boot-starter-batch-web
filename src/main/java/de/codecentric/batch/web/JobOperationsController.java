@@ -209,7 +209,7 @@ public class JobOperationsController {
 		}
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		if (jobExecution != null){
-			return jobExecution.getStatus().toString();
+			return jobExecution.getExitStatus().getExitCode().toString();
 		} else {
 			throw new NoSuchJobExecutionException("JobExecution with id "+executionId+" not found.");
 		}
