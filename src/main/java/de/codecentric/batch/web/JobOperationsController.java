@@ -89,9 +89,9 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
  * </ul></li>
  * 
- * <li>Retrieving an JobExecution's BatchStatus<br>
+ * <li>Retrieving an JobExecution's ExitCode<br>
  * {base_url}/jobs/executions/{executionId} / GET<br>
- * On success, it returns the BatchStatus of the JobExecution specified by the executionId as a plain string.<br>
+ * On success, it returns the ExitCode of the JobExecution specified by the executionId as a plain string.<br>
  * On failure, it returns the message of the Exception as a plain string. There are different failure 
  * possibilities:
  * <ul>
@@ -205,11 +205,11 @@ public class JobOperationsController {
 	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.GET)
 	public String getStatus(@PathVariable long executionId) throws NoSuchJobExecutionException {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Get BatchStatus for JobExecution with id: " + executionId+".");
+			LOG.debug("Get ExitCode for JobExecution with id: " + executionId+".");
 		}
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		if (jobExecution != null){
-			return jobExecution.getExitStatus().getExitCode().toString();
+			return jobExecution.getExitStatus().getExitCode();
 		} else {
 			throw new NoSuchJobExecutionException("JobExecution with id "+executionId+" not found.");
 		}
