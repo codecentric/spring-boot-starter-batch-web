@@ -30,25 +30,27 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
 
 /**
  * This listener writes the job log file name to the MDC so that it can be picked up by the logging
- * framework for logging to it. It's a {@link JobExecutionListener} and a {@link StepExecutionListener}
- * because in partitioning we may have a lot of {@link StepExecution}s running in different threads.
+ * framework for logging to it. It's a {@link JobExecutionListener} and a {@link StepExecutionListener} because in partitioning we may have a lot of
+ * {@link StepExecution}s running in different threads.
  * Due to the fact that the afterStep - method would remove the variable from the MDC in single threaded
  * execution we need to re-set it, that's what's the {@link LoggingAfterJobListener} is for.
- * Note that, off the three local parallelization features in Spring Batch, log file separation only 
+ * Note that, off the three local parallelization features in Spring Batch, log file separation only
  * works for partitioning and parallel step, not for multi-threaded step.
  * 
- * The log file name is determined by a {@link JobLogFileNameCreator}. It's default implementation
- * {@link DefaultJobLogFileNameCreator} is used when there's no other bean of this type in the 
+ * The log file name is determined by a {@link JobLogFileNameCreator}. It's default implementation {@link DefaultJobLogFileNameCreator} is used when
+ * there's no other bean of this type in the
  * ApplicationContext.
  * 
  * @author Tobias Flohre
- *
+ * 
  */
 public class LoggingListener implements JobExecutionListener, StepExecutionListener, Ordered {
-	
+
 	private JobLogFileNameCreator jobLogFileNameCreator = new DefaultJobLogFileNameCreator();
 
 	public static final String JOBLOG_FILENAME = "jobLogFileName";
+
+	public static final String JOBNAME = "jobName";
 
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
@@ -57,6 +59,8 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 
 	private void insertValuesIntoMDC(JobExecution jobExecution) {
 		MDC.put(JOBLOG_FILENAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
+		// TODO Is this the right place to set the Jobname to MDC
+		MDC.put(JOBNAME, jobExecution.getJobInstance().getJobName());
 	}
 
 	@Override
@@ -84,7 +88,7 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 		return Ordered.HIGHEST_PRECEDENCE;
 	}
 
-	@Autowired(required=false)
+	@Autowired(required = false)
 	public void setJobLogFileNameCreator(JobLogFileNameCreator jobLogFileNameCreator) {
 		this.jobLogFileNameCreator = jobLogFileNameCreator;
 	}

@@ -13,7 +13,7 @@
 			<defaultValue>batch-common.log</defaultValue>
 		</discriminator>
 		<sift>
-			<appender name="${jobLogFileName}-protocol" class="ch.qos.logback.core.FileAppender">
+			<appender name="${jobLogFileName}" class="ch.qos.logback.core.FileAppender">
 				<file>${JOB_LOG_PATH}${jobLogFileName}</file>
 				<append>true</append>
 				<layout class="ch.qos.logback.classic.PatternLayout">

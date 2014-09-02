@@ -29,10 +29,11 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * This extra listener is needed, because the {@link LoggingListener} removes the variable from the MDC
  * in its afterStep method. We re-set it here at the beginning of the execution of all afterJob methods
  * of JobExecutionListeners.
+ * 
  * @see LoggingListener
  * 
  * @author Tobias Flohre
- *
+ * 
  */
 public class LoggingAfterJobListener implements JobExecutionListener, Ordered {
 
@@ -43,7 +44,9 @@ public class LoggingAfterJobListener implements JobExecutionListener, Ordered {
 	}
 
 	private void insertValuesIntoMDC(JobExecution jobExecution) {
-		MDC.put(LoggingListener.JOBLOG_FILENAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
+		MDC.put(LoggingListener.JOBNAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
+		// TODO Is this the right place to set the Jobname to MDC
+		MDC.put(LoggingListener.JOBNAME, jobExecution.getJobConfigurationName());
 	}
 
 	@Override
@@ -56,7 +59,7 @@ public class LoggingAfterJobListener implements JobExecutionListener, Ordered {
 		return Ordered.LOWEST_PRECEDENCE;
 	}
 
-	@Autowired(required=false)
+	@Autowired(required = false)
 	public void setJobLogFileNameCreator(JobLogFileNameCreator jobLogFileNameCreator) {
 		this.jobLogFileNameCreator = jobLogFileNameCreator;
 	}

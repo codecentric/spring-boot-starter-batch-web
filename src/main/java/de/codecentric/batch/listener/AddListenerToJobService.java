@@ -19,47 +19,52 @@ import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.step.AbstractStep;
 
 /**
- * This service adds listeners to jobs. 
+ * This service adds listeners to jobs.
  * 
  * @author Tobias Flohre
  */
 public class AddListenerToJobService {
-	
+
 	private boolean addProtocolListener;
 	private boolean addLoggingListener;
+	private boolean addBatchMetricsListener;
 	private ProtocolListener protocolListener;
 	private RunningExecutionTrackerListener runningExecutionTrackerListener;
 	private LoggingListener loggingListener;
 	private LoggingAfterJobListener loggingAfterJobListener;
+	private BatchMetricsListener batchMetricsListener;
 
-	public AddListenerToJobService(boolean addProtocolListener,
-			boolean addLoggingListener, ProtocolListener protocolListener,
-			RunningExecutionTrackerListener runningExecutionTrackerListener,
-			LoggingListener loggingListener,
-			LoggingAfterJobListener loggingAfterJobListener) {
+	public AddListenerToJobService(boolean addProtocolListener, boolean addLoggingListener, boolean addBatchMetricsListener,
+			ProtocolListener protocolListener, RunningExecutionTrackerListener runningExecutionTrackerListener, LoggingListener loggingListener,
+			LoggingAfterJobListener loggingAfterJobListener, BatchMetricsListener batchMetricsListener) {
 		super();
 		this.addProtocolListener = addProtocolListener;
 		this.addLoggingListener = addLoggingListener;
+		this.addBatchMetricsListener = addBatchMetricsListener;
 		this.protocolListener = protocolListener;
 		this.runningExecutionTrackerListener = runningExecutionTrackerListener;
 		this.loggingListener = loggingListener;
 		this.loggingAfterJobListener = loggingAfterJobListener;
+		this.batchMetricsListener = batchMetricsListener;
 	}
 
-	public void addListenerToJob(AbstractJob job){
-		if (addProtocolListener){
+	public void addListenerToJob(AbstractJob job) {
+		if (addProtocolListener) {
 			job.registerJobExecutionListener(protocolListener);
 		}
+		if (addBatchMetricsListener) {
+			job.registerJobExecutionListener(batchMetricsListener);
+		}
 		job.registerJobExecutionListener(runningExecutionTrackerListener);
-		if (addLoggingListener){
+		if (addLoggingListener) {
 			job.registerJobExecutionListener(loggingListener);
 			job.registerJobExecutionListener(loggingAfterJobListener);
-			for (String stepName: job.getStepNames()){
-				AbstractStep step = (AbstractStep)job.getStep(stepName);
+			for (String stepName : job.getStepNames()) {
+				AbstractStep step = (AbstractStep) job.getStep(stepName);
 				step.registerStepExecutionListener(loggingListener);
 			}
 		}
-		
+
 	}
 
 }
