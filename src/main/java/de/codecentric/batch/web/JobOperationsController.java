@@ -21,6 +21,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.batch.operations.JobExecutionAlreadyCompleteException;
 import javax.batch.operations.JobStartException;
@@ -31,7 +34,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
+import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersIncrementer;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.UnexpectedJobExecutionException;
 import org.springframework.batch.core.configuration.JobRegistry;
@@ -43,6 +49,7 @@ import org.springframework.batch.core.launch.JobExecutionNotRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyExistsException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.launch.JobParametersNotFoundException;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
@@ -158,7 +165,7 @@ public class JobOperationsController {
 	}
 
 	@RequestMapping(value = "/jobs/{jobName}", method = RequestMethod.POST)
-	public String launch(@PathVariable String jobName, @RequestParam MultiValueMap<String, String> payload) throws NoSuchJobException, JobInstanceAlreadyExistsException, JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
+	public String launch(@PathVariable String jobName, @RequestParam MultiValueMap<String, String> payload) throws NoSuchJobException, JobInstanceAlreadyExistsException, JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersNotFoundException {
 		String parameters = payload.getFirst(JOB_PARAMETERS);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Attempt to start job with name " + jobName + " and parameters "+parameters+".");
@@ -181,7 +188,7 @@ public class JobOperationsController {
 		}
 	}
 	
-	private JobParameters createJobParametersWithIncrementerIfAvailable(String parameters, Job job) {
+	private JobParameters createJobParametersWithIncrementerIfAvailable(String parameters, Job job) throws JobParametersNotFoundException {
 		JobParameters jobParameters = jobParametersConverter.getJobParameters(PropertiesConverter.stringToProperties(parameters));
 		// use JobParametersIncrementer to create JobParameters if incrementer is set and only if the job is no restart
 		if (job.getJobParametersIncrementer() != null){
@@ -196,11 +203,42 @@ public class JobOperationsController {
 			}
 			// if it's not a restart, create new JobParameters with the incrementer
 			if (!restart) {
-				jobParameters = job.getJobParametersIncrementer().getNext(jobParameters);
+				JobParameters nextParameters = getNextJobParameters(job);
+				Map<String, JobParameter> map = new HashMap<String, JobParameter>(nextParameters.getParameters());
+				map.putAll(jobParameters.getParameters());
+				jobParameters = new JobParameters(map);
 			}
 		}
 		return jobParameters;
 	}
+	
+	/**
+	 * Borrowed from CommandLineJobRunner.
+	 * @param job the job that we need to find the next parameters for
+	 * @return the next job parameters if they can be located
+	 * @throws JobParametersNotFoundException if there is a problem
+	 */
+	private JobParameters getNextJobParameters(Job job) throws JobParametersNotFoundException {
+		String jobIdentifier = job.getName();
+		JobParameters jobParameters;
+		List<JobInstance> lastInstances = jobExplorer.getJobInstances(jobIdentifier, 0, 1);
+
+		JobParametersIncrementer incrementer = job.getJobParametersIncrementer();
+
+		if (lastInstances.isEmpty()) {
+			jobParameters = incrementer.getNext(new JobParameters());
+			if (jobParameters == null) {
+				throw new JobParametersNotFoundException("No bootstrap parameters found from incrementer for job="
+						+ jobIdentifier);
+			}
+		}
+		else {
+			List<JobExecution> lastExecutions = jobExplorer.getJobExecutions(lastInstances.get(0));
+			jobParameters = incrementer.getNext(lastExecutions.get(0).getJobParameters());
+		}
+		return jobParameters;
+	}
+
 
 	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.GET)
 	public String getStatus(@PathVariable long executionId) throws NoSuchJobExecutionException {
@@ -258,6 +296,13 @@ public class JobOperationsController {
 	@ExceptionHandler({NoSuchJobException.class, NoSuchJobExecutionException.class, JobStartException.class})
 	public String handleNotFound(Exception ex) {
 		LOG.warn("Job or JobExecution not found.",ex);
+	    return ex.getMessage();
+	}
+
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	@ExceptionHandler(JobParametersNotFoundException.class)
+	public String handleNoBootstrapParametersCreatedByIncrementer(Exception ex) {
+		LOG.warn("JobParametersIncrementer didn't provide bootstrap parameters.",ex);
 	    return ex.getMessage();
 	}
 
