@@ -15,15 +15,29 @@
  */
 package de.codecentric.batch.listener;
 
+import java.util.Set;
+
+import org.springframework.batch.core.JobExecutionListener;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.step.AbstractStep;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import de.codecentric.batch.configuration.ListenerProvider;
 
 /**
- * This service adds listeners to jobs. 
+ * This service adds listeners to jobs. Listeners provided by beans implementing
+ * ListenerProvider are added automatically.
  * 
  * @author Tobias Flohre
  */
 public class AddListenerToJobService {
+	
+	/**
+	 * All beans implementing ListenerProvider are injected here.
+	 */
+	@Autowired(required=false)
+	private Set<ListenerProvider> listenerProviders;
 	
 	private boolean addProtocolListener;
 	private boolean addLoggingListener;
@@ -59,7 +73,23 @@ public class AddListenerToJobService {
 				step.registerStepExecutionListener(loggingListener);
 			}
 		}
-		
+		if (listenerProviders != null){
+			for (ListenerProvider listenerProvider: listenerProviders){
+				for (JobExecutionListener jobExecutionListener: listenerProvider.jobExecutionListeners()){
+					job.registerJobExecutionListener(jobExecutionListener);
+				}
+				for (StepExecutionListener stepExecutionListener: listenerProvider.stepExecutionListeners()){
+					for (String stepName: job.getStepNames()){
+						AbstractStep step = (AbstractStep)job.getStep(stepName);
+						step.registerStepExecutionListener(stepExecutionListener);
+					}
+				}
+			}
+		}
+	}
+	
+	public void setListenerProviders(Set<ListenerProvider> listenerProviders){
+		this.listenerProviders = listenerProviders;
 	}
 
 }

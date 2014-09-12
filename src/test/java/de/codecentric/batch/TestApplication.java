@@ -18,6 +18,7 @@ package de.codecentric.batch;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Application for integration testing.
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableAutoConfiguration
+@Import(TestListenerConfiguration.class)
 public class TestApplication {
 
     public static void main(String[] args) {
