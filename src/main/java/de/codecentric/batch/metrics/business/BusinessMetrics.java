@@ -21,12 +21,13 @@ package de.codecentric.batch.metrics.business;
  * 
  * All metric names get the prefix 'batch.{jobName}.{jobExecutionId}.' in addition to other prefixes. 
  * For example, when using the {@link org.springframework.boot.actuate.metrics.writer.DefaultCounterService}
- * the complete prefix will be 'counter.batch.{jobName}.{jobExecutionId}.'.
+ * the complete prefix will be 'counter.batch.{jobName}.{jobExecutionId}.'. When written to the 
+ * Job-ExecutionContext, the complete prefix is omitted.
  * 
  * There are two types of methods: non-transactional methods and transactional methods. The methods that
  * don't include 'NonTransactional' in their name are by default transaction-aware. That means that
  * their execution is delayed after a successful commit of the current transaction. If there's no 
- * current transaction, the execution of the method is omitted. The non-transactional methods are
+ * current transaction, the method is executed immediately. The non-transactional methods are
  * executed directly, no matter if there's a transaction or not.
  * 
  * How do you use this component in a batch environment?
@@ -34,6 +35,9 @@ package de.codecentric.batch.metrics.business;
  * You may inject this component into any batch artifact, a reader, processor, writer, a listener and so on.
  * Counter and gauges are held in memory as long as the job runs and will be written to the Job-ExecutionContext
  * once the job stops, successful or not. They are written to the log file as well.
+ * If the job execution is a restart of a previously failed run, the counters are the sum of both executions.
+ * Gauges are the ones from the last run.
+ * 
  * The tricky part is to decide whether the transactional or the non-transactional method should be used for
  * correct counting. This blog post series might help for better understanding how transactions in Spring Batch
  * work: https://blog.codecentric.de/en/2012/03/transactions-in-spring-batch-part-1-the-basics/.
@@ -44,16 +48,14 @@ package de.codecentric.batch.metrics.business;
  * in a chunk with a bad item, and the chunk was rolled back. If your counting doesn't get rolled back as well,
  * the metric is wrong. That's why it's so essential to have transactional metrics in Spring Batch.
  * 
- * JobExecutionListeners and StepExecutionListeners are running outside of any transaction, so the non-transactional
- * methods have to be used. The afterChunk and afterChunkError methods of the ChunkListener are running outside of
- * any transaction as well. All other batch artifacts, namely ItemReader, ItemProcessor, ItemWriter, ItemStream
- * and all item listeners are running inside the chunk's transaction, so basically you use the transactional
- * methods there. However, there are exceptions. With a job configured the default way you have a cache for the
+ * In general you should always use the transactional methods, because when there's no transaction they behave
+ * like the non-transactional methods, and when there's a transaction they are only executed when the transaction
+ * is successful. However, there are exceptions. With a job configured the default way you have a cache for the
  * read items. When there's a rollback of a chunk, the ItemReader is not re-executed. So for correct countings
  * you have to use the non-transactional methods in the ItemReader and the ItemReadListener. If you set
  * reader-transactional-queue to true for your job, the cache is not used and you have to use the transactional
  * methods in ItemReader and ItemReadListener as well. If you set processor-transactional to false for your job
- * there will be cache for the processed items as well, so you have to use the non-transactional methods in the
+ * there will be a cache for the processed items as well, so you have to use the non-transactional methods in the
  * ItemProcessor and the ItemProcessListener. And, of course, if you are counting errors in the onError-methods
  * of ItemListeners, you have to use the non-transactional methods because a rollback is going to happen afterwards.
  * If you do a filter in an ItemProcessor you have to use the non-transactional methods, because filtered items

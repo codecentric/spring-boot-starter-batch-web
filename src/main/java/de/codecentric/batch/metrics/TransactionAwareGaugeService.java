@@ -15,37 +15,42 @@
  */
 package de.codecentric.batch.metrics;
 
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 /**
  * This {@link GaugeService} delays actions until the transactions has been successfully
  * committed. If the transaction is rolled back, the changes are not applied.
- * Actions outside of transactions are ignored.
+ * Actions outside of transactions are applied immediately.
  * 
  * @author Tobias Flohre
  */
 public class TransactionAwareGaugeService extends TransactionSynchronizationAdapter implements GaugeService {
 	
 	private GaugeService delegate;
-	private ThreadLocal<MetricContainer> metricContainer;
+	private ThreadLocal<GaugeContainer> gaugeContainer;
 	private final Object serviceKey;
 
 	public TransactionAwareGaugeService(GaugeService delegate) {
 		super();
 		this.delegate = delegate;
 		this.serviceKey = new Object();
-		this.metricContainer = new ThreadLocal<MetricContainer>();
+		this.gaugeContainer = new ThreadLocal<GaugeContainer>();
 	}
 
 	@Override
 	public void submit(String metricName, double value) {
 		if (TransactionSynchronizationManager.isSynchronizationActive()){
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			metricContainer.get().gauges.put(metricName, value);
+			gaugeContainer.get().gauges.add(metricName, value);
+		} else {
+			delegate.submit(metricName, value);
 		}
 	}
 	
@@ -54,20 +59,28 @@ public class TransactionAwareGaugeService extends TransactionSynchronizationAdap
 			TransactionSynchronizationManager.bindResource(serviceKey, new StringBuffer());
 			TransactionSynchronizationManager.registerSynchronization(this);
 		}
-		if (metricContainer.get() == null){
-			metricContainer.set(new MetricContainer());
+		if (gaugeContainer.get() == null){
+			gaugeContainer.set(new GaugeContainer());
 		}
 	}
 
 	@Override
 	public void afterCompletion(int status) {
 		if (status == STATUS_COMMITTED){
-			MetricContainer currentMetricContainer = metricContainer.get();
-			for (Entry<String,Double> gauge: currentMetricContainer.gauges.entrySet()){
-				delegate.submit(gauge.getKey(),gauge.getValue());
+			GaugeContainer currentGaugeContainer = gaugeContainer.get();
+			for (Entry<String,List<Double>> gauge: currentGaugeContainer.gauges.entrySet()){
+				for (Double value: gauge.getValue()){
+					delegate.submit(gauge.getKey(),value);
+				}
 			}
 		}
-		metricContainer.remove();
+		gaugeContainer.remove();
+	}
+
+	private static class GaugeContainer {
+		
+		MultiValueMap<String, Double> gauges = new LinkedMultiValueMap<String, Double>();
+
 	}
 
 }

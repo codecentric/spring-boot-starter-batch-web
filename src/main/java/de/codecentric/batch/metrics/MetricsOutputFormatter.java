@@ -15,24 +15,16 @@
  */
 package de.codecentric.batch.metrics;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.springframework.boot.actuate.metrics.Metric;
+import org.springframework.boot.actuate.metrics.rich.RichGauge;
 
 /**
- * Contains metric actions.
- * 
  * @author Tobias Flohre
  */
-public class MetricContainer {
+public interface MetricsOutputFormatter {
 	
-	List<String> incrementations = new ArrayList<String>();
-	
-	List<String> decrementations = new ArrayList<String>();
-	
-	List<String> resets = new ArrayList<String>();
-	
-	Map<String, Double> gauges = new HashMap<String, Double>();
+	public String format(List<RichGauge> gauges, List<Metric<?>> metrics);
 
 }

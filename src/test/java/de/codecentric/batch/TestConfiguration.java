@@ -16,6 +16,7 @@
 
 package de.codecentric.batch;
 
+import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -28,7 +29,7 @@ import de.codecentric.batch.configuration.BatchWebAutoConfiguration;
 
 @Configuration
 @Import({ BatchWebAutoConfiguration.class, DataSourceAutoConfiguration.class, BatchAutoConfiguration.class,
-		PropertyPlaceholderAutoConfiguration.class, AutomaticJobRegistrarConfiguration.class })
+		PropertyPlaceholderAutoConfiguration.class, AutomaticJobRegistrarConfiguration.class,  MetricRepositoryAutoConfiguration.class})
 @PropertySource("application.properties")
 public class TestConfiguration {
 

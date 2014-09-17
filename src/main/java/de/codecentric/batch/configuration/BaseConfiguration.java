@@ -23,6 +23,9 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
+import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 
@@ -59,6 +62,14 @@ public class BaseConfiguration {
 	// a TaskExecutor instance has to be provided somehow.
 	@Autowired
 	private TaskExecutor taskExecutor;
+	
+	// Created by spring-boot-starter-actuator in MetricRepositoryAutoConfiguration.
+	@Autowired
+	private CounterService counterService;
+	@Autowired(required=false)
+	private GaugeService gaugeService;
+	@Autowired
+	private MetricRepository metricRepository;
 
 	public JobOperator jobOperator() {
 		return jobOperator;
@@ -81,6 +92,14 @@ public class BaseConfiguration {
 	public TaskExecutor taskExecutor() {
 		return taskExecutor;
 	}
-
+	public CounterService counterService() {
+		return counterService;
+	}
+	public GaugeService gaugeService() {
+		return gaugeService;
+	}
+	public MetricRepository metricRepository(){
+		return metricRepository;
+	}
 	
 }

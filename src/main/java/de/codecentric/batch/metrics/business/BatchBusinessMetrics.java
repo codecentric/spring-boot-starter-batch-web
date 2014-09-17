@@ -16,8 +16,6 @@
 package de.codecentric.batch.metrics.business;
 
 import org.slf4j.MDC;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 
@@ -26,11 +24,11 @@ import de.codecentric.batch.metrics.TransactionAwareCounterService;
 import de.codecentric.batch.metrics.TransactionAwareGaugeService;
 
 /**
- * This component allows to do counting of business data.
+ * See {@link BusinessMetrics} for documentation.
  * 
  * @author Tobias Flohre
  */
-public class BatchBusinessMetrics extends JobExecutionListenerSupport implements BusinessMetrics {
+public class BatchBusinessMetrics implements BusinessMetrics {
 	
 	private CounterService counterService;
 	private GaugeService gaugeService;
@@ -43,11 +41,6 @@ public class BatchBusinessMetrics extends JobExecutionListenerSupport implements
 		this.gaugeService = gaugeService;
 		this.transactionAwareCounterService = new TransactionAwareCounterService(counterService);
 		this.transactionAwareGaugeService = new TransactionAwareGaugeService(gaugeService);
-	}
-
-	@Override
-	public void afterJob(JobExecution jobExecution) {
-		
 	}
 
 	@Override

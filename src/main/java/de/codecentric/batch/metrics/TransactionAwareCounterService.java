@@ -15,6 +15,9 @@
  */
 package de.codecentric.batch.metrics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -22,28 +25,30 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 /**
  * This {@link CounterService} delays actions until the transactions has been successfully
  * committed. If the transaction is rolled back, the changes are not applied.
- * Counting outside of transactions is ignored.
+ * Actions outside of transactions are applied immediately.
  * 
  * @author Tobias Flohre
  */
 public class TransactionAwareCounterService extends TransactionSynchronizationAdapter implements CounterService {
 	
 	private CounterService delegate;
-	private ThreadLocal<MetricContainer> metricContainer;
+	private ThreadLocal<CounterContainer> counterContainer;
 	private final Object serviceKey;
 
 	public TransactionAwareCounterService(CounterService delegate) {
 		super();
 		this.delegate = delegate;
 		this.serviceKey = new Object();
-		this.metricContainer = new ThreadLocal<MetricContainer>();
+		this.counterContainer = new ThreadLocal<CounterContainer>();
 	}
 
 	@Override
 	public void increment(String metricName) {
 		if (TransactionSynchronizationManager.isSynchronizationActive()){
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			metricContainer.get().incrementations.add(metricName);
+			counterContainer.get().incrementations.add(metricName);
+		} else {
+			delegate.increment(metricName);
 		}
 	}
 
@@ -52,8 +57,8 @@ public class TransactionAwareCounterService extends TransactionSynchronizationAd
 			TransactionSynchronizationManager.bindResource(serviceKey, new StringBuffer());
 			TransactionSynchronizationManager.registerSynchronization(this);
 		}
-		if (metricContainer.get() == null){
-			metricContainer.set(new MetricContainer());
+		if (counterContainer.get() == null){
+			counterContainer.set(new CounterContainer());
 		}
 	}
 
@@ -61,7 +66,9 @@ public class TransactionAwareCounterService extends TransactionSynchronizationAd
 	public void decrement(String metricName) {
 		if (TransactionSynchronizationManager.isSynchronizationActive()){
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			metricContainer.get().decrementations.add(metricName);
+			counterContainer.get().decrementations.add(metricName);
+		} else {
+			delegate.decrement(metricName);
 		}
 	}
 
@@ -69,25 +76,36 @@ public class TransactionAwareCounterService extends TransactionSynchronizationAd
 	public void reset(String metricName) {
 		if (TransactionSynchronizationManager.isSynchronizationActive()){
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			metricContainer.get().resets.add(metricName);
+			counterContainer.get().resets.add(metricName);
+		} else {
+			delegate.reset(metricName);
 		}
 	}
 
 	@Override
 	public void afterCompletion(int status) {
 		if (status == STATUS_COMMITTED){
-			MetricContainer currentMetricContainer = metricContainer.get();
-			for (String incrementation: currentMetricContainer.incrementations){
+			CounterContainer currentCounterContainer = counterContainer.get();
+			for (String incrementation: currentCounterContainer.incrementations){
 				delegate.increment(incrementation);
 			}
-			for (String decrementation: currentMetricContainer.decrementations){
+			for (String decrementation: currentCounterContainer.decrementations){
 				delegate.decrement(decrementation);
 			}
-			for (String reset: currentMetricContainer.resets){
+			for (String reset: currentCounterContainer.resets){
 				delegate.reset(reset);
 			}
 		}
-		metricContainer.remove();
+		counterContainer.remove();
 	}
+	
+	private static class CounterContainer {
+		
+		List<String> incrementations = new ArrayList<String>();
+		List<String> decrementations = new ArrayList<String>();
+		List<String> resets = new ArrayList<String>();
+		
+	}
+
 	
 }
