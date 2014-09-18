@@ -66,7 +66,7 @@ public class MetricsListener extends JobExecutionListenerSupport implements Orde
 			if (metric.getName().startsWith("counter.batch." + jobExecutionIdentifier)) {
 				if (metric.getValue() instanceof Long){
 					// "batch."+ jobExecutionIdentifier is removed from the key before insertion in Job-ExecutionContext
-					String key = "counter"+metric.getName().substring(("counter.batch." + jobExecutionIdentifier).length());
+					String key = metric.getName().substring(("counter.batch." + jobExecutionIdentifier).length()+1);
 					// Values from former failed JobExecution runs are added
 					Long newValue = (Long)metric.getValue();
 					if (jobExecution.getExecutionContext().containsKey(key)){
@@ -91,7 +91,7 @@ public class MetricsListener extends JobExecutionListenerSupport implements Orde
 		for (RichGauge gauge : richGaugeRepository.findAll()) {
 			if (gauge.getName().startsWith("gauge.batch." + jobExecutionIdentifier)) {
 				// "batch."+ jobExecutionIdentifier is removed from the key before insertion in Job-ExecutionContext
-				jobExecution.getExecutionContext().put("gauge"+gauge.getName().substring(("gauge.batch." + jobExecutionIdentifier).length()), gauge);
+				jobExecution.getExecutionContext().put(gauge.getName().substring(("gauge.batch." + jobExecutionIdentifier).length()+1), gauge);
 				gauges.add(gauge);
 				if (deleteMetricsOnJobFinish){
 					richGaugeRepository.reset(gauge.getName());

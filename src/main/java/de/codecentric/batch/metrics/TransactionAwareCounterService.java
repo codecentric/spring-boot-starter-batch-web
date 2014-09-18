@@ -97,6 +97,9 @@ public class TransactionAwareCounterService extends TransactionSynchronizationAd
 			}
 		}
 		counterContainer.remove();
+		if (TransactionSynchronizationManager.hasResource(serviceKey)) {
+			TransactionSynchronizationManager.unbindResource(serviceKey);
+		}
 	}
 	
 	private static class CounterContainer {

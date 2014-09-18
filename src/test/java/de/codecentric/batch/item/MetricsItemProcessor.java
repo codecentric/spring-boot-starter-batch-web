@@ -37,7 +37,7 @@ public class MetricsItemProcessor implements ItemProcessor<String,String> {
 
 	public String process(String item) throws Exception {
 		log.info(item);
-		businessMetrics.incrementNonTransactional("processor");
+		businessMetrics.increment("processor");
 		return item;
 	}
 
