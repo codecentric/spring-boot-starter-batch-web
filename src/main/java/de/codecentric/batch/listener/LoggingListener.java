@@ -34,7 +34,7 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * {@link StepExecution}s running in different threads.
  * Due to the fact that the afterStep - method would remove the variable from the MDC in single threaded
  * execution we need to re-set it, that's what's the {@link LoggingAfterJobListener} is for.
- * Note that, off the three local parallelization features in Spring Batch, log file separation only
+ * Note that, of the three local parallelization features in Spring Batch, log file separation only 
  * works for partitioning and parallel step, not for multi-threaded step.
  * 
  * The log file name is determined by a {@link JobLogFileNameCreator}. It's default implementation {@link DefaultJobLogFileNameCreator} is used when
@@ -49,8 +49,7 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 	private JobLogFileNameCreator jobLogFileNameCreator = new DefaultJobLogFileNameCreator();
 
 	public static final String JOBLOG_FILENAME = "jobLogFileName";
-
-	public static final String JOBNAME = "jobName";
+	public static final String JOB_EXECUTION_IDENTIFIER = "jobExecutionIdentifier";
 
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
@@ -59,8 +58,7 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 
 	private void insertValuesIntoMDC(JobExecution jobExecution) {
 		MDC.put(JOBLOG_FILENAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
-		// TODO Is this the right place to set the Jobname to MDC
-		MDC.put(JOBNAME, jobExecution.getJobInstance().getJobName());
+		MDC.put(JOB_EXECUTION_IDENTIFIER, jobExecution.getJobInstance().getJobName()+"."+jobExecution.getId());
 	}
 
 	@Override
@@ -70,6 +68,7 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 
 	private void removeValuesFromMDC() {
 		MDC.remove(JOBLOG_FILENAME);
+		MDC.remove(JOB_EXECUTION_IDENTIFIER);
 	}
 
 	@Override

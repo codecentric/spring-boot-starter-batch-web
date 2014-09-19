@@ -27,6 +27,17 @@ public class BatchMetricsAspects {
 	public BatchMetricsAspects(GaugeService gaugeService) {
 		this.gaugeService = gaugeService;
 	}
+	
+	@Around("execution(* org.springframework.batch.core.step.item.FaultTolerantChunkProcessor.process(..))")
+	public Object profileChunk(ProceedingJoinPoint pjp) throws Throwable {
+		StopWatch stopWatch = startStopWatch();
+		try {
+			return pjp.proceed();
+		} finally {
+			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".process",
+					getTotalTimeMillis(stopWatch));
+		}
+	}
 
 	@Around("execution(* org.springframework.batch.item.ItemReader.read(..))")
 	public Object profileReadMethods(ProceedingJoinPoint pjp) throws Throwable {
@@ -34,7 +45,7 @@ public class BatchMetricsAspects {
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit("gauge.duration.batch.jobs." + getJobName() + ".read." + ClassUtils.getShortName(pjp.getTarget().getClass()),
+			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".read",
 					getTotalTimeMillis(stopWatch));
 		}
 	}
@@ -45,7 +56,7 @@ public class BatchMetricsAspects {
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit("gauge.duration.batch.jobs." + getJobName() + ".process." + ClassUtils.getShortName(pjp.getTarget().getClass()),
+			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".process",
 					getTotalTimeMillis(stopWatch));
 		}
 	}
@@ -56,7 +67,7 @@ public class BatchMetricsAspects {
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit("gauge.duration.batch.jobs." + getJobName() + ".write." + ClassUtils.getShortName(pjp.getTarget().getClass()),
+			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".write",
 					getTotalTimeMillis(stopWatch));
 		}
 	}
@@ -73,8 +84,8 @@ public class BatchMetricsAspects {
 		return stopWatch;
 	}
 
-	private String getJobName() {
-		String jobName = MDC.get(LoggingListener.JOBNAME);
+	private String getJobIdentifier() {
+		String jobName = MDC.get(LoggingListener.JOB_EXECUTION_IDENTIFIER);
 		if (jobName == null) {
 			LOG.warn("Jobname could not be read from MDC.");
 			jobName = "unknown";

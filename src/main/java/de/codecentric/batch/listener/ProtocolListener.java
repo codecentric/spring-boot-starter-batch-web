@@ -48,6 +48,10 @@ public class ProtocolListener implements JobExecutionListener, Ordered {
 		protocol.append("  Exit-Code   : "+ jobExecution.getExitStatus().getExitCode()+"\n");
 		protocol.append("  Exit-Descr. : "+ jobExecution.getExitStatus().getExitDescription()+"\n");
 		protocol.append("  Status      : "+ jobExecution.getStatus()+"\n");
+		protocol.append("  Content of Job-ExecutionContext:\n");
+		for (Entry<String,Object> entry: jobExecution.getExecutionContext().entrySet()){
+			protocol.append("    "+entry.getKey()+"="+entry.getValue()+"\n");
+		}
 		protocol.append("+++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n");
 
 		protocol.append("Job-Parameter: \n");		
@@ -57,7 +61,7 @@ public class ProtocolListener implements JobExecutionListener, Ordered {
 			protocol.append("  "+entry.getKey()+"="+entry.getValue()+"\n");
 		}
 		protocol.append("+++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n");		
-		
+
 		for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
 			protocol.append("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n");
 			protocol.append("Step " + stepExecution.getStepName() + " \n");
@@ -67,6 +71,10 @@ public class ProtocolListener implements JobExecutionListener, Ordered {
 			protocol.append("SkipCount: " + stepExecution.getSkipCount() + "\n");
 			protocol.append("Rollbacks: " + stepExecution.getRollbackCount() + "\n");
 			protocol.append("Filter: " + stepExecution.getFilterCount() + "\n");					
+			protocol.append("Content of Step-ExecutionContext:\n");
+			for (Entry<String,Object> entry: stepExecution.getExecutionContext().entrySet()){
+				protocol.append("  "+entry.getKey()+"="+entry.getValue()+"\n");
+			}
 			protocol.append("+++++++++++++++++++++++++++++++++++++++++++++++++++++++ \n");
 		}
 		LOGGER.info(protocol.toString());

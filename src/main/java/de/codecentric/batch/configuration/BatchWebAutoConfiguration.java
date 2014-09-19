@@ -33,7 +33,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 
 import de.codecentric.batch.listener.AddListenerToJobService;
-import de.codecentric.batch.listener.BatchMetricsListener;
 import de.codecentric.batch.listener.LoggingAfterJobListener;
 import de.codecentric.batch.listener.LoggingListener;
 import de.codecentric.batch.listener.ProtocolListener;
@@ -63,8 +62,7 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
-@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class,
-		Jsr352BatchConfiguration.class })
+@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class, Jsr352BatchConfiguration.class, MetricsConfiguration.class})
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	@Autowired
@@ -107,16 +105,6 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	}
 
 	@Bean
-	public BatchMetricsListener batchMetricsListener() {
-		return new BatchMetricsListener(richGaugeRepository);
-	}
-
-	@Bean
-	public BatchMetricsAspects batchMetricsAspects() {
-		return new BatchMetricsAspects(gaugeService);
-	}
-
-	@Bean
 	public AddListenerToJobService addListenerToJobService(){
 		boolean addProtocolListener = env.getProperty("batch.defaultprotocol.enabled", boolean.class, true);
 		boolean addLoggingListener = env.getProperty("batch.logfileseparation.enabled", boolean.class, true);
@@ -140,13 +128,4 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 		return Ordered.LOWEST_PRECEDENCE;
 	}
 
-	@Configuration
-	static class BatchMetricsConfiguration {
-
-		@Bean
-		public RichGaugeRepository richGaugeRepository() {
-			return new InMemoryRichGaugeRepository();
-		}
-
-	}
 }
