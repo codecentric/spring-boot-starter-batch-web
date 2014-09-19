@@ -44,8 +44,7 @@ public class LoggingAfterJobListener implements JobExecutionListener, Ordered {
 	}
 
 	private void insertValuesIntoMDC(JobExecution jobExecution) {
-		MDC.put(LoggingListener.JOBNAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
-		// TODO Is this the right place to set the Jobname to MDC
+		MDC.put(LoggingListener.JOBLOG_FILENAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
 		MDC.put(LoggingListener.JOBNAME, jobExecution.getJobConfigurationName());
 	}
 
