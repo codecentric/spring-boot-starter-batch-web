@@ -117,12 +117,10 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	}
 
 	@Bean
-	public AddListenerToJobService addListenerToJobService() {
+	public AddListenerToJobService addListenerToJobService(){
 		boolean addProtocolListener = env.getProperty("batch.defaultprotocol.enabled", boolean.class, true);
 		boolean addLoggingListener = env.getProperty("batch.logfileseparation.enabled", boolean.class, true);
-		boolean addBatchMetricsListener = env.getProperty("batch.batchmetrics.enabled", boolean.class, true);
-		return new AddListenerToJobService(addProtocolListener, addLoggingListener, addBatchMetricsListener, protocolListener(),
-				runningExecutionTrackerListener(), loggingListener(), loggingAfterJobListener(), batchMetricsListener());
+		return new AddListenerToJobService(addProtocolListener, addLoggingListener, protocolListener(), runningExecutionTrackerListener(), loggingListener(), loggingAfterJobListener());
 	}
 
 	@Override
