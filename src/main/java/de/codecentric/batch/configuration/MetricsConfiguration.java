@@ -33,7 +33,8 @@ import de.codecentric.batch.metrics.MetricsListener;
 import de.codecentric.batch.metrics.business.BatchBusinessMetrics;
 
 /**
- * 
+ * Configuration containing all metrics stuff. Can be activated by setting the property
+ * batch.metrics.enabled to true.
  * 
  * @author Tobias Flohre
  */

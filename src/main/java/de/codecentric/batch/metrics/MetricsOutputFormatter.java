@@ -21,6 +21,10 @@ import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.rich.RichGauge;
 
 /**
+ * Used in {@link MetricsListener} to define the format of the metrics log. A component
+ * implementing this interface may be added to the ApplicationContext to override the
+ * default behaviour.
+ * 
  * @author Tobias Flohre
  */
 public interface MetricsOutputFormatter {
