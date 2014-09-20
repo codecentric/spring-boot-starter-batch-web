@@ -20,9 +20,6 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.GaugeService;
-import org.springframework.boot.actuate.metrics.rich.InMemoryRichGaugeRepository;
-import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +34,6 @@ import de.codecentric.batch.listener.LoggingAfterJobListener;
 import de.codecentric.batch.listener.LoggingListener;
 import de.codecentric.batch.listener.ProtocolListener;
 import de.codecentric.batch.listener.RunningExecutionTrackerListener;
-import de.codecentric.batch.metrics.BatchMetricsAspects;
 import de.codecentric.batch.monitoring.RunningExecutionTracker;
 
 /**
@@ -70,12 +66,6 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 
 	@Autowired
 	private BaseConfiguration baseConfig;
-
-	@Autowired
-	private GaugeService gaugeService;
-
-	@Autowired
-	private RichGaugeRepository richGaugeRepository;
 
 	// ################### Listeners automatically added to each job #################################
 
