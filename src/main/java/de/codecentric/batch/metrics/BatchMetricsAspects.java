@@ -28,13 +28,13 @@ public class BatchMetricsAspects {
 		this.gaugeService = gaugeService;
 	}
 	
-	@Around("execution(* org.springframework.batch.core.step.item.ChunkProcessor.process(..))")
+	@Around("execution(* org.springframework.batch.core.step.tasklet.Tasklet.execute(..))")
 	public Object profileChunk(ProceedingJoinPoint pjp) throws Throwable {
 		StopWatch stopWatch = startStopWatch();
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".process",
+			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".execute",
 					getTotalTimeMillis(stopWatch));
 		}
 	}
