@@ -33,6 +33,17 @@ import org.springframework.core.Ordered;
 import de.codecentric.batch.listener.LoggingListener;
 
 /**
+ * This listener exports all metrics with the prefix 'counter.batch.{jobName}.{jobExecutionId}
+ * and all gauges with the prefix 'gauge.batch.{jobName}.{jobExecutionId}' to the Job-
+ * ExecutionContext without the prefix. All metrics and gauges are logged as well. For
+ * overriding the default format of the logging a component implementing {@link MetricsOutputFormatter}
+ * may be added to the ApplicationContext.
+ * 
+ * If deleteMetricsOnJobFinish is true, all metrics will be removed from Spring Boot's metric
+ * framework when the job finishes and the metrics are written to the Job-ExecutionContext.
+ * 
+ * Counters are cumulated over several JobExecutions belonging to one JobInstance.
+ * 
  * @author Tobias Flohre
  */
 public class MetricsListener extends JobExecutionListenerSupport implements Ordered{
@@ -124,7 +135,7 @@ public class MetricsListener extends JobExecutionListenerSupport implements Orde
 
 	@Override
 	public int getOrder() {
-		return 0;
+		return Ordered.LOWEST_PRECEDENCE-1;
 	}
 
 }
