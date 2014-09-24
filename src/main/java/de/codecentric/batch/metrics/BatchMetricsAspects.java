@@ -28,7 +28,7 @@ public class BatchMetricsAspects {
 		this.gaugeService = gaugeService;
 	}
 	
-	@Around("execution(* org.springframework.batch.core.step.tasklet.Tasklet.execute(..))")
+	@Around("execution(* org.springframework.batch.core.step.item.ChunkOrientedTasklet.execute(..))")
 	public Object profileChunk(ProceedingJoinPoint pjp) throws Throwable {
 		StopWatch stopWatch = startStopWatch();
 		try {
