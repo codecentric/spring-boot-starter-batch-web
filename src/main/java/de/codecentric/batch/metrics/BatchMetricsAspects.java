@@ -27,17 +27,6 @@ public class BatchMetricsAspects {
 	public BatchMetricsAspects(GaugeService gaugeService) {
 		this.gaugeService = gaugeService;
 	}
-	
-	@Around("execution(* org.springframework.batch.core.step.item.ChunkOrientedTasklet.execute(..))")
-	public Object profileChunk(ProceedingJoinPoint pjp) throws Throwable {
-		StopWatch stopWatch = startStopWatch();
-		try {
-			return pjp.proceed();
-		} finally {
-			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".execute",
-					getTotalTimeMillis(stopWatch));
-		}
-	}
 
 	@Around("execution(* org.springframework.batch.item.ItemReader.read(..))")
 	public Object profileReadMethods(ProceedingJoinPoint pjp) throws Throwable {
