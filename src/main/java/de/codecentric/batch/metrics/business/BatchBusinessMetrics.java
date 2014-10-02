@@ -84,8 +84,7 @@ public class BatchBusinessMetrics implements BusinessMetrics {
 	}
 	
 	private String wrap(String metricName) {
-		MDC.get(LoggingListener.JOB_EXECUTION_IDENTIFIER);
-		return "batch." + MDC.get(LoggingListener.JOB_EXECUTION_IDENTIFIER) + "." + metricName;
+		return "batch." + MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER) + "." + metricName;
 	}
 
 }

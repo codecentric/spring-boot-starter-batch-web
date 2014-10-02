@@ -56,19 +56,19 @@ public class MetricsConfiguration implements ListenerProvider{
 	
 	@Bean
 	public MetricsListener metricsListener(){
-		return new MetricsListener(richGaugeRepository,baseConfig.metricRepository(), env.getProperty("batch.metrics.deletemetricsonjobfinish", boolean.class, false));
+		return new MetricsListener(richGaugeRepository,baseConfig.metricRepository(), env.getProperty("batch.metrics.deletemetricsonstepfinish", boolean.class, true));
 	}
 
 	@Override
 	public Set<JobExecutionListener> jobExecutionListeners() {
-		Set<JobExecutionListener> listeners = new HashSet<JobExecutionListener>();
-		listeners.add(metricsListener());
-		return listeners;
+		return new HashSet<JobExecutionListener>();
 	}
 
 	@Override
 	public Set<StepExecutionListener> stepExecutionListeners() {
-		return new HashSet<StepExecutionListener>();
+		Set<StepExecutionListener> listeners = new HashSet<StepExecutionListener>();
+		listeners.add(metricsListener());
+		return listeners;
 	}
 	
 	@ConditionalOnProperty("batch.metrics.enabled")
