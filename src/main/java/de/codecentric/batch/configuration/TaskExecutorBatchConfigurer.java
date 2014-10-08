@@ -46,8 +46,8 @@ import org.springframework.transaction.PlatformTransactionManager;
  * {@link org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer}, it only
  * introduces a {@link org.springframework.core.task.TaskExecutor} used in the {@link org.springframework.batch.core.launch.support.SimpleJobLauncher}
  * for starting jobs
- * asynchronously. Its thread pool is configured to four threads by default, which can be changed
- * by setting the property batch.max.pool.size to a different number.
+ * asynchronously. Its thread pool is configured to five threads by default, which can be changed
+ * by setting the property batch.core.pool.size/batch.max.pool.size to a different number.
  * The {@link org.springframework.core.task.TaskExecutor} may also be used in job configurations
  * for multi-threaded job execution. In XML you can use it by name, which is taskExecutor. In JavaConfig,
  * you can either autowire {@link org.springframework.core.task.TaskExecutor} or, if you want to know
@@ -74,7 +74,8 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 	@Bean
 	public TaskExecutor taskExecutor() {
 		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-		taskExecutor.setMaxPoolSize(Integer.parseInt(env.getProperty("batch.max.pool.size", "4")));
+		taskExecutor.setCorePoolSize(Integer.parseInt(env.getProperty("batch.core.pool.size", "5")));
+		taskExecutor.setMaxPoolSize(Integer.parseInt(env.getProperty("batch.max.pool.size", "5")));
 		taskExecutor.afterPropertiesSet();
 		return taskExecutor;
 	}
