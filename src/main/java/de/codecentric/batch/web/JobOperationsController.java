@@ -307,7 +307,7 @@ public class JobOperationsController {
 	}
 
 	@ResponseStatus(HttpStatus.CONFLICT)
-	@ExceptionHandler({UnexpectedJobExecutionException.class, JobInstanceAlreadyExistsException.class})
+	@ExceptionHandler({UnexpectedJobExecutionException.class, JobInstanceAlreadyExistsException.class, JobInstanceAlreadyCompleteException.class})
 	public String handleAlreadyExists(Exception ex) {
 		LOG.warn("JobInstance or JobExecution already exists.",ex);
 	    return ex.getMessage();
