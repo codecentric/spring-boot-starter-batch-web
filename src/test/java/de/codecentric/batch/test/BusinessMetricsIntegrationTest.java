@@ -18,6 +18,7 @@ package de.codecentric.batch.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
@@ -53,6 +54,7 @@ public class BusinessMetricsIntegrationTest {
 	private MetricRepository metricRepository;
 	
 	@Test
+	@Ignore
 	public void testRunJob() throws InterruptedException{
 		Long executionId = restTemplate.postForObject("http://localhost:8090/batch/operations/jobs/simpleBusinessMetricsJob", "",Long.class);
 		while (!restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
@@ -65,7 +67,7 @@ public class BusinessMetricsIntegrationTest {
 		String jobExecutionString = restTemplate.getForObject("http://localhost:8090/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"),is(true));
 		//TODO the following could fail, because message collection is asynchronous
-		//assertThat((Long)metricRepository.findOne("counter.batch.simpleBusinessMetricsJob.0.processor").getValue(),is(7l));
+		assertThat((Long)metricRepository.findOne("counter.batch.simpleBusinessMetricsJob.0.processor").getValue(),is(7l));
 	}
 
 }
