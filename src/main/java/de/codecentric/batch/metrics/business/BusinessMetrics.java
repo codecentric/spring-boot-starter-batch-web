@@ -59,7 +59,8 @@ package de.codecentric.batch.metrics.business;
  * ItemProcessor and the ItemProcessListener. And, of course, if you are counting errors in the onError-methods
  * of ItemListeners, you have to use the non-transactional methods because a rollback is going to happen afterwards.
  * If you do a filter in an ItemProcessor you have to use the non-transactional methods, because filtered items
- * are removed from the item cache as well and will never be reprocessed.
+ * are removed from the item cache as well and will never be reprocessed. When using the AsyncItemProcessor there 
+ * is no filtering possible at all, because a Future-Object is always returned from the ItemProcessor. 
  * 
  * @author Tobias Flohre
  */
