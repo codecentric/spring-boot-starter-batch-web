@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
@@ -57,6 +58,7 @@ import de.codecentric.batch.metrics.MetricNames;
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
 @IntegrationTest({"batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false"})
+@Ignore
 public class BusinessMetricsFlatFileToDbIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
