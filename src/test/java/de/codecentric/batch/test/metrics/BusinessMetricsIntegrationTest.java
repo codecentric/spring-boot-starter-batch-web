@@ -42,7 +42,7 @@ import de.codecentric.batch.TestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
-@IntegrationTest("batch.metrics.enabled=true")
+@IntegrationTest({"batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false"})
 public class BusinessMetricsIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
@@ -65,7 +65,7 @@ public class BusinessMetricsIntegrationTest {
 		String jobExecutionString = restTemplate.getForObject("http://localhost:8090/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"),is(true));
 		
-		assertThat((Long)metricRepository.findOne("counter.batch.simpleBusinessMetricsJob.0.processor").getValue(),is(7l));
+		assertThat((Long)metricRepository.findOne("counter.batch.simpleBusinessMetricsJob.0.step.processor").getValue(),is(7l));
 	}
 
 }

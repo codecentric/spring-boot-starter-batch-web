@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import de.codecentric.batch.item.DummyItemReader;
 import de.codecentric.batch.item.LogItemWriter;
@@ -31,6 +32,7 @@ import de.codecentric.batch.metrics.business.BusinessMetrics;
 
 @Configuration
 @ConditionalOnProperty("batch.metrics.enabled")
+@EnableAspectJAutoProxy(proxyTargetClass=true)
 public class SimpleBusinessMetricsJobConfiguration {
 	
 	@Autowired

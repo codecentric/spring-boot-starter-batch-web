@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import de.codecentric.batch.metrics.BatchMetricsAspects;
 import de.codecentric.batch.metrics.MetricsListener;
 import de.codecentric.batch.metrics.business.BatchBusinessMetrics;
 
@@ -54,6 +55,11 @@ public class MetricsConfiguration implements ListenerProvider{
 		return new BatchBusinessMetrics(baseConfig.counterService(), baseConfig.gaugeService());
 	}
 	
+	@Bean
+	public BatchMetricsAspects batchMetricsAspects() {
+		return new BatchMetricsAspects(baseConfig.gaugeService());
+	}
+
 	@Bean
 	public MetricsListener metricsListener(){
 		return new MetricsListener(richGaugeRepository,baseConfig.metricRepository(), env.getProperty("batch.metrics.deletemetricsonstepfinish", boolean.class, true));

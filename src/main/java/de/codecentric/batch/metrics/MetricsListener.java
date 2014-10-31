@@ -51,6 +51,10 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
 	
+	public static final String GAUGE_PREFIX = "gauge.batch.";
+
+	public static final String COUNTER_PREFIX = "counter.batch.";
+
 	private RichGaugeRepository richGaugeRepository;
 	private MetricRepository metricRepository;
 	private boolean deleteMetricsOnStepFinish;
@@ -76,10 +80,10 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		String stepExecutionIdentifier = MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER);
 		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
 		for (Metric<?> metric : metricRepository.findAll()) {
-			if (metric.getName().startsWith("counter.batch." + stepExecutionIdentifier)) {
+			if (metric.getName().startsWith(COUNTER_PREFIX + stepExecutionIdentifier)) {
 				if (metric.getValue() instanceof Long){
 					// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
-					String key = metric.getName().substring(("counter.batch." + stepExecutionIdentifier).length()+1);
+					String key = metric.getName().substring((COUNTER_PREFIX + stepExecutionIdentifier).length()+1);
 					// Values from former failed StepExecution runs are added
 					Long newValue = (Long)metric.getValue();
 					if (stepExecution.getExecutionContext().containsKey(key)){
@@ -102,9 +106,9 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		String stepExecutionIdentifier = MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER);
 		List<RichGauge> gauges = new ArrayList<RichGauge>();
 		for (RichGauge gauge : richGaugeRepository.findAll()) {
-			if (gauge.getName().startsWith("gauge.batch." + stepExecutionIdentifier)) {
+			if (gauge.getName().startsWith(GAUGE_PREFIX + stepExecutionIdentifier)) {
 				// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
-				stepExecution.getExecutionContext().put(gauge.getName().substring(("gauge.batch." + stepExecutionIdentifier).length()+1), gauge);
+				stepExecution.getExecutionContext().put(gauge.getName().substring((GAUGE_PREFIX + stepExecutionIdentifier).length()+1), gauge);
 				gauges.add(gauge);
 				if (deleteMetricsOnStepFinish){
 					richGaugeRepository.reset(gauge.getName());

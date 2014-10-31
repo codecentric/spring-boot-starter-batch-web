@@ -32,7 +32,7 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * @see LoggingListener
  * 
  * @author Tobias Flohre
- *
+ * 
  */
 public class LoggingAfterJobListener implements JobExecutionListener, Ordered {
 
@@ -57,7 +57,7 @@ public class LoggingAfterJobListener implements JobExecutionListener, Ordered {
 		return Ordered.LOWEST_PRECEDENCE;
 	}
 
-	@Autowired(required=false)
+	@Autowired(required = false)
 	public void setJobLogFileNameCreator(JobLogFileNameCreator jobLogFileNameCreator) {
 		this.jobLogFileNameCreator = jobLogFileNameCreator;
 	}
