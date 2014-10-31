@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.codecentric.batch.test;
+package de.codecentric.batch.test.metrics;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
@@ -43,7 +42,7 @@ import de.codecentric.batch.TestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
-@IntegrationTest("batch.metrics.enabled=true")
+@IntegrationTest({"batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false"})
 public class BusinessMetricsIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
@@ -54,7 +53,6 @@ public class BusinessMetricsIntegrationTest {
 	private MetricRepository metricRepository;
 	
 	@Test
-	@Ignore
 	public void testRunJob() throws InterruptedException{
 		Long executionId = restTemplate.postForObject("http://localhost:8090/batch/operations/jobs/simpleBusinessMetricsJob", "",Long.class);
 		while (!restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
@@ -66,8 +64,8 @@ public class BusinessMetricsIntegrationTest {
 		assertThat(jobExecution.getStatus(),is(BatchStatus.COMPLETED));
 		String jobExecutionString = restTemplate.getForObject("http://localhost:8090/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"),is(true));
-		//TODO the following could fail, because message collection is asynchronous
-		assertThat((Long)metricRepository.findOne("counter.batch.simpleBusinessMetricsJob.0.processor").getValue(),is(7l));
+		
+		assertThat((Long)metricRepository.findOne("counter.batch.simpleBusinessMetricsJob.0.step.processor").getValue(),is(7l));
 	}
 
 }

@@ -29,7 +29,6 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * This extra listener is needed, because the {@link LoggingListener} removes the variable from the MDC
  * in its afterStep method. We re-set it here at the beginning of the execution of all afterJob methods
  * of JobExecutionListeners.
- * 
  * @see LoggingListener
  * 
  * @author Tobias Flohre

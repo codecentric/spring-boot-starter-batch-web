@@ -21,8 +21,9 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.MDC;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.listener.JobExecutionListenerSupport;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.repository.MetricRepository;
@@ -33,66 +34,67 @@ import org.springframework.core.Ordered;
 import de.codecentric.batch.listener.LoggingListener;
 
 /**
- * This listener exports all metrics with the prefix 'counter.batch.{jobName}.{jobExecutionId}
- * and all gauges with the prefix 'gauge.batch.{jobName}.{jobExecutionId}' to the Job-
+ * This listener exports all metrics with the prefix 'counter.batch.{jobName}.{jobExecutionId}.{stepName}
+ * and all gauges with the prefix 'gauge.batch.{jobName}.{jobExecutionId}.{stepName}' to the Step-
  * ExecutionContext without the prefix. All metrics and gauges are logged as well. For
  * overriding the default format of the logging a component implementing {@link MetricsOutputFormatter}
  * may be added to the ApplicationContext.
  * 
- * If deleteMetricsOnJobFinish is true, all metrics will be removed from Spring Boot's metric
- * framework when the job finishes and the metrics are written to the Job-ExecutionContext.
+ * If deleteMetricsOnStepFinish is true, all metrics will be removed from Spring Boot's metric
+ * framework when the job finishes and the metrics are written to the Step-ExecutionContext.
  * 
- * Counters are cumulated over several JobExecutions belonging to one JobInstance.
+ * Counters are cumulated over several StepExecutions belonging to one Step in one JobInstance.
  * 
  * @author Tobias Flohre
  */
-public class MetricsListener extends JobExecutionListenerSupport implements Ordered{
+public class MetricsListener extends StepExecutionListenerSupport implements Ordered{
 
+	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
+	
 	public static final String GAUGE_PREFIX = "gauge.batch.";
 
 	public static final String COUNTER_PREFIX = "counter.batch.";
 
-	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
-	
 	private RichGaugeRepository richGaugeRepository;
 	private MetricRepository metricRepository;
-	private boolean deleteMetricsOnJobFinish;
+	private boolean deleteMetricsOnStepFinish;
 	@Autowired(required=false)
 	private MetricsOutputFormatter metricsOutputFormatter = new SimpleMetricsOutputFormatter();
-
+	
 	public MetricsListener(RichGaugeRepository richGaugeRepository,
-			MetricRepository metricRepository, boolean deleteMetricsOnJobFinish) {
+			MetricRepository metricRepository, boolean deleteMetricsOnStepFinish) {
 		this.richGaugeRepository = richGaugeRepository;
 		this.metricRepository = metricRepository;
-		this.deleteMetricsOnJobFinish = deleteMetricsOnJobFinish;
+		this.deleteMetricsOnStepFinish = deleteMetricsOnStepFinish;
 	}
 
 	@Override
-	public void afterJob(JobExecution jobExecution) {
-		List<RichGauge> gauges = exportBatchGauges(jobExecution);
-		List<Metric<?>> metrics = exportBatchCounter(jobExecution);
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		List<RichGauge> gauges = exportBatchGauges(stepExecution);
+		List<Metric<?>> metrics = exportBatchMetrics(stepExecution);
 		LOGGER.info(metricsOutputFormatter.format(gauges, metrics));
+		return null;
 	}
 
-	private List<Metric<?>> exportBatchCounter(JobExecution jobExecution) {
-		String jobExecutionIdentifier = MDC.get(LoggingListener.JOB_EXECUTION_IDENTIFIER);
+	private List<Metric<?>> exportBatchMetrics(StepExecution stepExecution) {
+		String stepExecutionIdentifier = MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER);
 		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
 		for (Metric<?> metric : metricRepository.findAll()) {
-			if (metric.getName().startsWith(COUNTER_PREFIX + jobExecutionIdentifier)) {
+			if (metric.getName().startsWith(COUNTER_PREFIX + stepExecutionIdentifier)) {
 				if (metric.getValue() instanceof Long){
-					// "batch."+ jobExecutionIdentifier is removed from the key before insertion in Job-ExecutionContext
-					String key = metric.getName().substring((COUNTER_PREFIX + jobExecutionIdentifier).length()+1);
-					// Values from former failed JobExecution runs are added
+					// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
+					String key = metric.getName().substring((COUNTER_PREFIX + stepExecutionIdentifier).length()+1);
+					// Values from former failed StepExecution runs are added
 					Long newValue = (Long)metric.getValue();
-					if (jobExecution.getExecutionContext().containsKey(key)){
-						Long oldValue = jobExecution.getExecutionContext().getLong(key);
+					if (stepExecution.getExecutionContext().containsKey(key)){
+						Long oldValue = stepExecution.getExecutionContext().getLong(key);
 						newValue += oldValue;
 						metric = metric.set(newValue);
 					}
-					jobExecution.getExecutionContext().putLong(key, newValue);
+					stepExecution.getExecutionContext().putLong(key, newValue);
 				}
 				metrics.add(metric);
-				if (deleteMetricsOnJobFinish){
+				if (deleteMetricsOnStepFinish){
 					metricRepository.reset(metric.getName());
 				}
 			}
@@ -100,15 +102,15 @@ public class MetricsListener extends JobExecutionListenerSupport implements Orde
 		return metrics;
 	}
 
-	private List<RichGauge> exportBatchGauges(JobExecution jobExecution) {
-		String jobExecutionIdentifier = MDC.get(LoggingListener.JOB_EXECUTION_IDENTIFIER);
+	private List<RichGauge> exportBatchGauges(StepExecution stepExecution) {
+		String stepExecutionIdentifier = MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER);
 		List<RichGauge> gauges = new ArrayList<RichGauge>();
 		for (RichGauge gauge : richGaugeRepository.findAll()) {
-			if (gauge.getName().startsWith(GAUGE_PREFIX + jobExecutionIdentifier)) {
-				// "batch."+ jobExecutionIdentifier is removed from the key before insertion in Job-ExecutionContext
-				jobExecution.getExecutionContext().put(gauge.getName().substring((GAUGE_PREFIX + jobExecutionIdentifier).length()+1), gauge);
+			if (gauge.getName().startsWith(GAUGE_PREFIX + stepExecutionIdentifier)) {
+				// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
+				stepExecution.getExecutionContext().put(gauge.getName().substring((GAUGE_PREFIX + stepExecutionIdentifier).length()+1), gauge);
 				gauges.add(gauge);
-				if (deleteMetricsOnJobFinish){
+				if (deleteMetricsOnStepFinish){
 					richGaugeRepository.reset(gauge.getName());
 				}
 			}

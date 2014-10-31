@@ -43,7 +43,7 @@ import de.codecentric.batch.TestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
-@IntegrationTest("batch.metrics.enabled=true")
+@IntegrationTest
 public class XmlIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
