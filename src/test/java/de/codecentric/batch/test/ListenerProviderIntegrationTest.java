@@ -41,7 +41,7 @@ import de.codecentric.batch.listener.TestListener;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
-@IntegrationTest
+@IntegrationTest("server.port=8090")
 public class ListenerProviderIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();

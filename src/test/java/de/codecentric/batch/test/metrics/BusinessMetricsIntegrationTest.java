@@ -18,7 +18,6 @@ package de.codecentric.batch.test.metrics;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
@@ -33,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 
-import de.codecentric.batch.TestApplication;
+import de.codecentric.batch.MetricsTestApplication;
 
 /**
  * This test class starts a batch job configured in JavaConfig and tests a simple metrics use case.
@@ -41,10 +40,9 @@ import de.codecentric.batch.TestApplication;
  * @author Tobias Flohre
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes=TestApplication.class)
+@SpringApplicationConfiguration(classes=MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false"})
-@Ignore
+@IntegrationTest({"server.port=8091","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false"})
 public class BusinessMetricsIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
@@ -56,18 +54,18 @@ public class BusinessMetricsIntegrationTest {
 	
 	@Test
 	public void testRunJob() throws InterruptedException{
-		Long executionId = restTemplate.postForObject("http://localhost:8090/batch/operations/jobs/simpleBusinessMetricsJob", "",Long.class);
-		while (!restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+		Long executionId = restTemplate.postForObject("http://localhost:8091/batch/operations/jobs/simpleBusinessMetricsJob", "",Long.class);
+		while (!restTemplate.getForObject("http://localhost:8091/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
 			Thread.sleep(1000);
 		}
-		String log = restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}/log", String.class, executionId);
+		String log = restTemplate.getForObject("http://localhost:8091/batch/operations/jobs/executions/{executionId}/log", String.class, executionId);
 		assertThat(log.length()>20,is(true));
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		assertThat(jobExecution.getStatus(),is(BatchStatus.COMPLETED));
-		String jobExecutionString = restTemplate.getForObject("http://localhost:8090/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
+		String jobExecutionString = restTemplate.getForObject("http://localhost:8091/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"),is(true));
 		
-		assertThat((Long)metricRepository.findOne("counter.batch.simpleBusinessMetricsJob.0.step.processor").getValue(),is(7l));
+		assertThat((Long)metricRepository.findOne("counter.batch.simpleBusinessMetricsJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step.processor").getValue(),is(7l));
 	}
 
 }

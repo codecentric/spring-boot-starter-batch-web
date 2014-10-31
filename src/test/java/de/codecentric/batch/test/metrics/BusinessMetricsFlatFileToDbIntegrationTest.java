@@ -24,7 +24,6 @@ import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
@@ -46,7 +45,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import de.codecentric.batch.TestApplication;
+import de.codecentric.batch.MetricsTestApplication;
 import de.codecentric.batch.metrics.MetricNames;
 
 /**
@@ -55,12 +54,11 @@ import de.codecentric.batch.metrics.MetricNames;
  * @author Tobias Flohre
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes=TestApplication.class)
+@SpringApplicationConfiguration(classes=MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false"})
-@Ignore
+@IntegrationTest({"server.port=8091","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false"})
 public class BusinessMetricsFlatFileToDbIntegrationTest {
-
+	
 	RestTemplate restTemplate = new TestRestTemplate();
 	
 	@Autowired
@@ -97,7 +95,7 @@ public class BusinessMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob.0.step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(5l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(5l));
 	}
 
 	@Test
@@ -113,15 +111,15 @@ public class BusinessMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob.0.step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(3l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(3l));
 	}
 
 	private JobExecution runJob(String jobName, String pathToFile) throws InterruptedException {
 		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "pathToFile="+pathToFile);
-		Long executionId = restTemplate.postForObject("http://localhost:8090/batch/operations/jobs/"+jobName, requestMap,Long.class);
-		while (!restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED") &&
-				!restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("FAILED")){
+		Long executionId = restTemplate.postForObject("http://localhost:8091/batch/operations/jobs/"+jobName, requestMap,Long.class);
+		while (!restTemplate.getForObject("http://localhost:8091/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED") &&
+				!restTemplate.getForObject("http://localhost:8091/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("FAILED")){
 			Thread.sleep(1000);
 		}
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);

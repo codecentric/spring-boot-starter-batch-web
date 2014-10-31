@@ -43,7 +43,7 @@ import de.codecentric.batch.TestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
-@IntegrationTest
+@IntegrationTest("server.port=8090")
 public class JobParametersIncrementerIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
