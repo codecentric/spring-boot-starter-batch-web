@@ -34,7 +34,7 @@ public class BatchMetricsAspects {
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".read",
+			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getStepIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".read",
 					getTotalTimeMillis(stopWatch));
 		}
 	}
@@ -45,7 +45,7 @@ public class BatchMetricsAspects {
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".process",
+			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getStepIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".process",
 					getTotalTimeMillis(stopWatch));
 		}
 	}
@@ -56,7 +56,7 @@ public class BatchMetricsAspects {
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getJobIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".write",
+			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getStepIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ ".write",
 					getTotalTimeMillis(stopWatch));
 		}
 	}
@@ -73,12 +73,12 @@ public class BatchMetricsAspects {
 		return stopWatch;
 	}
 
-	private String getJobIdentifier() {
-		String jobName = MDC.get(LoggingListener.JOB_EXECUTION_IDENTIFIER);
-		if (jobName == null) {
-			LOG.warn("Jobname could not be read from MDC.");
-			jobName = "unknown";
+	private String getStepIdentifier() {
+		String stepIdentifier = MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER);
+		if (stepIdentifier == null) {
+			LOG.warn("Step identifier could not be read from MDC.");
+			stepIdentifier = "unknown";
 		}
-		return jobName;
+		return stepIdentifier;
 	}
 }
