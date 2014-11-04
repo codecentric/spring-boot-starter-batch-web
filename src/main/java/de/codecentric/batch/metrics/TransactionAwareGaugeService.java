@@ -75,6 +75,9 @@ public class TransactionAwareGaugeService extends TransactionSynchronizationAdap
 			}
 		}
 		gaugeContainer.remove();
+		if (TransactionSynchronizationManager.hasResource(serviceKey)) {
+			TransactionSynchronizationManager.unbindResource(serviceKey);
+		}
 	}
 
 	private static class GaugeContainer {

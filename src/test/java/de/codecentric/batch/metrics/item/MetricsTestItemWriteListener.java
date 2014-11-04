@@ -23,16 +23,16 @@ import de.codecentric.batch.metrics.Action;
 import de.codecentric.batch.metrics.Item;
 import de.codecentric.batch.metrics.MetricNames;
 import de.codecentric.batch.metrics.MetricsTestException;
-import de.codecentric.batch.metrics.business.BusinessMetrics;
+import de.codecentric.batch.metrics.business.BatchMetrics;
 
 /**
  * @author Tobias Flohre
  */
 public class MetricsTestItemWriteListener implements ItemWriteListener<Item> {
 	
-	private BusinessMetrics businessMetrics;
+	private BatchMetrics businessMetrics;
 
-	public MetricsTestItemWriteListener(BusinessMetrics businessMetrics) {
+	public MetricsTestItemWriteListener(BatchMetrics businessMetrics) {
 		this.businessMetrics = businessMetrics;
 	}
 

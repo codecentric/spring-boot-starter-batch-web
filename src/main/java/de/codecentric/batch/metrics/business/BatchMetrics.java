@@ -64,7 +64,7 @@ package de.codecentric.batch.metrics.business;
  * 
  * @author Tobias Flohre
  */
-public interface BusinessMetrics {
+public interface BatchMetrics {
 
 	/**
 	 * Increment the specified counter by 1. Transaction-aware.

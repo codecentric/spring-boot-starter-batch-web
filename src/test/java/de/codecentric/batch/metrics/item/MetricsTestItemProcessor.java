@@ -21,17 +21,17 @@ import de.codecentric.batch.metrics.Action;
 import de.codecentric.batch.metrics.Item;
 import de.codecentric.batch.metrics.MetricNames;
 import de.codecentric.batch.metrics.MetricsTestException;
-import de.codecentric.batch.metrics.business.BusinessMetrics;
+import de.codecentric.batch.metrics.business.BatchMetrics;
 
 /**
  * @author Tobias Flohre
  */
 public class MetricsTestItemProcessor implements ItemProcessor<Item, Item> {
 	
-	private BusinessMetrics businessMetrics;
+	private BatchMetrics businessMetrics;
 	private boolean processorTransactional;
 
-	public MetricsTestItemProcessor(BusinessMetrics businessMetrics,
+	public MetricsTestItemProcessor(BatchMetrics businessMetrics,
 			boolean processorTransactional) {
 		this.businessMetrics = businessMetrics;
 		this.processorTransactional = processorTransactional;

@@ -28,12 +28,12 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import de.codecentric.batch.item.DummyItemReader;
 import de.codecentric.batch.item.LogItemWriter;
 import de.codecentric.batch.item.MetricsItemProcessor;
-import de.codecentric.batch.metrics.business.BusinessMetrics;
+import de.codecentric.batch.metrics.business.BatchMetrics;
 
 @Configuration
 @ConditionalOnProperty("batch.metrics.enabled")
 @EnableAspectJAutoProxy(proxyTargetClass=true)
-public class SimpleBusinessMetricsJobConfiguration {
+public class SimpleBatchMetricsJobConfiguration {
 	
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
@@ -42,11 +42,11 @@ public class SimpleBusinessMetricsJobConfiguration {
 	private StepBuilderFactory stepBuilderFactory;
 	
 	@Autowired
-	private BusinessMetrics businessMetrics;
+	private BatchMetrics businessMetrics;
 	
 	@Bean
 	public Job simpleBusinessMetricsJob(){
-		return jobBuilderFactory.get("simpleBusinessMetricsJob")
+		return jobBuilderFactory.get("simpleBatchMetricsJob")
 				.start(step())
 				.build();
 	}

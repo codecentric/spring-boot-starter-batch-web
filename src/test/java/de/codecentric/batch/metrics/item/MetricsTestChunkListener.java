@@ -19,16 +19,16 @@ import org.springframework.batch.core.ChunkListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 
 import de.codecentric.batch.metrics.MetricNames;
-import de.codecentric.batch.metrics.business.BusinessMetrics;
+import de.codecentric.batch.metrics.business.BatchMetrics;
 
 /**
  * @author Tobias Flohre
  */
 public class MetricsTestChunkListener implements ChunkListener {
 	
-	private BusinessMetrics businessMetrics;
+	private BatchMetrics businessMetrics;
 
-	public MetricsTestChunkListener(BusinessMetrics businessMetrics) {
+	public MetricsTestChunkListener(BatchMetrics businessMetrics) {
 		this.businessMetrics = businessMetrics;
 	}
 
@@ -40,8 +40,8 @@ public class MetricsTestChunkListener implements ChunkListener {
 
 	@Override
 	public void afterChunk(ChunkContext context) {
-		businessMetrics.increment(MetricNames.AFTER_CHUNK_COUNT.getName());
-		businessMetrics.submit(MetricNames.AFTER_CHUNK_GAUGE.getName(), 5);
+		businessMetrics.incrementNonTransactional(MetricNames.AFTER_CHUNK_COUNT.getName());
+		businessMetrics.submitNonTransactional(MetricNames.AFTER_CHUNK_GAUGE.getName(), 5);
 	}
 
 	@Override

@@ -37,7 +37,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
 import de.codecentric.batch.metrics.Item;
+import de.codecentric.batch.metrics.MetricsTestException;
 import de.codecentric.batch.metrics.business.BatchMetrics;
+import de.codecentric.batch.metrics.item.MetricsTestSkipListener;
 import de.codecentric.batch.metrics.item.MetricsTestChunkListener;
 import de.codecentric.batch.metrics.item.MetricsTestItemProcessListener;
 import de.codecentric.batch.metrics.item.MetricsTestItemProcessor;
@@ -51,7 +53,7 @@ import de.codecentric.batch.metrics.item.MetricsTestItemWriter;
  */
 @Configuration
 @ConditionalOnProperty("batch.metrics.enabled")
-public class FlatFileToDbNoSkipJobConfiguration {
+public class FlatFileToDbSkipJobConfiguration {
 
 	private static final String OVERRIDDEN_BY_EXPRESSION = null;
 	
@@ -69,7 +71,7 @@ public class FlatFileToDbNoSkipJobConfiguration {
 	
 	@Bean
 	public Job flatFileToDbNoSkipJob(){
-		return jobBuilders.get("flatFileToDbNoSkipJob")
+		return jobBuilders.get("flatFileToDbSkipJob")
 				.start(step())
 				.build();
 	}
@@ -84,6 +86,10 @@ public class FlatFileToDbNoSkipJobConfiguration {
 				.listener(readListener())
 				.listener(processListener())
 				.listener(writeListener())
+				.faultTolerant()
+				.skip(MetricsTestException.class)
+				.skipLimit(4)
+				.listener(skipListener())
 				.listener(chunkListener())
 				.build();
 	}
@@ -129,7 +135,7 @@ public class FlatFileToDbNoSkipJobConfiguration {
 	@Bean
 	public JdbcBatchItemWriter<Item> jdbcBatchItemWriter(){
 		JdbcBatchItemWriter<Item> itemWriter = new JdbcBatchItemWriter<Item>();
-		itemWriter.setSql("INSERT INTO ITEM (ID, DESCRIPTION, FIRST_ACTION, SECOND_ACTION) VALUES (:id,:description,:firstAction,:secondAction)");
+		itemWriter.setSql("INSERT INTO ITEM (ID, DESCRIPTION) VALUES (:id,:description)");
 		itemWriter.setDataSource(dataSource);
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Item>());
 		return itemWriter;
@@ -153,6 +159,11 @@ public class FlatFileToDbNoSkipJobConfiguration {
 	@Bean
 	public MetricsTestChunkListener chunkListener(){
 		return new MetricsTestChunkListener(businessMetrics);
+	}
+	
+	@Bean
+	public MetricsTestSkipListener skipListener(){
+		return new MetricsTestSkipListener(businessMetrics);
 	}
 	
 }

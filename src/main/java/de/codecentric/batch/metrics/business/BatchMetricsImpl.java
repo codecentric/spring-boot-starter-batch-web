@@ -24,18 +24,18 @@ import de.codecentric.batch.metrics.TransactionAwareCounterService;
 import de.codecentric.batch.metrics.TransactionAwareGaugeService;
 
 /**
- * See {@link BusinessMetrics} for documentation.
+ * See {@link BatchMetrics} for documentation.
  * 
  * @author Tobias Flohre
  */
-public class BatchBusinessMetrics implements BusinessMetrics {
+public class BatchMetricsImpl implements BatchMetrics {
 	
 	private CounterService counterService;
 	private GaugeService gaugeService;
 	private CounterService transactionAwareCounterService;
 	private GaugeService transactionAwareGaugeService;
 	
-	public BatchBusinessMetrics(CounterService counterService,
+	public BatchMetricsImpl(CounterService counterService,
 			GaugeService gaugeService) {
 		this.counterService = counterService;
 		this.gaugeService = gaugeService;

@@ -26,7 +26,7 @@ import de.codecentric.batch.metrics.Action;
 import de.codecentric.batch.metrics.Item;
 import de.codecentric.batch.metrics.MetricNames;
 import de.codecentric.batch.metrics.MetricsTestException;
-import de.codecentric.batch.metrics.business.BusinessMetrics;
+import de.codecentric.batch.metrics.business.BatchMetrics;
 
 /**
  * @author Tobias Flohre
@@ -34,11 +34,11 @@ import de.codecentric.batch.metrics.business.BusinessMetrics;
 public class MetricsTestItemReader implements ItemStreamReader<Item> {
 	
 	private ItemStreamReader<Item> delegate;
-	private BusinessMetrics businessMetrics;
+	private BatchMetrics businessMetrics;
 	private boolean readerTransactional;
 
 	public MetricsTestItemReader(ItemStreamReader<Item> delegate,
-			BusinessMetrics businessMetrics, boolean readerTransactional) {
+			BatchMetrics businessMetrics, boolean readerTransactional) {
 		this.delegate = delegate;
 		this.businessMetrics = businessMetrics;
 		this.readerTransactional = readerTransactional;

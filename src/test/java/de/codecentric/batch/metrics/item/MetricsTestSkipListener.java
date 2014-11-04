@@ -15,40 +15,39 @@
  */
 package de.codecentric.batch.metrics.item;
 
-import java.util.List;
+import org.springframework.batch.core.SkipListener;
 
-import org.springframework.batch.item.ItemWriter;
-
-import de.codecentric.batch.metrics.Action;
 import de.codecentric.batch.metrics.Item;
 import de.codecentric.batch.metrics.MetricNames;
-import de.codecentric.batch.metrics.MetricsTestException;
 import de.codecentric.batch.metrics.business.BatchMetrics;
 
 /**
  * @author Tobias Flohre
  */
-public class MetricsTestItemWriter implements ItemWriter<Item> {
+public class MetricsTestSkipListener implements SkipListener<Item, Item> {
 
-	private ItemWriter<Item> delegate;
 	private BatchMetrics businessMetrics;
 
-	public MetricsTestItemWriter(ItemWriter<Item> delegate,
-			BatchMetrics businessMetrics) {
-		this.delegate = delegate;
+	public MetricsTestSkipListener(BatchMetrics businessMetrics) {
 		this.businessMetrics = businessMetrics;
 	}
 
 	@Override
-	public void write(List<? extends Item> items) throws Exception {
-		delegate.write(items);
-		for (Item item: items){
-			businessMetrics.increment(MetricNames.WRITE_COUNT.getName());
-			businessMetrics.submit(MetricNames.WRITE_GAUGE.getName(), 5);
-			if (item.getActions().contains(Action.FAIL_ON_WRITE)){
-				throw new MetricsTestException(Action.FAIL_ON_WRITE);
-			}
-		}
+	public void onSkipInRead(Throwable t) {
+		businessMetrics.increment(MetricNames.SKIP_IN_READ_COUNT.getName());
+		businessMetrics.submit(MetricNames.SKIP_IN_READ_GAUGE.getName(), 5);
+	}
+
+	@Override
+	public void onSkipInWrite(Item item, Throwable t) {
+		businessMetrics.increment(MetricNames.SKIP_IN_WRITE_COUNT.getName());
+		businessMetrics.submit(MetricNames.SKIP_IN_WRITE_GAUGE.getName(), 5);
+	}
+
+	@Override
+	public void onSkipInProcess(Item item, Throwable t) {
+		businessMetrics.increment(MetricNames.SKIP_IN_PROCESS_COUNT.getName());
+		businessMetrics.submit(MetricNames.SKIP_IN_PROCESS_GAUGE.getName(), 5);
 	}
 
 }

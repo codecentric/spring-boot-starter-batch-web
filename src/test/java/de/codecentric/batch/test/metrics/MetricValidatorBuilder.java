@@ -188,4 +188,11 @@ class MetricValidatorBuilderBase<GeneratorT extends MetricValidatorBuilderBase<G
 
 		return (GeneratorT) this;
 	}
+
+	@SuppressWarnings("unchecked")
+	public GeneratorT withValidateGauge(boolean aValue) {
+		instance.setValidateGauge(aValue);
+
+		return (GeneratorT) this;
+	}
 }

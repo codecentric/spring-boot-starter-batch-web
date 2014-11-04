@@ -19,7 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemProcessor;
 
-import de.codecentric.batch.metrics.business.BusinessMetrics;
+import de.codecentric.batch.metrics.business.BatchMetrics;
 
 
 /**
@@ -29,9 +29,9 @@ public class MetricsItemProcessor implements ItemProcessor<String,String> {
 
 	private static final Log log = LogFactory.getLog(MetricsItemProcessor.class);
 	
-	private BusinessMetrics businessMetrics;
+	private BatchMetrics businessMetrics;
 	
-	public MetricsItemProcessor(BusinessMetrics businessMetrics) {
+	public MetricsItemProcessor(BatchMetrics businessMetrics) {
 		this.businessMetrics = businessMetrics;
 	}
 
