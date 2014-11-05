@@ -15,10 +15,20 @@
  */
 package de.codecentric.batch;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.metrics.Metric;
+import org.springframework.boot.actuate.metrics.rich.RichGauge;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import de.codecentric.batch.configuration.BaseConfiguration;
+import de.codecentric.batch.metrics.ListenerMetricsAspect;
+import de.codecentric.batch.metrics.MetricsOutputFormatter;
 
 /**
  * Application for integration testing.
@@ -33,5 +43,34 @@ public class MetricsTestApplication {
     public static void main(String[] args) {
         SpringApplication.run(MetricsTestApplication.class, args);
     }
+  
+    @Autowired
+    private BaseConfiguration baseConfig;
+    
+    @Bean
+    public ListenerMetricsAspect listenerMetricsAspect(){
+    	return new ListenerMetricsAspect(baseConfig.gaugeService());
+    }
+    
+    @Bean
+    public MetricsOutputFormatter metricsOutputFormatter(){
+    	return new MetricsOutputFormatter(){
+
+			@Override
+			public String format(List<RichGauge> gauges, List<Metric<?>> metrics) {
+				StringBuilder builder = new StringBuilder("\n########## Personal Header for metrics! #####\n########## Metrics Start ##########\n");
+				for (RichGauge gauge: gauges){
+					builder.append(gauge.toString()+"\n");
+				}
+				for (Metric<?> metric: metrics){
+					builder.append(metric.toString()+"\n");
+				}
+				builder.append("########## Metrics End ############");
+				return builder.toString();
+			}
+    		
+    	};
+    }
+    
 
 }

@@ -43,7 +43,8 @@ import de.codecentric.batch.listener.LoggingListener;
  * If deleteMetricsOnStepFinish is true, all metrics will be removed from Spring Boot's metric
  * framework when the job finishes and the metrics are written to the Step-ExecutionContext.
  * 
- * Counters are cumulated over several StepExecutions belonging to one Step in one JobInstance.
+ * Counters are cumulated over several StepExecutions belonging to one Step in one JobInstance,
+ * important for restarted jobs.
  * 
  * @author Tobias Flohre
  */

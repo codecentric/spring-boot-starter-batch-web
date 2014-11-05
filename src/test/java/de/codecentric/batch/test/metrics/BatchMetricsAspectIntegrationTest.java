@@ -68,9 +68,11 @@ public class BatchMetricsAspectIntegrationTest {
 		RichGauge readerGauge = (RichGauge) stepExecutionContext.get("DummyItemReader.read");
 		RichGauge processorGauge = (RichGauge) stepExecutionContext.get("MetricsItemProcessor.process");
 		RichGauge writerGauge = (RichGauge) stepExecutionContext.get("LogItemWriter.write");
+		RichGauge listenerGauge = (RichGauge) stepExecutionContext.get("LogItemWriteListener.beforeWrite");
 		assertThat(readerGauge.getCount(),is(8L));
 		assertThat(processorGauge.getCount(),is(7L));
-		assertThat(writerGauge.getCount(),is(7L));
+		assertThat(writerGauge.getCount(),is(3L));
+		assertThat(listenerGauge.getCount(),is(3L));
 		String jobExecutionString = restTemplate.getForObject("http://localhost:8091/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"),is(true));
 		

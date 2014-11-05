@@ -30,8 +30,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import de.codecentric.batch.metrics.BatchMetricsImpl;
-import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
 import de.codecentric.batch.metrics.MetricsListener;
+import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
 
 /**
  * Configuration containing all metrics stuff. Can be activated by setting the property

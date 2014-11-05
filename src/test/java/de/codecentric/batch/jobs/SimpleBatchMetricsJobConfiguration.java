@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import de.codecentric.batch.item.DummyItemReader;
+import de.codecentric.batch.item.LogItemWriteListener;
 import de.codecentric.batch.item.LogItemWriter;
 import de.codecentric.batch.item.MetricsItemProcessor;
 import de.codecentric.batch.metrics.BatchMetrics;
@@ -42,7 +43,7 @@ public class SimpleBatchMetricsJobConfiguration {
 	private StepBuilderFactory stepBuilderFactory;
 	
 	@Autowired
-	private BatchMetrics businessMetrics;
+	private BatchMetrics batchMetrics;
 	
 	@Bean
 	public Job simpleBusinessMetricsJob(){
@@ -54,10 +55,11 @@ public class SimpleBatchMetricsJobConfiguration {
 	@Bean
 	public Step step(){
 		return stepBuilderFactory.get("step")
-				.<String,String>chunk(1)
+				.<String,String>chunk(3)
 				.reader(reader())
 				.processor(processor())
 				.writer(writer())
+				.listener(writeListener())
 				.build();
 	}
 
@@ -68,7 +70,7 @@ public class SimpleBatchMetricsJobConfiguration {
 
 	@Bean
 	public MetricsItemProcessor processor() {
-		return new MetricsItemProcessor(businessMetrics);
+		return new MetricsItemProcessor(batchMetrics);
 	}
 
 	@Bean
@@ -76,4 +78,9 @@ public class SimpleBatchMetricsJobConfiguration {
 		return new DummyItemReader();
 	}
 	
+	@Bean
+	public LogItemWriteListener writeListener(){
+		return new LogItemWriteListener();
+	}
+
 }

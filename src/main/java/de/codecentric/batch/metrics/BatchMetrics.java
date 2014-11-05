@@ -22,7 +22,7 @@ package de.codecentric.batch.metrics;
  * All metric names get the prefix 'batch.{jobName}.{jobExecutionId}.' in addition to other prefixes. 
  * For example, when using the {@link org.springframework.boot.actuate.metrics.writer.DefaultCounterService}
  * the complete prefix will be 'counter.batch.{jobName}.{jobExecutionId}.'. When written to the 
- * Job-ExecutionContext, the complete prefix is omitted.
+ * Step-ExecutionContext, the complete prefix is omitted.
  * 
  * There are two types of methods: non-transactional methods and transactional methods. The methods that
  * don't include 'NonTransactional' in their name are by default transaction-aware. That means that
@@ -33,8 +33,8 @@ package de.codecentric.batch.metrics;
  * How do you use this component in a batch environment?
  * 
  * You may inject this component into any batch artifact, a reader, processor, writer, a listener and so on.
- * Counter and gauges are held in memory as long as the job runs and will be written to the Job-ExecutionContext
- * once the job stops, successful or not. They are written to the log file as well.
+ * Counter and gauges are held in memory as long as the job runs and will be written to the Step-ExecutionContext
+ * once the step finishes, successful or not. They are written to the log file as well.
  * If the job execution is a restart of a previously failed run, the counters are the sum of both executions.
  * Gauges are the ones from the last run.
  * 

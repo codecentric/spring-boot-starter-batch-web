@@ -26,7 +26,7 @@ import org.springframework.util.StopWatch;
 import de.codecentric.batch.listener.LoggingListener;
 
 /**
- * This is a helper class for implementing method level profiling. See {@link ReaderProcessorWriterMetricsAspect} for an 
+ * This is a helper class for implementing method level profiling. See {@link ListenerMetricsAspect} for an 
  * aspect extending this class. All calls to an adviced method are tracked in a RichGauge, so you'll see average duration time,
  * maximum / minimum time, number of method calls and so on. For the name of the metric a special naming scheme is used so that
  * our {@link MetricsListener} picks up the gauge and writes it to the ExecutionContext of the StepExecution and to the log.

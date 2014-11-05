@@ -59,7 +59,7 @@ import de.codecentric.batch.metrics.MetricNames;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"server.port=8091","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false","batch.metrics.profiling.readprocesswrite.enabled"})
+@IntegrationTest({"server.port=8091","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false","batch.metrics.profiling.readprocesswrite.enabled=true"})
 public class BatchMetricsFlatFileToDbIntegrationTest {
 	
 	RestTemplate restTemplate = new TestRestTemplate();
