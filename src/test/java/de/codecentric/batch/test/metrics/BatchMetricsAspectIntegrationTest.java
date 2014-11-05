@@ -44,7 +44,7 @@ import de.codecentric.batch.MetricsTestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"server.port=8091","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false","batch.metrics.aspectenabled=true"})
+@IntegrationTest({"server.port=8091","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false","batch.metrics.profiling.readprocesswrite.enabled=true"})
 public class BatchMetricsAspectIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();

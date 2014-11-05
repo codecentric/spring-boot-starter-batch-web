@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.codecentric.batch.metrics.business;
+package de.codecentric.batch.metrics;
 
 import org.slf4j.MDC;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 
 import de.codecentric.batch.listener.LoggingListener;
-import de.codecentric.batch.metrics.TransactionAwareCounterService;
-import de.codecentric.batch.metrics.TransactionAwareGaugeService;
 
 /**
  * See {@link BatchMetrics} for documentation.

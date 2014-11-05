@@ -23,10 +23,10 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 
 import de.codecentric.batch.metrics.Action;
+import de.codecentric.batch.metrics.BatchMetrics;
 import de.codecentric.batch.metrics.Item;
 import de.codecentric.batch.metrics.MetricNames;
 import de.codecentric.batch.metrics.MetricsTestException;
-import de.codecentric.batch.metrics.business.BatchMetrics;
 
 /**
  * @author Tobias Flohre

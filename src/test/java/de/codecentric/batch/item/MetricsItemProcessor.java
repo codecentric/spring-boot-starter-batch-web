@@ -19,7 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemProcessor;
 
-import de.codecentric.batch.metrics.business.BatchMetrics;
+import de.codecentric.batch.metrics.BatchMetrics;
 
 
 /**

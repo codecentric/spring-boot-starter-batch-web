@@ -18,8 +18,8 @@ package de.codecentric.batch.metrics.item;
 import org.springframework.batch.core.ChunkListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 
+import de.codecentric.batch.metrics.BatchMetrics;
 import de.codecentric.batch.metrics.MetricNames;
-import de.codecentric.batch.metrics.business.BatchMetrics;
 
 /**
  * @author Tobias Flohre

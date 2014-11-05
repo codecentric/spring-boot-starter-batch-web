@@ -28,7 +28,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import de.codecentric.batch.item.DummyItemReader;
 import de.codecentric.batch.item.LogItemWriter;
 import de.codecentric.batch.item.MetricsItemProcessor;
-import de.codecentric.batch.metrics.business.BatchMetrics;
+import de.codecentric.batch.metrics.BatchMetrics;
 
 @Configuration
 @ConditionalOnProperty("batch.metrics.enabled")

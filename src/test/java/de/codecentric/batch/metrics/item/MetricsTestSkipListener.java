@@ -17,9 +17,9 @@ package de.codecentric.batch.metrics.item;
 
 import org.springframework.batch.core.SkipListener;
 
+import de.codecentric.batch.metrics.BatchMetrics;
 import de.codecentric.batch.metrics.Item;
 import de.codecentric.batch.metrics.MetricNames;
-import de.codecentric.batch.metrics.business.BatchMetrics;
 
 /**
  * @author Tobias Flohre

@@ -29,9 +29,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import de.codecentric.batch.metrics.BatchMetricsAspects;
+import de.codecentric.batch.metrics.BatchMetricsImpl;
+import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
 import de.codecentric.batch.metrics.MetricsListener;
-import de.codecentric.batch.metrics.business.BatchMetricsImpl;
 
 /**
  * Configuration containing all metrics stuff. Can be activated by setting the property
@@ -55,10 +55,10 @@ public class MetricsConfiguration implements ListenerProvider{
 		return new BatchMetricsImpl(baseConfig.counterService(), baseConfig.gaugeService());
 	}
 	
-	@ConditionalOnProperty("batch.metrics.aspectenabled")
+	@ConditionalOnProperty("batch.metrics.profiling.readprocesswrite.enabled")
 	@Bean
-	public BatchMetricsAspects batchMetricsAspects() {
-		return new BatchMetricsAspects(baseConfig.gaugeService());
+	public ReaderProcessorWriterMetricsAspect batchMetricsAspects() {
+		return new ReaderProcessorWriterMetricsAspect(baseConfig.gaugeService());
 	}
 
 	@Bean

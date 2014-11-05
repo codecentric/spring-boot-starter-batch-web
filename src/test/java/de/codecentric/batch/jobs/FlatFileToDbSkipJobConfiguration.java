@@ -36,9 +36,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
+import de.codecentric.batch.metrics.BatchMetrics;
 import de.codecentric.batch.metrics.Item;
 import de.codecentric.batch.metrics.MetricsTestException;
-import de.codecentric.batch.metrics.business.BatchMetrics;
 import de.codecentric.batch.metrics.item.MetricsTestSkipListener;
 import de.codecentric.batch.metrics.item.MetricsTestChunkListener;
 import de.codecentric.batch.metrics.item.MetricsTestItemProcessListener;
