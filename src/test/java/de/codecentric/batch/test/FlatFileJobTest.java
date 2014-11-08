@@ -28,12 +28,12 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import de.codecentric.batch.TestConfiguration;
 
-@ContextConfiguration(classes = { TestConfiguration.class })
+@SpringApplicationConfiguration(classes=TestConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FlatFileJobTest {
 
