@@ -71,6 +71,16 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
+		// What the f*** is that Thread.sleep doing here? ;-)
+		// Metrics are written asynchronously to Spring Boot's repository. In our tests we experienced
+		// that sometimes batch execution was so fast that this listener couldn't export the metrics
+		// because they hadn't been written. It all happened in the same millisecond. So we added
+		// a Thread.sleep of 100 milliseconds which gives us enough safety and doesn't hurt anyone.
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 		List<RichGauge> gauges = exportBatchGauges(stepExecution);
 		List<Metric<?>> metrics = exportBatchMetrics(stepExecution);
 		LOGGER.info(metricsOutputFormatter.format(gauges, metrics));

@@ -17,6 +17,8 @@ package de.codecentric.batch.metrics.item;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemWriter;
 
 import de.codecentric.batch.metrics.Action;
@@ -29,6 +31,8 @@ import de.codecentric.batch.metrics.MetricsTestException;
  * @author Tobias Flohre
  */
 public class MetricsTestItemWriter implements ItemWriter<Item> {
+
+	private static final Log log = LogFactory.getLog(MetricsTestItemWriter.class);
 
 	private ItemWriter<Item> delegate;
 	private BatchMetrics businessMetrics;
@@ -43,6 +47,7 @@ public class MetricsTestItemWriter implements ItemWriter<Item> {
 	public void write(List<? extends Item> items) throws Exception {
 		delegate.write(items);
 		for (Item item: items){
+			log.debug("Written item: "+item);
 			businessMetrics.increment(MetricNames.WRITE_COUNT.getName());
 			businessMetrics.submit(MetricNames.WRITE_GAUGE.getName(), 5);
 			if (item.getActions().contains(Action.FAIL_ON_WRITE)){

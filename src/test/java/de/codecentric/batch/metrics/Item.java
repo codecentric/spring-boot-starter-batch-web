@@ -61,5 +61,11 @@ public class Item {
 	public void setSecondAction(Action secondAction) {
 		this.secondAction = secondAction;
 	}
+	@Override
+	public String toString() {
+		return "Item [firstAction=" + firstAction + ", secondAction="
+				+ secondAction + ", description=" + description + ", id=" + id
+				+ "]";
+	}
 
 }

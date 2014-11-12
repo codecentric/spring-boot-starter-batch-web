@@ -18,6 +18,8 @@ package de.codecentric.batch.metrics;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -31,6 +33,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class TransactionAwareCounterService extends TransactionSynchronizationAdapter implements CounterService {
 	
+	private static final Log log = LogFactory.getLog(TransactionAwareCounterService.class);
+
 	private CounterService delegate;
 	private ThreadLocal<CounterContainer> counterContainer;
 	private final Object serviceKey;
@@ -84,9 +88,15 @@ public class TransactionAwareCounterService extends TransactionSynchronizationAd
 
 	@Override
 	public void afterCompletion(int status) {
+		if (log.isDebugEnabled()){
+			log.debug("Entered afterCompletion with status "+status+".");
+		}
 		if (status == STATUS_COMMITTED){
 			CounterContainer currentCounterContainer = counterContainer.get();
 			for (String incrementation: currentCounterContainer.incrementations){
+				if (log.isDebugEnabled()){
+					log.debug("Increment "+incrementation+".");
+				}
 				delegate.increment(incrementation);
 			}
 			for (String decrementation: currentCounterContainer.decrementations){

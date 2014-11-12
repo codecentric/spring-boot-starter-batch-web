@@ -15,6 +15,8 @@
  */
 package de.codecentric.batch.metrics.item;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ItemProcessor;
 
 import de.codecentric.batch.metrics.Action;
@@ -28,6 +30,8 @@ import de.codecentric.batch.metrics.MetricsTestException;
  */
 public class MetricsTestItemProcessor implements ItemProcessor<Item, Item> {
 	
+	private static final Log log = LogFactory.getLog(MetricsTestItemProcessor.class);
+
 	private BatchMetrics businessMetrics;
 	private boolean processorTransactional;
 
@@ -39,6 +43,7 @@ public class MetricsTestItemProcessor implements ItemProcessor<Item, Item> {
 
 	@Override
 	public Item process(Item item) throws Exception {
+		log.debug("Processed item: "+item.toString());
 		if (!processorTransactional || item.getActions().contains(Action.FILTER)){
 			businessMetrics.incrementNonTransactional(MetricNames.PROCESS_COUNT.getName());
 			businessMetrics.submitNonTransactional(MetricNames.PROCESS_GAUGE.getName(), 5);

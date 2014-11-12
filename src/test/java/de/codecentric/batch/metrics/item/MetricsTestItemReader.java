@@ -15,6 +15,8 @@
  */
 package de.codecentric.batch.metrics.item;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
@@ -33,6 +35,8 @@ import de.codecentric.batch.metrics.MetricsTestException;
  */
 public class MetricsTestItemReader implements ItemStreamReader<Item> {
 	
+	private static final Log log = LogFactory.getLog(MetricsTestItemReader.class);
+
 	private ItemStreamReader<Item> delegate;
 	private BatchMetrics businessMetrics;
 	private boolean readerTransactional;
@@ -58,6 +62,7 @@ public class MetricsTestItemReader implements ItemStreamReader<Item> {
 		if (item != null && item.getActions().contains(Action.FAIL_ON_READ)){
 			throw new MetricsTestException(Action.FAIL_ON_READ);
 		}
+		log.debug("Read item: "+item);
 		return item;
 	}
 

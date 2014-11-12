@@ -56,14 +56,12 @@ public class MetricValidator {
 	private long skipInWriteCount;
 	
 	public void validate(){
-		// BEFORE_CHUNK_COUNT is somehow indetermistic, that's why it's uncommented here.
-//		assertThat(executionContext.getLong(MetricNames.BEFORE_CHUNK_COUNT.getName(),0L),is(beforeChunkCount));
-//		validateGauge(MetricNames.BEFORE_CHUNK_GAUGE,beforeChunkCount);
+		assertThat(executionContext.getLong(MetricNames.BEFORE_CHUNK_COUNT.getName(),0L),is(beforeChunkCount));
+		validateGauge(MetricNames.BEFORE_CHUNK_GAUGE,beforeChunkCount);
 		assertThat(executionContext.getLong(MetricNames.STREAM_OPEN_COUNT.getName(),0L),is(streamOpenCount));
 		validateGauge(MetricNames.STREAM_OPEN_GAUGE,streamOpenCount);
-		// STREAM_UPDATE_COUNT is somehow indetermistic, that's why it's uncommented here.
-//		assertThat(executionContext.getLong(MetricNames.STREAM_UPDATE_COUNT.getName(),0L),is(streamUpdateCount));
-//		validateGauge(MetricNames.STREAM_UPDATE_GAUGE,streamUpdateCount);
+		assertThat(executionContext.getLong(MetricNames.STREAM_UPDATE_COUNT.getName(),0L),is(streamUpdateCount));
+		validateGauge(MetricNames.STREAM_UPDATE_GAUGE,streamUpdateCount);
 		// close is called after step processing, after StepExecutionListener execution,
 		// that's why we don't see these counters here.
 		assertThat(executionContext.getLong(MetricNames.STREAM_CLOSE_COUNT.getName(),0L),is(streamCloseCount));
@@ -92,9 +90,8 @@ public class MetricValidator {
 		validateGauge(MetricNames.AFTER_WRITE_GAUGE,afterWriteCount);
 		assertThat(executionContext.getLong(MetricNames.WRITE_ERROR_COUNT.getName(),0L),is(writeErrorCount));
 		validateGauge(MetricNames.WRITE_ERROR_GAUGE,writeErrorCount);
-		// AFTER_CHUNK_COUNT is somehow indetermistic, that's why it's uncommented here.
-//		assertThat(executionContext.getLong(MetricNames.AFTER_CHUNK_COUNT.getName(),0L),is(afterChunkCount));
-//		validateGauge(MetricNames.AFTER_CHUNK_GAUGE,afterChunkCount);
+		assertThat(executionContext.getLong(MetricNames.AFTER_CHUNK_COUNT.getName(),0L),is(afterChunkCount));
+		validateGauge(MetricNames.AFTER_CHUNK_GAUGE,afterChunkCount);
 		assertThat(executionContext.getLong(MetricNames.CHUNK_ERROR_COUNT.getName(),0L),is(chunkErrorCount));
 		validateGauge(MetricNames.CHUNK_ERROR_GAUGE,chunkErrorCount);
 		assertThat(executionContext.getLong(MetricNames.SKIP_IN_READ_COUNT.getName(),0L),is(skipInReadCount));

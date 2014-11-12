@@ -133,7 +133,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 		long writeCount = 3L;
 		MetricValidator validator = MetricValidatorBuilder.metricValidator().withExecutionContext(executionContext)
 				.withBeforeChunkCount(1L).withStreamOpenCount(1L).withStreamUpdateCount(2L).withStreamCloseCount(0L)
-				.withBeforeReadCount(6L).withReadCount(6L).withAfterReadCount(5L).withReadErrorCount(0L).withBeforeProcessCount(3L)
+				.withBeforeReadCount(6L).withReadCount(6L).withAfterReadCount(6L).withReadErrorCount(0L).withBeforeProcessCount(3L)
 				.withProcessCount(3L).withAfterProcessCount(3L).withProcessErrorCount(1L).withBeforeWriteCount(3L)
 				.withWriteCount(writeCount).withAfterWriteCount(3L).withAfterChunkCount(1L).withChunkErrorCount(1L)
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();
@@ -149,7 +149,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 		writeCount = 8L;
 		validator = MetricValidatorBuilder.metricValidator().withExecutionContext(executionContext).withValidateGauge(false)
 				.withBeforeChunkCount(3L).withStreamOpenCount(2L).withStreamUpdateCount(5L).withStreamCloseCount(0L)
-				.withBeforeReadCount(12L).withReadCount(12L).withAfterReadCount(10L).withReadErrorCount(0L).withBeforeProcessCount(8L)
+				.withBeforeReadCount(12L).withReadCount(12L).withAfterReadCount(11L).withReadErrorCount(0L).withBeforeProcessCount(8L)
 				.withProcessCount(8L).withAfterProcessCount(8L).withProcessErrorCount(1L).withBeforeWriteCount(8L)
 				.withWriteCount(writeCount).withAfterWriteCount(8L).withAfterChunkCount(3L).withChunkErrorCount(1L)
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();

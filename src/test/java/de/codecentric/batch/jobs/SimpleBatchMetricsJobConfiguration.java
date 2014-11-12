@@ -19,6 +19,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -73,6 +74,7 @@ public class SimpleBatchMetricsJobConfiguration {
 		return new MetricsItemProcessor(batchMetrics);
 	}
 
+	@StepScope
 	@Bean
 	public DummyItemReader reader() {
 		return new DummyItemReader();
