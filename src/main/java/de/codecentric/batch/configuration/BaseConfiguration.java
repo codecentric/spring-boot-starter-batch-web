@@ -26,11 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.repository.MetricRepository;
+import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 
 /**
- * I don't like autowiring of business components, I prefer to reference them from a 
+ * I don't like autowiring of business components, I prefer to reference them from a
  * JavaConfig configuration class. But since some components are created through other
  * Spring Boot components or by special mechanisms (for example the BatchConfigurer
  * mechanism) I want to have one place where I autowire all of those components and
@@ -41,7 +42,7 @@ import org.springframework.core.task.TaskExecutor;
  */
 @Configuration
 public class BaseConfiguration {
-	
+
 	// Created by spring-boot-starter-batch in combination with our TaskExecutorBatchConfigurer
 	@Autowired
 	private JobOperator jobOperator;
@@ -53,7 +54,7 @@ public class BaseConfiguration {
 	private JobRepository jobRepository;
 	@Autowired
 	private JobLauncher jobLauncher;
-	
+
 	// Created by spring-boot-starter-jdbc
 	@Autowired
 	private DataSource dataSource;
@@ -62,15 +63,17 @@ public class BaseConfiguration {
 	// a TaskExecutor instance has to be provided somehow.
 	@Autowired
 	private TaskExecutor taskExecutor;
-	
+
 	// Created by spring-boot-starter-actuator in MetricRepositoryAutoConfiguration.
+	@Autowired
+	private MetricWriter metricWriter;
 	@Autowired
 	private CounterService counterService;
 	@Autowired(required=false)
 	private GaugeService gaugeService;
 	@Autowired
 	private MetricRepository metricRepository;
-
+	
 	public JobOperator jobOperator() {
 		return jobOperator;
 	}
@@ -92,14 +95,16 @@ public class BaseConfiguration {
 	public TaskExecutor taskExecutor() {
 		return taskExecutor;
 	}
+	public MetricWriter metricWriter() {
+		return metricWriter;
+	}
 	public CounterService counterService() {
 		return counterService;
 	}
 	public GaugeService gaugeService() {
 		return gaugeService;
 	}
-	public MetricRepository metricRepository(){
+	public MetricRepository metricRepository() {
 		return metricRepository;
 	}
-	
 }

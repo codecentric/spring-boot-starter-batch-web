@@ -21,10 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.rich.RichGauge;
+import org.springframework.boot.actuate.metrics.writer.CompositeMetricWriter;
+import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 
 import de.codecentric.batch.configuration.BaseConfiguration;
 import de.codecentric.batch.metrics.ListenerMetricsAspect;
@@ -71,6 +74,13 @@ public class MetricsTestApplication {
     		
     	};
     }
-    
+
+	@Bean(name = "primaryMetricWriter")
+	@Primary
+	static public MetricWriter primaryMetricWriter(List<MetricWriter> writers) {
+		//Normally the Metrics are written asynchronously to Spring Boot's repository. In tests we need to do it synchronously to be able to verify the correct output.
+		MetricWriter compositeMetricWriter = new CompositeMetricWriter(writers);
+		return compositeMetricWriter;
+	}
 
 }

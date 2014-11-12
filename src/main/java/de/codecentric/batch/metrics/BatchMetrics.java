@@ -73,6 +73,12 @@ public interface BatchMetrics {
 	void increment(String metricName);
 
 	/**
+	 * Increment the specified counter by the given value. Transaction-aware.
+	 * @param metricName the name of the counter
+	 */
+	void increment(String metricName, Number value);
+
+	/**
 	 * Decrement the specified counter by 1. Transaction-aware.
 	 * @param metricName the name of the counter
 	 */
@@ -98,6 +104,12 @@ public interface BatchMetrics {
 	void incrementNonTransactional(String metricName);
 
 	/**
+	 * Increment the specified counter by the given value.
+	 * @param metricName the name of the counter
+	 */
+	void incrementNonTransactional(String metricName, Number value);
+
+	/**
 	 * Decrement the specified counter by 1.
 	 * @param metricName the name of the counter
 	 */
@@ -108,7 +120,7 @@ public interface BatchMetrics {
 	 * @param metricName the name of the counter
 	 */
 	void resetNonTransactional(String metricName);
-	
+
 	/**
 	 * Set the specified gauge value
 	 * @param metricName the name of the gauge to set

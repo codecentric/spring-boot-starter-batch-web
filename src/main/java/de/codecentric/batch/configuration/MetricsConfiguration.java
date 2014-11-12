@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import de.codecentric.batch.metrics.BatchMetricsImpl;
+import de.codecentric.batch.metrics.InMemoryMetricRepository;
 import de.codecentric.batch.metrics.MetricsListener;
 import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
 
@@ -41,20 +42,20 @@ import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
  */
 @ConditionalOnProperty("batch.metrics.enabled")
 @Configuration
-public class MetricsConfiguration implements ListenerProvider{
-	
+public class MetricsConfiguration implements ListenerProvider {
+
 	@Autowired
 	private Environment env;
 	@Autowired
 	private BaseConfiguration baseConfig;
 	@Autowired
 	private RichGaugeRepository richGaugeRepository;
-	
+
 	@Bean
-	public BatchMetricsImpl businessMetrics(){
-		return new BatchMetricsImpl(baseConfig.counterService(), baseConfig.gaugeService());
+	public BatchMetricsImpl businessMetrics() {
+		return new BatchMetricsImpl(baseConfig.metricWriter());
 	}
-	
+
 	@ConditionalOnProperty("batch.metrics.profiling.readprocesswrite.enabled")
 	@Bean
 	public ReaderProcessorWriterMetricsAspect batchMetricsAspects() {
@@ -77,7 +78,7 @@ public class MetricsConfiguration implements ListenerProvider{
 		listeners.add(metricsListener());
 		return listeners;
 	}
-	
+
 	@ConditionalOnProperty("batch.metrics.enabled")
 	@Configuration
 	static class MetricsRepositoryConfiguration {
@@ -92,6 +93,13 @@ public class MetricsConfiguration implements ListenerProvider{
 		@ConditionalOnMissingBean(RichGaugeRepository.class)
 		public RichGaugeRepository richGaugeRepository() {
 			return new InMemoryRichGaugeRepository();
+		}
+
+		@Bean
+		public InMemoryMetricRepository metricRepository() {
+			//Special InMemoryMetricRepository which deals with Doubles
+			//TODO Move to Spring Boot Repo
+			return new InMemoryMetricRepository();
 		}
 
 	}

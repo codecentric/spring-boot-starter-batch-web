@@ -48,10 +48,10 @@ import de.codecentric.batch.listener.LoggingListener;
  * 
  * @author Tobias Flohre
  */
-public class MetricsListener extends StepExecutionListenerSupport implements Ordered{
+public class MetricsListener extends StepExecutionListenerSupport implements Ordered {
 
 	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
-	
+
 	public static final String GAUGE_PREFIX = "gauge.batch.";
 
 	public static final String COUNTER_PREFIX = "counter.batch.";
@@ -61,7 +61,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	private boolean deleteMetricsOnStepFinish;
 	@Autowired(required=false)
 	private MetricsOutputFormatter metricsOutputFormatter = new SimpleMetricsOutputFormatter();
-	
+
 	public MetricsListener(RichGaugeRepository richGaugeRepository,
 			MetricRepository metricRepository, boolean deleteMetricsOnStepFinish) {
 		this.richGaugeRepository = richGaugeRepository;
@@ -71,16 +71,6 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
-		// What the f*** is that Thread.sleep doing here? ;-)
-		// Metrics are written asynchronously to Spring Boot's repository. In our tests we experienced
-		// that sometimes batch execution was so fast that this listener couldn't export the metrics
-		// because they hadn't been written. It all happened in the same millisecond. So we added
-		// a Thread.sleep of 100 milliseconds which gives us enough safety and doesn't hurt anyone.
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
 		List<RichGauge> gauges = exportBatchGauges(stepExecution);
 		List<Metric<?>> metrics = exportBatchMetrics(stepExecution);
 		LOGGER.info(metricsOutputFormatter.format(gauges, metrics));
@@ -92,20 +82,22 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
 		for (Metric<?> metric : metricRepository.findAll()) {
 			if (metric.getName().startsWith(COUNTER_PREFIX + stepExecutionIdentifier)) {
-				if (metric.getValue() instanceof Long){
-					// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
-					String key = metric.getName().substring((COUNTER_PREFIX + stepExecutionIdentifier).length()+1);
-					// Values from former failed StepExecution runs are added
-					Long newValue = (Long)metric.getValue();
-					if (stepExecution.getExecutionContext().containsKey(key)){
-						Long oldValue = stepExecution.getExecutionContext().getLong(key);
-						newValue += oldValue;
-						metric = metric.set(newValue);
+				// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
+				String key = metric.getName().substring((COUNTER_PREFIX + stepExecutionIdentifier).length() + 1);
+				// Values from former failed StepExecution runs are added
+				Number newValue = metric.getValue();
+				if (stepExecution.getExecutionContext().containsKey(key)) {
+					Number oldValue = (Number) stepExecution.getExecutionContext().get(key);
+					if (oldValue instanceof Double) {
+						newValue = (Double) newValue + oldValue.doubleValue();
+					} else {
+						newValue = (Long) newValue + oldValue.longValue();
 					}
-					stepExecution.getExecutionContext().putLong(key, newValue);
+					metric = metric.set(newValue);
 				}
+				stepExecution.getExecutionContext().put(key, newValue);
 				metrics.add(metric);
-				if (deleteMetricsOnStepFinish){
+				if (deleteMetricsOnStepFinish) {
 					metricRepository.reset(metric.getName());
 				}
 			}
@@ -128,7 +120,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		}
 		return gauges;
 	}
-	
+
 	private static class SimpleMetricsOutputFormatter implements MetricsOutputFormatter{
 
 		@Override

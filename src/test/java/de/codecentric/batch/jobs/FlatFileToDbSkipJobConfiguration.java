@@ -70,7 +70,7 @@ public class FlatFileToDbSkipJobConfiguration {
 	private DataSource dataSource;
 	
 	@Bean
-	public Job flatFileToDbNoSkipJob(){
+	public Job flatFileToDbSkipJob(){
 		return jobBuilders.get("flatFileToDbSkipJob")
 				.start(step())
 				.build();
