@@ -53,7 +53,7 @@ public class MetricsConfiguration implements ListenerProvider{
 	private RichGaugeRepository richGaugeRepository;
 	
 	@Bean
-	public BatchMetricsImpl businessMetrics(){
+	public BatchMetricsImpl batchMetrics(){
 		return new BatchMetricsImpl(counterService(), baseConfig.gaugeService());
 	}
 	
