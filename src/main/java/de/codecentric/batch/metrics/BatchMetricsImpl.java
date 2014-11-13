@@ -81,6 +81,11 @@ public class BatchMetricsImpl implements BatchMetrics {
 	}
 
 	@Override
+	public void decrementNonTransactional(String metricName, Long value) {
+		counterService.decrement(wrap(metricName),value);
+	}
+	
+	@Override
 	public void resetNonTransactional(String metricName) {
 		counterService.reset(wrap(metricName));
 	}

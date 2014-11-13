@@ -118,6 +118,13 @@ public interface BatchMetrics {
 	void decrementNonTransactional(String metricName);
 
 	/**
+	 * Decrement the specified counter by the given value.
+	 * @param metricName the name of the counter
+	 * @param value the amount to decrement by
+	 */
+	void decrementNonTransactional(String metricName, Long value);
+	
+	/**
 	 * Reset the specified counter.
 	 * @param metricName the name of the counter
 	 */
