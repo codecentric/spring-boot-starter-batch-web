@@ -75,8 +75,9 @@ public interface BatchMetrics {
 	/**
 	 * Increment the specified counter by the given value. Transaction-aware.
 	 * @param metricName the name of the counter
+	 * @param value the amount to increment by
 	 */
-	void increment(String metricName, Number value);
+	void increment(String metricName, Long value);
 
 	/**
 	 * Decrement the specified counter by 1. Transaction-aware.
@@ -106,8 +107,9 @@ public interface BatchMetrics {
 	/**
 	 * Increment the specified counter by the given value.
 	 * @param metricName the name of the counter
+	 * @param value the amount to increment by
 	 */
-	void incrementNonTransactional(String metricName, Number value);
+	void incrementNonTransactional(String metricName, Long value);
 
 	/**
 	 * Decrement the specified counter by 1.

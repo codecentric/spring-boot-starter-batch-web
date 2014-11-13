@@ -48,10 +48,10 @@ import de.codecentric.batch.listener.LoggingListener;
  * 
  * @author Tobias Flohre
  */
-public class MetricsListener extends StepExecutionListenerSupport implements Ordered {
+public class MetricsListener extends StepExecutionListenerSupport implements Ordered{
 
 	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
-
+	
 	public static final String GAUGE_PREFIX = "gauge.batch.";
 
 	public static final String COUNTER_PREFIX = "counter.batch.";
@@ -61,7 +61,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	private boolean deleteMetricsOnStepFinish;
 	@Autowired(required=false)
 	private MetricsOutputFormatter metricsOutputFormatter = new SimpleMetricsOutputFormatter();
-
+	
 	public MetricsListener(RichGaugeRepository richGaugeRepository,
 			MetricRepository metricRepository, boolean deleteMetricsOnStepFinish) {
 		this.richGaugeRepository = richGaugeRepository;
@@ -92,22 +92,20 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
 		for (Metric<?> metric : metricRepository.findAll()) {
 			if (metric.getName().startsWith(COUNTER_PREFIX + stepExecutionIdentifier)) {
-				// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
-				String key = metric.getName().substring((COUNTER_PREFIX + stepExecutionIdentifier).length() + 1);
-				// Values from former failed StepExecution runs are added
-				Number newValue = metric.getValue();
-				if (stepExecution.getExecutionContext().containsKey(key)) {
-					Number oldValue = (Number) stepExecution.getExecutionContext().get(key);
-					if (oldValue instanceof Double) {
-						newValue = (Double) newValue + oldValue.doubleValue();
-					} else {
-						newValue = (Long) newValue + oldValue.longValue();
+				if (metric.getValue() instanceof Long){
+					// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
+					String key = metric.getName().substring((COUNTER_PREFIX + stepExecutionIdentifier).length()+1);
+					// Values from former failed StepExecution runs are added
+					Long newValue = (Long)metric.getValue();
+					if (stepExecution.getExecutionContext().containsKey(key)){
+						Long oldValue = stepExecution.getExecutionContext().getLong(key);
+						newValue += oldValue;
+						metric = metric.set(newValue);
 					}
-					metric = metric.set(newValue);
+					stepExecution.getExecutionContext().putLong(key, newValue);
 				}
-				stepExecution.getExecutionContext().put(key, newValue);
 				metrics.add(metric);
-				if (deleteMetricsOnStepFinish) {
+				if (deleteMetricsOnStepFinish){
 					metricRepository.reset(metric.getName());
 				}
 			}
@@ -130,7 +128,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		}
 		return gauges;
 	}
-
+	
 	private static class SimpleMetricsOutputFormatter implements MetricsOutputFormatter{
 
 		@Override
