@@ -26,14 +26,13 @@ import de.codecentric.batch.listener.LoggingListener;
  * @author Tobias Flohre
  */
 public class BatchMetricsImpl implements BatchMetrics {
-	
+
 	private ExtendedCounterService counterService;
 	private GaugeService gaugeService;
 	private ExtendedCounterService transactionAwareCounterService;
 	private GaugeService transactionAwareGaugeService;
-	
-	public BatchMetricsImpl(ExtendedCounterService counterService,
-			GaugeService gaugeService) {
+
+	public BatchMetricsImpl(ExtendedCounterService counterService, GaugeService gaugeService) {
 		this.counterService = counterService;
 		this.gaugeService = gaugeService;
 		this.transactionAwareCounterService = new TransactionAwareExtendedCounterService(counterService);
@@ -44,15 +43,20 @@ public class BatchMetricsImpl implements BatchMetrics {
 	public void increment(String metricName) {
 		transactionAwareCounterService.increment(wrap(metricName));
 	}
-	
+
 	@Override
 	public void increment(String metricName, Long value) {
-		transactionAwareCounterService.increment(wrap(metricName),value);
+		transactionAwareCounterService.increment(wrap(metricName), value);
 	}
 
 	@Override
 	public void decrement(String metricName) {
 		transactionAwareCounterService.decrement(wrap(metricName));
+	}
+
+	@Override
+	public void decrement(String metricName, Long value) {
+		transactionAwareCounterService.decrement(wrap(metricName), value);
 	}
 
 	@Override
@@ -69,12 +73,12 @@ public class BatchMetricsImpl implements BatchMetrics {
 	public void incrementNonTransactional(String metricName) {
 		counterService.increment(wrap(metricName));
 	}
-	
+
 	@Override
 	public void incrementNonTransactional(String metricName, Long value) {
-		counterService.increment(wrap(metricName),value);
+		counterService.increment(wrap(metricName), value);
 	}
-	
+
 	@Override
 	public void decrementNonTransactional(String metricName) {
 		counterService.decrement(wrap(metricName));
@@ -82,9 +86,9 @@ public class BatchMetricsImpl implements BatchMetrics {
 
 	@Override
 	public void decrementNonTransactional(String metricName, Long value) {
-		counterService.decrement(wrap(metricName),value);
+		counterService.decrement(wrap(metricName), value);
 	}
-	
+
 	@Override
 	public void resetNonTransactional(String metricName) {
 		counterService.reset(wrap(metricName));
@@ -94,7 +98,7 @@ public class BatchMetricsImpl implements BatchMetrics {
 	public void submitNonTransactional(String metricName, double value) {
 		gaugeService.submit(wrap(metricName), value);
 	}
-	
+
 	private String wrap(String metricName) {
 		return "batch." + MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER) + "." + metricName;
 	}

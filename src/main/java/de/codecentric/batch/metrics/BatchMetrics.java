@@ -15,18 +15,17 @@
  */
 package de.codecentric.batch.metrics;
 
-
 /**
  * Interface for business metrics.
  * 
- * All metric names get the prefix 'batch.{jobName}.{jobExecutionId}.' in addition to other prefixes. 
- * For example, when using the {@link org.springframework.boot.actuate.metrics.writer.DefaultCounterService}
- * the complete prefix will be 'counter.batch.{jobName}.{jobExecutionId}.'. When written to the 
+ * All metric names get the prefix 'batch.{jobName}.{jobExecutionId}.' in addition to other prefixes.
+ * For example, when using the {@link org.springframework.boot.actuate.metrics.writer.DefaultCounterService} the complete prefix will be
+ * 'counter.batch.{jobName}.{jobExecutionId}.'. When written to the
  * Step-ExecutionContext, the complete prefix is omitted.
  * 
  * There are two types of methods: non-transactional methods and transactional methods. The methods that
  * don't include 'NonTransactional' in their name are by default transaction-aware. That means that
- * their execution is delayed after a successful commit of the current transaction. If there's no 
+ * their execution is delayed after a successful commit of the current transaction. If there's no
  * current transaction, the method is executed immediately. The non-transactional methods are
  * executed directly, no matter if there's a transaction or not.
  * 
@@ -43,7 +42,7 @@ package de.codecentric.batch.metrics;
  * work: https://blog.codecentric.de/en/2012/03/transactions-in-spring-batch-part-1-the-basics/.
  * 
  * The thing is that Spring Batch's transactional behaviour is smart, but gets in your way if you do the metrics
- * in a naive way. When using skip functionality, for example, it may happen that a process - method of a 
+ * in a naive way. When using skip functionality, for example, it may happen that a process - method of a
  * ItemProcessor gets executed several times for one successful processed item, because the item was together
  * in a chunk with a bad item, and the chunk was rolled back. If your counting doesn't get rolled back as well,
  * the metric is wrong. That's why it's so essential to have transactional metrics in Spring Batch.
@@ -59,8 +58,8 @@ package de.codecentric.batch.metrics;
  * ItemProcessor and the ItemProcessListener. And, of course, if you are counting errors in the onError-methods
  * of ItemListeners, you have to use the non-transactional methods because a rollback is going to happen afterwards.
  * If you do a filter in an ItemProcessor you have to use the non-transactional methods, because filtered items
- * are removed from the item cache as well and will never be reprocessed. When using the AsyncItemProcessor there 
- * is no filtering possible at all, because a Future-Object is always returned from the ItemProcessor. 
+ * are removed from the item cache as well and will never be reprocessed. When using the AsyncItemProcessor there
+ * is no filtering possible at all, because a Future-Object is always returned from the ItemProcessor.
  * 
  * @author Tobias Flohre
  */
@@ -68,12 +67,14 @@ public interface BatchMetrics {
 
 	/**
 	 * Increment the specified counter by 1. Transaction-aware.
+	 * 
 	 * @param metricName the name of the counter
 	 */
 	void increment(String metricName);
 
 	/**
 	 * Increment the specified counter by the given value. Transaction-aware.
+	 * 
 	 * @param metricName the name of the counter
 	 * @param value the amount to increment by
 	 */
@@ -81,18 +82,29 @@ public interface BatchMetrics {
 
 	/**
 	 * Decrement the specified counter by 1. Transaction-aware.
+	 * 
 	 * @param metricName the name of the counter
 	 */
 	void decrement(String metricName);
 
 	/**
+	 * Decrement the specified counter by the given value. Transaction-aware.
+	 * 
+	 * @param metricName the name of the counter
+	 * @param value the amount to decrement by
+	 */
+	void decrement(String metricName, Long value);
+
+	/**
 	 * Reset the specified counter. Transaction-aware.
+	 * 
 	 * @param metricName the name of the counter
 	 */
 	void reset(String metricName);
 
 	/**
 	 * Set the specified gauge value. Transaction-aware.
+	 * 
 	 * @param metricName the name of the gauge to set
 	 * @param value the value of the gauge
 	 */
@@ -100,12 +112,14 @@ public interface BatchMetrics {
 
 	/**
 	 * Increment the specified counter by 1.
+	 * 
 	 * @param metricName the name of the counter
 	 */
 	void incrementNonTransactional(String metricName);
 
 	/**
 	 * Increment the specified counter by the given value.
+	 * 
 	 * @param metricName the name of the counter
 	 * @param value the amount to increment by
 	 */
@@ -113,25 +127,29 @@ public interface BatchMetrics {
 
 	/**
 	 * Decrement the specified counter by 1.
+	 * 
 	 * @param metricName the name of the counter
 	 */
 	void decrementNonTransactional(String metricName);
 
 	/**
 	 * Decrement the specified counter by the given value.
+	 * 
 	 * @param metricName the name of the counter
 	 * @param value the amount to decrement by
 	 */
 	void decrementNonTransactional(String metricName, Long value);
-	
+
 	/**
 	 * Reset the specified counter.
+	 * 
 	 * @param metricName the name of the counter
 	 */
 	void resetNonTransactional(String metricName);
 
 	/**
 	 * Set the specified gauge value
+	 * 
 	 * @param metricName the name of the gauge to set
 	 * @param value the value of the gauge
 	 */
