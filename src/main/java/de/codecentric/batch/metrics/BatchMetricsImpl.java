@@ -16,7 +16,9 @@
 package de.codecentric.batch.metrics;
 
 import org.slf4j.MDC;
-import org.springframework.boot.actuate.metrics.GaugeService;
+import org.springframework.boot.actuate.metrics.Metric;
+import org.springframework.boot.actuate.metrics.writer.Delta;
+import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 
 import de.codecentric.batch.listener.LoggingListener;
 
@@ -27,80 +29,80 @@ import de.codecentric.batch.listener.LoggingListener;
  */
 public class BatchMetricsImpl implements BatchMetrics {
 
-	private ExtendedCounterService counterService;
-	private GaugeService gaugeService;
-	private ExtendedCounterService transactionAwareCounterService;
-	private GaugeService transactionAwareGaugeService;
+	private MetricWriter metricWriter;
+	private MetricWriter transactionAwareMetricWriter;
 
-	public BatchMetricsImpl(ExtendedCounterService counterService, GaugeService gaugeService) {
-		this.counterService = counterService;
-		this.gaugeService = gaugeService;
-		this.transactionAwareCounterService = new TransactionAwareExtendedCounterService(counterService);
-		this.transactionAwareGaugeService = new TransactionAwareGaugeService(gaugeService);
+	public BatchMetricsImpl(MetricWriter metricWriter) {
+		this.metricWriter = metricWriter;
+		this.transactionAwareMetricWriter = new TransactionAwareMetricWriter(metricWriter);
 	}
 
 	@Override
 	public void increment(String metricName) {
-		transactionAwareCounterService.increment(wrap(metricName));
+		transactionAwareMetricWriter.increment(new Delta<Long>(wrapCounter(metricName), 1L));
 	}
 
 	@Override
 	public void increment(String metricName, Long value) {
-		transactionAwareCounterService.increment(wrap(metricName), value);
+		transactionAwareMetricWriter.increment(new Delta<Long>(wrapCounter(metricName), value));
 	}
 
 	@Override
 	public void decrement(String metricName) {
-		transactionAwareCounterService.decrement(wrap(metricName));
+		transactionAwareMetricWriter.increment(new Delta<Long>(wrapCounter(metricName), -1L));
 	}
 
 	@Override
 	public void decrement(String metricName, Long value) {
-		transactionAwareCounterService.decrement(wrap(metricName), value);
+		transactionAwareMetricWriter.increment(new Delta<Long>(wrapCounter(metricName), -value));
 	}
 
 	@Override
 	public void reset(String metricName) {
-		transactionAwareCounterService.reset(wrap(metricName));
+		transactionAwareMetricWriter.reset(wrapCounter(metricName));
 	}
 
 	@Override
 	public void submit(String metricName, double value) {
-		transactionAwareGaugeService.submit(wrap(metricName), value);
+		transactionAwareMetricWriter.set(new Metric<Double>(wrapGauge(metricName), value));
 	}
 
 	@Override
 	public void incrementNonTransactional(String metricName) {
-		counterService.increment(wrap(metricName));
+		metricWriter.increment(new Delta<Long>(wrapCounter(metricName), 1L));
 	}
 
 	@Override
 	public void incrementNonTransactional(String metricName, Long value) {
-		counterService.increment(wrap(metricName), value);
+		metricWriter.increment(new Delta<Long>(wrapCounter(metricName), value));
 	}
 
 	@Override
 	public void decrementNonTransactional(String metricName) {
-		counterService.decrement(wrap(metricName));
+		metricWriter.increment(new Delta<Long>(wrapCounter(metricName), -1L));
 	}
 
 	@Override
 	public void decrementNonTransactional(String metricName, Long value) {
-		counterService.decrement(wrap(metricName), value);
+		metricWriter.increment(new Delta<Long>(wrapCounter(metricName), -value));
 	}
 
 	@Override
 	public void resetNonTransactional(String metricName) {
-		counterService.reset(wrap(metricName));
+		metricWriter.reset(wrapCounter(metricName));
 	}
 
 	@Override
 	public void submitNonTransactional(String metricName, double value) {
-		gaugeService.submit(wrap(metricName), value);
+		metricWriter.set(new Metric<Double>(wrapGauge(metricName), value));
 	}
-
-	private String wrap(String metricName) {
-		return "batch." + MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER) + "." + metricName;
+	
+	private String wrapCounter(String metricName) {
+		return "counter." + "batch." + MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER) + "." + metricName;
+	}
+	
+	private String wrapGauge(String metricName) {
+		return "gauge." + "batch." + MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER) + "." + metricName;
 	}
 
 }
