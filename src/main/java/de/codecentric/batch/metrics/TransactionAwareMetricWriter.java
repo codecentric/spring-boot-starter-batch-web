@@ -20,45 +20,42 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.writer.Delta;
+import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
- * This {@link CounterService} delays actions until the transactions has been successfully
+ * This {@link MetricWriter} delays actions until the transactions has been successfully
  * committed. If the transaction is rolled back, the changes are not applied.
  * Actions outside of transactions are applied immediately.
  * 
  * @author Tobias Flohre
+ * @author Dennis Schulte
  */
-public class TransactionAwareExtendedCounterService extends TransactionSynchronizationAdapter implements ExtendedCounterService {
+public class TransactionAwareMetricWriter extends TransactionSynchronizationAdapter implements MetricWriter {
 	
-	private static final Log log = LogFactory.getLog(TransactionAwareExtendedCounterService.class);
+	private static final Log log = LogFactory.getLog(TransactionAwareMetricWriter.class);
 
-	private ExtendedCounterService delegate;
-	private ThreadLocal<CounterContainer> counterContainer;
+	private MetricWriter delegate;
+	private ThreadLocal<MetricContainer> metricContainer;
 	private final Object serviceKey;
 
-	public TransactionAwareExtendedCounterService(ExtendedCounterService delegate) {
+	public TransactionAwareMetricWriter(MetricWriter delegate) {
 		super();
 		this.delegate = delegate;
 		this.serviceKey = new Object();
-		this.counterContainer = new ThreadLocal<CounterContainer>();
-	}
-
-	@Override
-	public void increment(String metricName) {
-		increment(metricName, 1L);
+		this.metricContainer = new ThreadLocal<MetricContainer>();
 	}
 	
 	@Override
-	public void increment(String metricName, Long value) {
+	public void increment(Delta<?> delta) {
 		if (TransactionSynchronizationManager.isSynchronizationActive()){
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			counterContainer.get().incrementations.add(new Delta<Long>(metricName, value));
+			metricContainer.get().incrementations.add(delta);
 		} else {
-			delegate.increment(metricName, value);
+			delegate.increment(delta);
 		}
 	}
 
@@ -67,31 +64,26 @@ public class TransactionAwareExtendedCounterService extends TransactionSynchroni
 			TransactionSynchronizationManager.bindResource(serviceKey, new StringBuffer());
 			TransactionSynchronizationManager.registerSynchronization(this);
 		}
-		if (counterContainer.get() == null){
-			counterContainer.set(new CounterContainer());
+		if (metricContainer.get() == null){
+			metricContainer.set(new MetricContainer());
 		}
 	}
 
 	@Override
-	public void decrement(String metricName) {
-		decrement(metricName, 1L);
-	}
-	
-	@Override
-	public void decrement(String metricName, Long value) {
+	public void set(Metric<?> value) {
 		if (TransactionSynchronizationManager.isSynchronizationActive()){
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			counterContainer.get().decrementations.add(new Delta<Long>(metricName, value));
+			metricContainer.get().gauges.add(value);
 		} else {
-			delegate.decrement(metricName, value);
+			delegate.set(value);
 		}
 	}
-
+	
 	@Override
 	public void reset(String metricName) {
 		if (TransactionSynchronizationManager.isSynchronizationActive()){
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			counterContainer.get().resets.add(metricName);
+			metricContainer.get().resets.add(metricName);
 		} else {
 			delegate.reset(metricName);
 		}
@@ -103,29 +95,29 @@ public class TransactionAwareExtendedCounterService extends TransactionSynchroni
 			log.debug("Entered afterCompletion with status "+status+".");
 		}
 		if (status == STATUS_COMMITTED){
-			CounterContainer currentCounterContainer = counterContainer.get();
-			for (Delta<Long> incrementation : currentCounterContainer.incrementations){
+			MetricContainer currentMetricContainer = metricContainer.get();
+			for (Delta<?> incrementation : currentMetricContainer.incrementations){
 				if (log.isDebugEnabled()){
 					log.debug("Increment "+incrementation+".");
 				}
-				delegate.increment(incrementation.getName(),incrementation.getValue().longValue());
+				delegate.increment(incrementation);
 			}
-			for (Delta<Long> decrementation: currentCounterContainer.decrementations){
-				delegate.decrement(decrementation.getName(),decrementation.getValue().longValue());
+			for (Metric<?> gauge : currentMetricContainer.gauges){
+				delegate.set(gauge);
 			}
-			for (String reset: currentCounterContainer.resets){
+			for (String reset: currentMetricContainer.resets){
 				delegate.reset(reset);
 			}
 		}
-		counterContainer.remove();
+		metricContainer.remove();
 		if (TransactionSynchronizationManager.hasResource(serviceKey)) {
 			TransactionSynchronizationManager.unbindResource(serviceKey);
 		}
 	}
 	
-	private static class CounterContainer {
-		List<Delta<Long>> incrementations = new ArrayList<Delta<Long>>();
-		List<Delta<Long>> decrementations = new ArrayList<Delta<Long>>();
+	private static class MetricContainer {
+		List<Delta<?>> incrementations = new ArrayList<Delta<?>>();
+		List<Metric<?>>  gauges = new ArrayList<Metric<?>>();
 		List<String> resets = new ArrayList<String>();
 	}
 	

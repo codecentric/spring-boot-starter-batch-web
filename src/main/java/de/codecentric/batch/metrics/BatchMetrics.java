@@ -19,7 +19,7 @@ package de.codecentric.batch.metrics;
  * Interface for business metrics.
  * 
  * All metric names get the prefix 'batch.{jobName}.{jobExecutionId}.' in addition to other prefixes.
- * For example, when using the {@link org.springframework.boot.actuate.metrics.writer.DefaultCounterService} the complete prefix will be
+ * For example, when using the counter methods (increment, decrement, reset) the complete prefix will be
  * 'counter.batch.{jobName}.{jobExecutionId}.'. When written to the
  * Step-ExecutionContext, the complete prefix is omitted.
  * 

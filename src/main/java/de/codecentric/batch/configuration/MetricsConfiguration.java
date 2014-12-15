@@ -23,6 +23,7 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.rich.InMemoryRichGaugeRepository;
 import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
+import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +31,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import de.codecentric.batch.metrics.BatchMetricsImpl;
-import de.codecentric.batch.metrics.DefaultExtendedCounterService;
-import de.codecentric.batch.metrics.ExtendedCounterService;
 import de.codecentric.batch.metrics.MetricsListener;
 import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
 
@@ -51,15 +50,12 @@ public class MetricsConfiguration implements ListenerProvider{
 	private BaseConfiguration baseConfig;
 	@Autowired
 	private RichGaugeRepository richGaugeRepository;
+	@Autowired
+	private MetricWriter metricWriter;
 	
 	@Bean
 	public BatchMetricsImpl batchMetrics(){
-		return new BatchMetricsImpl(counterService(), baseConfig.gaugeService());
-	}
-	
-	@Bean
-	public ExtendedCounterService counterService() {
-		return new DefaultExtendedCounterService(baseConfig.metricRepository());
+		return new BatchMetricsImpl(metricWriter);
 	}
 	
 	@ConditionalOnProperty("batch.metrics.profiling.readprocesswrite.enabled")
