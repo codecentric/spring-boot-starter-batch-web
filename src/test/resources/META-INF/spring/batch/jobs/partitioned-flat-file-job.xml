@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd">
+
+	<batch:job id="partitionedFlatFileJobXml">
+		<batch:step id="partitionedStep" >
+			<batch:partition step="flatfilePartitioningStep" partitioner="partitioner">
+				<batch:handler task-executor="taskExecutor" />
+			</batch:partition>
+		</batch:step>
+	</batch:job>
+
+	<batch:step id="flatfilePartitioningStep">
+		<batch:tasklet>
+			<batch:chunk commit-interval="1" reader="reader" writer="writer">
+			</batch:chunk>
+		</batch:tasklet>
+	</batch:step>
+		
+	<bean id="reader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<property name="resource" value="#{stepExecutionContext['fileName']}" />
+		<property name="lineMapper">
+			<bean
+				class="org.springframework.batch.item.file.mapping.PassThroughLineMapper" />
+		</property>
+	</bean>
+
+	<bean id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
+		<property name="resources" value="file:src/test/resources/partition-*.txt" />
+	</bean>
+	
+	<bean id="writer" class="de.codecentric.batch.item.LogItemWriter"/>
+
+</beans>
