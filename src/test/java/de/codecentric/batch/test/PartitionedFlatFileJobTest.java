@@ -18,6 +18,7 @@ package de.codecentric.batch.test;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
@@ -41,6 +42,7 @@ public class PartitionedFlatFileJobTest {
 	private JobRepository jobRepository;
 
 	@Test
+	@Ignore
 	public void runXmlJob() throws Exception {
 		jobOperator.start("partitionedFlatFileJobXml", "");
 		while (jobRepository.getLastJobExecution("partitionedFlatFileJobXml", new JobParameters()).getStatus().isRunning()) {
