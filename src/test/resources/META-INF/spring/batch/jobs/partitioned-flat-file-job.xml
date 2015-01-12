@@ -6,8 +6,9 @@
 		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd">
 
 	<batch:job id="partitionedFlatFileJobXml">
-		<batch:step id="partitionedStep" >
-			<batch:partition step="flatfilePartitioningStep" partitioner="partitioner">
+		<batch:step id="partitionedStep">
+			<batch:partition step="flatfilePartitioningStep"
+				partitioner="partitioner">
 				<batch:handler task-executor="taskExecutor" />
 			</batch:partition>
 		</batch:step>
@@ -17,10 +18,16 @@
 		<batch:tasklet>
 			<batch:chunk commit-interval="1" reader="reader" writer="writer">
 			</batch:chunk>
+			<batch:listeners>
+				<!-- These Listeners needs to be explicitly defined to ensure the MDC 
+					is correctly filled with the joblogFilename in all threads -->
+				<batch:listener ref="loggingListener" />
+			</batch:listeners>
 		</batch:tasklet>
 	</batch:step>
-		
-	<bean id="reader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+
+	<bean id="reader" class="org.springframework.batch.item.file.FlatFileItemReader"
+		scope="step">
 		<property name="resource" value="#{stepExecutionContext['fileName']}" />
 		<property name="lineMapper">
 			<bean
@@ -28,10 +35,11 @@
 		</property>
 	</bean>
 
-	<bean id="partitioner" class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
+	<bean id="partitioner"
+		class="org.springframework.batch.core.partition.support.MultiResourcePartitioner">
 		<property name="resources" value="file:src/test/resources/partition-*.txt" />
 	</bean>
-	
-	<bean id="writer" class="de.codecentric.batch.item.LogItemWriter"/>
+
+	<bean id="writer" class="de.codecentric.batch.item.LogItemWriter" />
 
 </beans>
