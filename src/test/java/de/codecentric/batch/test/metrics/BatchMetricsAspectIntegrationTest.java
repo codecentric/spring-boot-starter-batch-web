@@ -16,6 +16,7 @@
 package de.codecentric.batch.test.metrics;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -25,6 +26,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.boot.actuate.metrics.rich.RichGauge;
 import org.springframework.boot.test.IntegrationTest;
@@ -74,9 +76,10 @@ public class BatchMetricsAspectIntegrationTest {
 		assertThat(writerGauge.getCount(),is(3L));
 		assertThat(listenerGauge.getCount(),is(3L));
 		String jobExecutionString = restTemplate.getForObject("http://localhost:8091/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
-		assertThat(jobExecutionString.contains("COMPLETED"),is(true));
-		
-		assertThat((Long)metricRepository.findOne("counter.batch.simpleBatchMetricsJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step.processor").getValue(),is(7l));
+		assertThat(jobExecutionString.contains("COMPLETED"),is(true));		
+		Metric<?> metric = metricRepository.findOne("counter.batch.simpleBatchMetricsJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step.processor");
+		assertThat(metric,is(notNullValue()));	
+		assertThat((Long)metric.getValue(),is(7l));
 	}
 
 }
