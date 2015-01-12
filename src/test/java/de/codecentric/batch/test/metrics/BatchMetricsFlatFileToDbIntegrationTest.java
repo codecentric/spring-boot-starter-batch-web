@@ -102,7 +102,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(5l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(5l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
@@ -120,7 +120,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(3l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(3l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
@@ -139,7 +139,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(3l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(3l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 
 		FileCopyUtils.copy(new File("src/test/resources/metrics/flatFileToDbNoSkipJob_Restart_SecondRun.csv"), new File("src/test/resources/metrics/flatFileToDbNoSkipJob_Restart.csv"));
@@ -156,7 +156,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
 		// processCount is 5 for second run, metrics aren't cumulated
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(5l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbNoSkipJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(5l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 		new File("src/test/resources/metrics/flatFileToDbNoSkipJob_Restart.csv").delete();
 	}
@@ -175,7 +175,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(1L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(7l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(7l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
@@ -193,7 +193,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(2L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(7l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(7l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
@@ -211,7 +211,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(1L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(7l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(7l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
@@ -229,7 +229,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(1L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(7l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(7l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
@@ -247,7 +247,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(1L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipProcessorNonTransactionalJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(8l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipProcessorNonTransactionalJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(8l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
@@ -266,7 +266,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 		// TODO Bug in beforeWrite listener in Spring Batch?
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipProcessorNonTransactionalJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(8l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipProcessorNonTransactionalJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(8l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
@@ -291,7 +291,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 				.withSkipInReadCount(0L).withSkipInProcessCount(0L).withSkipInWriteCount(0L).build();
 		validator.validate();
 		// if one is correct, all will be in the MetricRepository, so I check just one
-		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipReaderTransactionalJob."+jobExecution.getStepExecutions().iterator().next().getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(5l));
+		assertThat((Long)metricRepository.findOne("counter.batch.flatFileToDbSkipReaderTransactionalJob."+jobExecution.getId()+".step."+MetricNames.PROCESS_COUNT.getName()).getValue(),is(5l));
 		assertThat(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ITEM", Long.class),is(writeCount));
 	}
 
