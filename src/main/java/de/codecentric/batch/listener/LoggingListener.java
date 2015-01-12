@@ -49,8 +49,6 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 	private JobLogFileNameCreator jobLogFileNameCreator = new DefaultJobLogFileNameCreator();
 
 	public static final String JOBLOG_FILENAME = "jobLogFileName";
-	public static final String JOB_EXECUTION_IDENTIFIER = "jobExecutionIdentifier";
-	public static final String STEP_EXECUTION_IDENTIFIER = "stepExecutionIdentifier";
 
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
@@ -59,7 +57,6 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 
 	private void insertValuesIntoMDC(JobExecution jobExecution) {
 		MDC.put(JOBLOG_FILENAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
-		MDC.put(JOB_EXECUTION_IDENTIFIER, jobExecution.getJobInstance().getJobName()+"."+jobExecution.getId());
 	}
 
 	@Override
@@ -69,14 +66,11 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 
 	private void removeValuesFromMDC() {
 		MDC.remove(JOBLOG_FILENAME);
-		MDC.remove(JOB_EXECUTION_IDENTIFIER);
-		MDC.remove(STEP_EXECUTION_IDENTIFIER);
 	}
 
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
 		insertValuesIntoMDC(stepExecution.getJobExecution());
-		MDC.put(STEP_EXECUTION_IDENTIFIER, MDC.get(JOB_EXECUTION_IDENTIFIER)+"."+stepExecution.getStepName());
 	}
 
 	@Override

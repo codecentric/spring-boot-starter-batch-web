@@ -15,12 +15,14 @@
  */
 package de.codecentric.batch.metrics;
 
-import org.slf4j.MDC;
+
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
-
-import de.codecentric.batch.listener.LoggingListener;
 
 /**
  * See {@link BatchMetrics} for documentation.
@@ -98,11 +100,18 @@ public class BatchMetricsImpl implements BatchMetrics {
 	}
 	
 	private String wrapCounter(String metricName) {
-		return "counter." + "batch." + MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER) + "." + metricName;
+		return "counter." + "batch." + getStepExecutionIdentifier() + "." + metricName;
 	}
 	
 	private String wrapGauge(String metricName) {
-		return "gauge." + "batch." + MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER) + "." + metricName;
+		return "gauge." + "batch." + getStepExecutionIdentifier() + "." + metricName;
+	}
+	
+	private String getStepExecutionIdentifier(){
+		StepContext stepContext = StepSynchronizationManager.getContext();
+		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
+		JobExecution jobExecution = stepExecution.getJobExecution();
+		return stepContext.getJobName()+"."+jobExecution.getId()+"."+stepExecution.getStepName();
 	}
 
 }

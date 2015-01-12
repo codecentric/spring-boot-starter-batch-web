@@ -8,15 +8,16 @@ import static org.mockito.Mockito.verify;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.MDC;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionSynchronizationUtils;
-
-import de.codecentric.batch.listener.LoggingListener;
 
 public class BatchMetricsImplTest {
 
@@ -27,7 +28,7 @@ public class BatchMetricsImplTest {
 	public void beforeTest() {
 		metricWriterMock = mock(MetricWriter.class);
 		batchMetrics = new BatchMetricsImpl(metricWriterMock);
-		MDC.put(LoggingListener.STEP_EXECUTION_IDENTIFIER, "jobname-1");
+		StepSynchronizationManager.register(new StepExecution("step",new JobExecution(new JobInstance(1L,"jobname"),1L,null, null)));
 	}
 
 	@Test
@@ -42,7 +43,7 @@ public class BatchMetricsImplTest {
 		TransactionSynchronizationManager.clearSynchronization();
 		ArgumentCaptor<Delta> argumentCaptor = ArgumentCaptor.forClass(Delta.class);
 		verify(metricWriterMock).increment(argumentCaptor.capture());
-		assertThat(argumentCaptor.getValue().getName(), equalTo("counter.batch.jobname-1.counter.test"));
+		assertThat(argumentCaptor.getValue().getName(), equalTo("counter.batch.jobname.1.step.counter.test"));
 		assertThat((Long)argumentCaptor.getValue().getValue(), equalTo(1L));
 	}
 
@@ -58,7 +59,7 @@ public class BatchMetricsImplTest {
 		TransactionSynchronizationManager.clearSynchronization();
 		ArgumentCaptor<Delta> argumentCaptor = ArgumentCaptor.forClass(Delta.class);
 		verify(metricWriterMock).increment(argumentCaptor.capture());
-		assertThat(argumentCaptor.getValue().getName(), equalTo("counter.batch.jobname-1.counter.test"));
+		assertThat(argumentCaptor.getValue().getName(), equalTo("counter.batch.jobname.1.step.counter.test"));
 		assertThat((Long)argumentCaptor.getValue().getValue(), equalTo(-1L));
 	}
 
@@ -72,7 +73,7 @@ public class BatchMetricsImplTest {
 		// Then
 		ArgumentCaptor<Delta> argumentCaptor = ArgumentCaptor.forClass(Delta.class);
 		verify(metricWriterMock).increment(argumentCaptor.capture());
-		assertThat(argumentCaptor.getValue().getName(), equalTo("counter.batch.jobname-1.counter.test"));
+		assertThat(argumentCaptor.getValue().getName(), equalTo("counter.batch.jobname.1.step.counter.test"));
 		assertThat((Long)argumentCaptor.getValue().getValue(), equalTo(1L));
 	}
 
@@ -88,7 +89,7 @@ public class BatchMetricsImplTest {
 		TransactionSynchronizationManager.clearSynchronization();
 		ArgumentCaptor<Metric> argumentCaptor = ArgumentCaptor.forClass(Metric.class);
 		verify(metricWriterMock).set(argumentCaptor.capture());
-		assertThat(argumentCaptor.getValue().getName(), equalTo("gauge.batch.jobname-1.counter.test"));
+		assertThat(argumentCaptor.getValue().getName(), equalTo("gauge.batch.jobname.1.step.counter.test"));
 		assertThat((Double)argumentCaptor.getValue().getValue(), equalTo(1.0));
 	}
 
@@ -102,7 +103,7 @@ public class BatchMetricsImplTest {
 		// Then
 		ArgumentCaptor<Metric> argumentCaptor = ArgumentCaptor.forClass(Metric.class);
 		verify(metricWriterMock).set(argumentCaptor.capture());
-		assertThat(argumentCaptor.getValue().getName(), equalTo("gauge.batch.jobname-1.counter.test"));
+		assertThat(argumentCaptor.getValue().getName(), equalTo("gauge.batch.jobname.1.step.counter.test"));
 		assertThat((Double)argumentCaptor.getValue().getValue(), equalTo(1.0));
 	}
 }

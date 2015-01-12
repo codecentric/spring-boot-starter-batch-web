@@ -20,18 +20,18 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.slf4j.MDC;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.boot.actuate.metrics.rich.RichGauge;
 import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
 import org.springframework.core.Ordered;
-
-import de.codecentric.batch.listener.LoggingListener;
 
 /**
  * This listener exports all metrics with the prefix 'counter.batch.{jobName}.{jobExecutionId}.{stepName}
@@ -88,7 +88,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	}
 
 	private List<Metric<?>> exportBatchMetrics(StepExecution stepExecution) {
-		String stepExecutionIdentifier = MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER);
+		String stepExecutionIdentifier = getStepExecutionIdentifier();
 		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
 		for (Metric<?> metric : metricRepository.findAll()) {
 			if (metric.getName().startsWith(COUNTER_PREFIX + stepExecutionIdentifier)) {
@@ -114,7 +114,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	}
 
 	private List<RichGauge> exportBatchGauges(StepExecution stepExecution) {
-		String stepExecutionIdentifier = MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER);
+		String stepExecutionIdentifier = getStepExecutionIdentifier();
 		List<RichGauge> gauges = new ArrayList<RichGauge>();
 		for (RichGauge gauge : richGaugeRepository.findAll()) {
 			if (gauge.getName().startsWith(GAUGE_PREFIX + stepExecutionIdentifier)) {
@@ -149,6 +149,13 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	@Override
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE-1;
+	}
+	
+	private String getStepExecutionIdentifier(){
+		StepContext stepContext = StepSynchronizationManager.getContext();
+		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
+		JobExecution jobExecution = stepExecution.getJobExecution();
+		return stepContext.getJobName()+"."+jobExecution.getId()+"."+stepExecution.getStepName();
 	}
 
 }

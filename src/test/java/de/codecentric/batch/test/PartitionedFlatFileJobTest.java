@@ -18,7 +18,6 @@ package de.codecentric.batch.test;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
@@ -26,6 +25,7 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -33,6 +33,7 @@ import de.codecentric.batch.TestConfiguration;
 
 @SpringApplicationConfiguration(classes=TestConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
+@IntegrationTest({"batch.metrics.enabled=true"})
 public class PartitionedFlatFileJobTest {
 
 	@Autowired
@@ -42,7 +43,6 @@ public class PartitionedFlatFileJobTest {
 	private JobRepository jobRepository;
 
 	@Test
-	@Ignore
 	public void runXmlJob() throws Exception {
 		jobOperator.start("partitionedFlatFileJobXml", "");
 		while (jobRepository.getLastJobExecution("partitionedFlatFileJobXml", new JobParameters()).getStatus().isRunning()) {

@@ -18,12 +18,13 @@ package de.codecentric.batch.metrics;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.scope.context.StepContext;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StopWatch;
-
-import de.codecentric.batch.listener.LoggingListener;
 
 /**
  * This is a helper class for implementing method level profiling. See {@link ListenerMetricsAspect} for an 
@@ -72,7 +73,10 @@ public abstract class AbstractBatchMetricsAspect {
 	}
 
 	private String getStepIdentifier() {
-		String stepIdentifier = MDC.get(LoggingListener.STEP_EXECUTION_IDENTIFIER);
+		StepContext stepContext = StepSynchronizationManager.getContext();
+		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
+		JobExecution jobExecution = stepExecution.getJobExecution();
+		String stepIdentifier = stepContext.getJobName()+"."+jobExecution.getId()+"."+stepExecution.getStepName();
 		if (stepIdentifier == null) {
 			LOG.warn("Step identifier could not be read from MDC.");
 			stepIdentifier = "unknown";

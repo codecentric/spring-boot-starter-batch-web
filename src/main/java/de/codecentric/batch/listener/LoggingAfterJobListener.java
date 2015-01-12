@@ -44,7 +44,6 @@ public class LoggingAfterJobListener implements JobExecutionListener, Ordered {
 
 	private void insertValuesIntoMDC(JobExecution jobExecution) {
 		MDC.put(LoggingListener.JOBLOG_FILENAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
-		MDC.put(LoggingListener.JOB_EXECUTION_IDENTIFIER, jobExecution.getJobInstance().getJobName()+"."+jobExecution.getId());
 	}
 
 	@Override

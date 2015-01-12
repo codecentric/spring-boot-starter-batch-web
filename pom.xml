@@ -39,8 +39,8 @@
 		<url>https://github.com/codecentric/spring-boot-starter-batch-web</url>
 	</scm>
 	<properties>
-		<spring.boot.version>1.2.0.RELEASE</spring.boot.version>
-		<spring.version>4.1.3.RELEASE</spring.version>
+		<spring.boot.version>1.2.1.RELEASE</spring.boot.version>
+		<spring.version>4.1.4.RELEASE</spring.version>
 		<keystore.password>dev_password</keystore.password>
 		<gpg.passphrase>dev</gpg.passphrase>
 		<passphrase>${gpg.passphrase}</passphrase>
