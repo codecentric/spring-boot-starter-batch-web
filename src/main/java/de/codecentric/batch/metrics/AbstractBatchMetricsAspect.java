@@ -27,14 +27,14 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StopWatch;
 
 /**
- * This is a helper class for implementing method level profiling. See {@link ListenerMetricsAspect} for an 
+ * This is a helper class for implementing method level profiling. See {@link ReaderProcessorWriterMetricsAspect} for an 
  * aspect extending this class. All calls to an adviced method are tracked in a RichGauge, so you'll see average duration time,
  * maximum / minimum time, number of method calls and so on. For the name of the metric a special naming scheme is used so that
  * our {@link MetricsListener} picks up the gauge and writes it to the ExecutionContext of the StepExecution and to the log.
  * 
  * Job configurations need to enable auto-proxying so that aspects may be applied. In JavaConfig just add 
- * @EnableAspectJAutoProxy(proxyTargetClass=true) as a class level annotation. In xml add
- * <aop:aspectj-autoproxy proxy-target-class="true"/> to the xml configuration file. This needs to be done because jobs reside
+ * {@code @EnableAspectJAutoProxy(proxyTargetClass=true)} as a class level annotation. In xml add
+ * {@code <aop:aspectj-autoproxy proxy-target-class="true"/>} to the xml configuration file. This needs to be done because jobs reside
  * in child application contexts and don't inherit this kind of configuration from the parent. proxyTargetClass=true means using
  * CGLIB as proxy mechanism which allows us to proxy classes without interfaces.
  * 
