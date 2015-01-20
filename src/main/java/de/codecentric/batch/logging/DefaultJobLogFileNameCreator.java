@@ -29,7 +29,7 @@ public class DefaultJobLogFileNameCreator implements JobLogFileNameCreator {
 
 	@Override
 	public String createJobLogFileName(JobExecution jobExecution) {
-		return "batch-"+jobExecution.getJobInstance().getJobName()+"-"+Long.toString(jobExecution.getId())+".log";
+		return "batch-"+jobExecution.getJobInstance().getJobName()+"-"+Long.toString(jobExecution.getId());
 	}
 
 }
