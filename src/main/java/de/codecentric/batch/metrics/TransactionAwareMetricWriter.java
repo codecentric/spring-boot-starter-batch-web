@@ -35,7 +35,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * @author Dennis Schulte
  */
 public class TransactionAwareMetricWriter extends TransactionSynchronizationAdapter implements MetricWriter {
-	
+
 	private static final Log log = LogFactory.getLog(TransactionAwareMetricWriter.class);
 
 	private MetricWriter delegate;
@@ -48,42 +48,42 @@ public class TransactionAwareMetricWriter extends TransactionSynchronizationAdap
 		this.serviceKey = new Object();
 		this.metricContainer = new ThreadLocal<MetricContainer>();
 	}
-	
+
 	@Override
 	public void increment(Delta<?> delta) {
-		if (TransactionSynchronizationManager.isSynchronizationActive()){
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			metricContainer.get().incrementations.add(delta);
+			metricContainer.get().metrics.add(delta);
 		} else {
 			delegate.increment(delta);
 		}
 	}
 
-	private void initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary(){
+	private void initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary() {
 		if (!TransactionSynchronizationManager.hasResource(serviceKey)) {
 			TransactionSynchronizationManager.bindResource(serviceKey, new StringBuffer());
 			TransactionSynchronizationManager.registerSynchronization(this);
 		}
-		if (metricContainer.get() == null){
+		if (metricContainer.get() == null) {
 			metricContainer.set(new MetricContainer());
 		}
 	}
 
 	@Override
 	public void set(Metric<?> value) {
-		if (TransactionSynchronizationManager.isSynchronizationActive()){
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			metricContainer.get().gauges.add(value);
+			metricContainer.get().metrics.add(value);
 		} else {
 			delegate.set(value);
 		}
 	}
-	
+
 	@Override
 	public void reset(String metricName) {
-		if (TransactionSynchronizationManager.isSynchronizationActive()){
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
-			metricContainer.get().resets.add(metricName);
+			metricContainer.get().metrics.add(metricName);
 		} else {
 			delegate.reset(metricName);
 		}
@@ -91,22 +91,28 @@ public class TransactionAwareMetricWriter extends TransactionSynchronizationAdap
 
 	@Override
 	public void afterCompletion(int status) {
-		if (log.isDebugEnabled()){
-			log.debug("Entered afterCompletion with status "+status+".");
+		if (log.isDebugEnabled()) {
+			log.debug("Entered afterCompletion with status " + status + ".");
 		}
-		if (status == STATUS_COMMITTED){
+		if (status == STATUS_COMMITTED) {
 			MetricContainer currentMetricContainer = metricContainer.get();
-			for (Delta<?> incrementation : currentMetricContainer.incrementations){
-				if (log.isDebugEnabled()){
-					log.debug("Increment "+incrementation+".");
+			for (Object metric : currentMetricContainer.metrics) {
+				if (metric instanceof Delta) {
+					if (log.isDebugEnabled()) {
+						log.debug("Increment " + metric + ".");
+					}
+					delegate.increment((Delta<?>) metric);
+				} else if (metric instanceof Metric) {
+					if (log.isDebugEnabled()) {
+						log.debug("Gauge " + metric + ".");
+					}
+					delegate.set((Metric<?>) metric);
+				} else if (metric instanceof String) {
+					if (log.isDebugEnabled()) {
+						log.debug("Reset " + metric + ".");
+					}
+					delegate.reset((String) metric);
 				}
-				delegate.increment(incrementation);
-			}
-			for (Metric<?> gauge : currentMetricContainer.gauges){
-				delegate.set(gauge);
-			}
-			for (String reset: currentMetricContainer.resets){
-				delegate.reset(reset);
 			}
 		}
 		metricContainer.remove();
@@ -114,11 +120,9 @@ public class TransactionAwareMetricWriter extends TransactionSynchronizationAdap
 			TransactionSynchronizationManager.unbindResource(serviceKey);
 		}
 	}
-	
+
 	private static class MetricContainer {
-		List<Delta<?>> incrementations = new ArrayList<Delta<?>>();
-		List<Metric<?>>  gauges = new ArrayList<Metric<?>>();
-		List<String> resets = new ArrayList<String>();
+		List<Object> metrics = new ArrayList<Object>();
 	}
-	
+
 }
