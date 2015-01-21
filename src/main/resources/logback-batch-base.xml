@@ -3,7 +3,7 @@
 
 	<include resource="org/springframework/boot/logging/logback/base.xml" />
 
-	<property name="JOB_LOG_PATH" value="${LOG_PATH:-${java.io.tmpdir:-/tmp}/}"/>
+	<property name="JOB_LOG_PATH" value="${JOB_LOG_PATH:-${LOG_PATH:-${java.io.tmpdir:-/tmp}/}}"/>
 
 	<!-- Appender for Loggging per JobExecution in a separate File -->
 	<appender name="JOBLOGGER" class="ch.qos.logback.classic.sift.SiftingAppender">
