@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>de.codecentric</groupId>
 	<artifactId>spring-boot-starter-batch-web</artifactId>
-	<version>1.3.2-SNAPSHOT</version>
+	<version>1.3.3-SNAPSHOT</version>
 	<name>spring-boot-starter-batch-web</name>
 	<description>Boot starter for batch web applications</description>
 	<packaging>jar</packaging>
