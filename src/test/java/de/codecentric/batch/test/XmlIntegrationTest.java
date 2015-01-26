@@ -43,7 +43,7 @@ import de.codecentric.batch.TestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
-@IntegrationTest("server.port=8090")
+@IntegrationTest({"server.port=8090","batch.metrics.enabled=true"})
 public class XmlIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();

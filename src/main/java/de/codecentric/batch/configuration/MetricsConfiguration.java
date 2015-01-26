@@ -17,6 +17,12 @@ package de.codecentric.batch.configuration;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
+import metrics_influxdb.Influxdb;
+import metrics_influxdb.InfluxdbReporter;
 
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecutionListener;
@@ -29,6 +35,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+
+import com.codahale.metrics.MetricFilter;
+import com.codahale.metrics.MetricRegistry;
 
 import de.codecentric.batch.metrics.BatchMetricsImpl;
 import de.codecentric.batch.metrics.MetricsListener;
@@ -52,6 +61,8 @@ public class MetricsConfiguration implements ListenerProvider{
 	private RichGaugeRepository richGaugeRepository;
 	@Autowired
 	private MetricWriter metricWriter;
+	@Autowired
+	private MetricRegistry metricRegistry;
 	
 	@Bean
 	public BatchMetricsImpl batchMetrics(){
@@ -97,6 +108,21 @@ public class MetricsConfiguration implements ListenerProvider{
 			return new InMemoryRichGaugeRepository();
 		}
 
+	}
+	
+	@PostConstruct
+	public void configureReporter() throws Exception{
+		final Influxdb influxdb = new Influxdb("192.168.59.103", 8086, "mydata", "root", "root");
+	    influxdb.debugJson = true; // to print json on System.err
+	    //influxdb.jsonBuilder = new MyJsonBuildler(); // to use MyJsonBuilder to create json
+	    final InfluxdbReporter reporter = InfluxdbReporter
+	            .forRegistry(metricRegistry)
+	            //.prefixedWith("test")
+	            .convertRatesTo(TimeUnit.SECONDS)
+	            .convertDurationsTo(TimeUnit.MILLISECONDS)
+	            .filter(MetricFilter.ALL)
+	            .build(influxdb);
+	    reporter.start(10, TimeUnit.SECONDS);
 	}
 
 }
