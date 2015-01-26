@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -41,7 +42,7 @@ import de.codecentric.batch.listener.TestListener;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
-@IntegrationTest("server.port=8090")
+@IntegrationTest("server.port=0")
 public class ListenerProviderIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
@@ -49,12 +50,15 @@ public class ListenerProviderIntegrationTest {
 	@Autowired
 	private TestListener testListener;
 	
+	@Value("${local.server.port}")
+	int port;
+	
 	@Test
 	public void testRunJob() throws InterruptedException{
 		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "param1=value1");
-		Long executionId = restTemplate.postForObject("http://localhost:8090/batch/operations/jobs/simpleJob", requestMap,Long.class);
-		while (!restTemplate.getForObject("http://localhost:8090/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+		Long executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/simpleJob", requestMap,Long.class);
+		while (!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
 			Thread.sleep(1000);
 		}
 		assertThat(testListener.getCounter()>1,is(true));

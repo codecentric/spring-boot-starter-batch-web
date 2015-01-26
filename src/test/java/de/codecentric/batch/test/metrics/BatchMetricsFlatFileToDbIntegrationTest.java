@@ -33,6 +33,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -59,7 +60,7 @@ import de.codecentric.batch.metrics.MetricNames;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"server.port=8091","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false","batch.metrics.profiling.readprocesswrite.enabled=true"})
+@IntegrationTest({"server.port=0","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false","batch.metrics.profiling.readprocesswrite.enabled=true"})
 public class BatchMetricsFlatFileToDbIntegrationTest {
 	
 	RestTemplate restTemplate = new TestRestTemplate();
@@ -70,6 +71,9 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 	private MetricRepository metricRepository;
 	@Autowired
 	private DataSource dataSource;
+	
+	@Value("${local.server.port}")
+	int port;
 	
 	private JdbcTemplate jdbcTemplate;
 	
@@ -298,9 +302,9 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 	private JobExecution runJob(String jobName, String pathToFile) throws InterruptedException {
 		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "pathToFile="+pathToFile);
-		Long executionId = restTemplate.postForObject("http://localhost:8091/batch/operations/jobs/"+jobName, requestMap,Long.class);
-		while (!restTemplate.getForObject("http://localhost:8091/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED") &&
-				!restTemplate.getForObject("http://localhost:8091/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("FAILED")){
+		Long executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/"+jobName, requestMap,Long.class);
+		while (!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED") &&
+				!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("FAILED")){
 			Thread.sleep(1000);
 		}
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
