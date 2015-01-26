@@ -44,7 +44,7 @@ import de.codecentric.batch.TestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes=TestApplication.class)
 @WebAppConfiguration
-@IntegrationTest("server.port=0")
+@IntegrationTest({"server.port=0","batch.metrics.enabled=true"})
 public class XmlIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();

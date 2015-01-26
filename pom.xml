@@ -73,13 +73,23 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-  			<artifactId>spring-messaging</artifactId>
-  			<version>${spring.version}</version>
+			<artifactId>spring-messaging</artifactId>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>io.dropwizard.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.alchim31</groupId>
+			<artifactId>metrics-influxdb</artifactId>
+			<version>0.5.0</version>
 		</dependency>
 		<!-- Test -->
 		<dependency>
