@@ -263,7 +263,7 @@ public class JobOperationsController {
 		if (jobExecution == null){
 			throw new NoSuchJobExecutionException("JobExecution with id "+executionId+" not found.");
 		}
-        File downloadFile = new File(loggingPath+jobLogFileNameCreator.createJobLogFileName(jobExecution));
+        File downloadFile = new File(loggingPath+jobLogFileNameCreator.getName(jobExecution));
         InputStream is = new FileInputStream(downloadFile);	        
         FileCopyUtils.copy(is, response.getOutputStream());
         response.flushBuffer();

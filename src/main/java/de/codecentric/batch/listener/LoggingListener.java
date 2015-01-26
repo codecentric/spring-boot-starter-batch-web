@@ -56,7 +56,7 @@ public class LoggingListener implements JobExecutionListener, StepExecutionListe
 	}
 
 	private void insertValuesIntoMDC(JobExecution jobExecution) {
-		MDC.put(JOBLOG_FILENAME, jobLogFileNameCreator.createJobLogFileName(jobExecution));
+		MDC.put(JOBLOG_FILENAME, jobLogFileNameCreator.getBaseName(jobExecution));
 	}
 
 	@Override
