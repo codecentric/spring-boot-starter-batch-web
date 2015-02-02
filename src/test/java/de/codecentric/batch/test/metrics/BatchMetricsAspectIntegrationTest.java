@@ -81,7 +81,7 @@ public class BatchMetricsAspectIntegrationTest {
 		assertThat(listenerGauge.getCount(),is(3L));
 		String jobExecutionString = restTemplate.getForObject("http://localhost:"+port+"/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"),is(true));		
-		Metric<?> metric = metricRepository.findOne("counter.batch.simpleBatchMetricsJob."+jobExecution.getId()+".step.processor");
+		Metric<?> metric = metricRepository.findOne("counter.batch.simpleBatchMetricsJob."+jobExecution.getId()+".simpleBatchMetricsStep.processor");
 		assertThat(metric,is(notNullValue()));	
 		assertThat((Long)metric.getValue(),is(7l));
 	}
