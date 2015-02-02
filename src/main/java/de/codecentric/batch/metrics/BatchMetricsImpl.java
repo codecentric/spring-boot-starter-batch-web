@@ -15,7 +15,6 @@
  */
 package de.codecentric.batch.metrics;
 
-
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.StepContext;
@@ -98,20 +97,21 @@ public class BatchMetricsImpl implements BatchMetrics {
 	public void submitNonTransactional(String metricName, double value) {
 		metricWriter.set(new Metric<Double>(wrapGauge(metricName), value));
 	}
-	
+
 	private String wrapCounter(String metricName) {
 		return "counter." + "batch." + getStepExecutionIdentifier() + "." + metricName;
 	}
-	
+
 	private String wrapGauge(String metricName) {
 		return "gauge." + "batch." + getStepExecutionIdentifier() + "." + metricName;
 	}
-	
-	private String getStepExecutionIdentifier(){
+
+	private String getStepExecutionIdentifier() {
 		StepContext stepContext = StepSynchronizationManager.getContext();
 		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
 		JobExecution jobExecution = stepExecution.getJobExecution();
-		return stepContext.getJobName()+"."+jobExecution.getId()+"."+stepExecution.getStepName();
+		// TODO Do we really need this in the metricName?: jobExecution.getId()
+		return stepContext.getJobName() + "." + jobExecution.getId() + "." + stepExecution.getStepName();
 	}
 
 }

@@ -15,18 +15,18 @@
  */
 package de.codecentric.batch.configuration;
 
+import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
-import metrics_influxdb.Influxdb;
-import metrics_influxdb.InfluxdbReporter;
-
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.rich.InMemoryRichGaugeRepository;
 import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
@@ -36,8 +36,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.ScheduledReporter;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 
 import de.codecentric.batch.metrics.BatchMetricsImpl;
 import de.codecentric.batch.metrics.MetricsListener;
@@ -51,8 +55,8 @@ import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
  */
 @ConditionalOnProperty("batch.metrics.enabled")
 @Configuration
-public class MetricsConfiguration implements ListenerProvider{
-	
+public class MetricsConfiguration implements ListenerProvider {
+
 	@Autowired
 	private Environment env;
 	@Autowired
@@ -60,15 +64,19 @@ public class MetricsConfiguration implements ListenerProvider{
 	@Autowired
 	private RichGaugeRepository richGaugeRepository;
 	@Autowired
+	private GaugeService gaugeService;
+	@Autowired
+	private CounterService counterService;
+	@Autowired
 	private MetricWriter metricWriter;
 	@Autowired
 	private MetricRegistry metricRegistry;
-	
+
 	@Bean
-	public BatchMetricsImpl batchMetrics(){
+	public BatchMetricsImpl batchMetrics() {
 		return new BatchMetricsImpl(metricWriter);
 	}
-	
+
 	@ConditionalOnProperty("batch.metrics.profiling.readprocesswrite.enabled")
 	@Bean
 	public ReaderProcessorWriterMetricsAspect batchMetricsAspects() {
@@ -76,13 +84,16 @@ public class MetricsConfiguration implements ListenerProvider{
 	}
 
 	@Bean
-	public MetricsListener metricsListener(){
-		return new MetricsListener(richGaugeRepository,baseConfig.metricRepository(), env.getProperty("batch.metrics.deletemetricsonstepfinish", boolean.class, true));
+	public MetricsListener metricsListener() {
+		return new MetricsListener(gaugeService, counterService, richGaugeRepository, baseConfig.metricRepository(), reporter(), env.getProperty(
+				"batch.metrics.deletemetricsonstepfinish", boolean.class, true));
 	}
 
 	@Override
 	public Set<JobExecutionListener> jobExecutionListeners() {
-		return new HashSet<JobExecutionListener>();
+		Set<JobExecutionListener> listeners = new HashSet<JobExecutionListener>();
+		listeners.add(metricsListener());
+		return listeners;
 	}
 
 	@Override
@@ -91,7 +102,7 @@ public class MetricsConfiguration implements ListenerProvider{
 		listeners.add(metricsListener());
 		return listeners;
 	}
-	
+
 	@ConditionalOnProperty("batch.metrics.enabled")
 	@Configuration
 	static class MetricsRepositoryConfiguration {
@@ -109,20 +120,46 @@ public class MetricsConfiguration implements ListenerProvider{
 		}
 
 	}
-	
-	@PostConstruct
-	public void configureReporter() throws Exception{
-		final Influxdb influxdb = new Influxdb("192.168.59.103", 8086, "mydata", "root", "root");
-	    influxdb.debugJson = true; // to print json on System.err
-	    //influxdb.jsonBuilder = new MyJsonBuildler(); // to use MyJsonBuilder to create json
-	    final InfluxdbReporter reporter = InfluxdbReporter
-	            .forRegistry(metricRegistry)
-	            //.prefixedWith("test")
-	            .convertRatesTo(TimeUnit.SECONDS)
-	            .convertDurationsTo(TimeUnit.MILLISECONDS)
-	            .filter(MetricFilter.ALL)
-	            .build(influxdb);
-	    reporter.start(10, TimeUnit.SECONDS);
+
+	@Bean
+	public ScheduledReporter reporter() {
+		return consoleReporter();
 	}
+
+	@Bean
+	public ScheduledReporter consoleReporter() {
+		ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS)
+				.convertDurationsTo(TimeUnit.MILLISECONDS).build();
+		return reporter;
+	}
+
+	@PostConstruct
+	public void configureConsoleReporter() throws Exception {
+		consoleReporter().start(10, TimeUnit.MINUTES);
+	}
+
+	@Bean
+	public ScheduledReporter graphiteReporter() {
+		Graphite graphite = new Graphite(new InetSocketAddress("mule-di3.hv.devk.de", 2003));
+		GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry).prefixedWith("hostname").convertRatesTo(TimeUnit.SECONDS)
+				.convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(graphite);
+		return reporter;
+	}
+
+	@PostConstruct
+	public void configureGraphiteReporter() {
+		reporter().start(10, TimeUnit.MINUTES);
+	}
+
+	// @PostConstruct
+	// public void configureReporter() throws Exception {
+	// final Influxdb influxdb = new Influxdb("192.168.59.103", 8086, "mydata", "root", "root");
+	// influxdb.debugJson = true; // to print json on System.err
+	// // influxdb.jsonBuilder = new MyJsonBuildler(); // to use MyJsonBuilder to create json
+	// final InfluxdbReporter reporter = InfluxdbReporter.forRegistry(metricRegistry)
+	// // .prefixedWith("test")
+	// .convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(influxdb);
+	// reporter.start(10, TimeUnit.SECONDS);
+	// }
 
 }

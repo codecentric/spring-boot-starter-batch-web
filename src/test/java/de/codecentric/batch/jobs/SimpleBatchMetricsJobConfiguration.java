@@ -34,34 +34,27 @@ import de.codecentric.batch.metrics.BatchMetrics;
 
 @Configuration
 @ConditionalOnProperty("batch.metrics.enabled")
-@EnableAspectJAutoProxy(proxyTargetClass=true)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class SimpleBatchMetricsJobConfiguration {
-	
+
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
-	
+
 	@Autowired
 	private StepBuilderFactory stepBuilderFactory;
-	
+
 	@Autowired
 	private BatchMetrics batchMetrics;
-	
+
 	@Bean
-	public Job simpleBusinessMetricsJob(){
-		return jobBuilderFactory.get("simpleBatchMetricsJob")
-				.start(step())
-				.build();
+	public Job simpleBusinessMetricsJob() {
+		return jobBuilderFactory.get("simpleBatchMetricsJob").start(step()).build();
 	}
-	
+
 	@Bean
-	public Step step(){
-		return stepBuilderFactory.get("step")
-				.<String,String>chunk(3)
-				.reader(reader())
-				.processor(processor())
-				.writer(writer())
-				.listener(writeListener())
-				.build();
+	public Step step() {
+		return stepBuilderFactory.get("simpleBatchMetricsStep").<String, String> chunk(3).reader(reader()).processor(processor()).writer(writer())
+				.listener(writeListener()).build();
 	}
 
 	@Bean
@@ -79,9 +72,9 @@ public class SimpleBatchMetricsJobConfiguration {
 	public DummyItemReader reader() {
 		return new DummyItemReader();
 	}
-	
+
 	@Bean
-	public LogItemWriteListener writeListener(){
+	public LogItemWriteListener writeListener() {
 		return new LogItemWriteListener();
 	}
 
