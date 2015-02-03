@@ -77,7 +77,7 @@ public abstract class AbstractBatchMetricsAspect {
 		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
 		JobExecution jobExecution = stepExecution.getJobExecution();
 		String stepIdentifier = stepContext.getJobName()+"."+jobExecution.getId()+"."+stepExecution.getStepName();
-		if (stepIdentifier == null) {
+		if (stepContext == null) {
 			LOG.warn("Step identifier could not be read from MDC.");
 			stepIdentifier = "unknown";
 		}
