@@ -42,7 +42,7 @@ public class MetricsExporterConfiguration {
 	@ConditionalOnClass(GraphiteReporter.class)
 	public ScheduledReporter graphiteReporter(MetricRegistry metricRegistry) {
 		Graphite graphite = new Graphite(new InetSocketAddress(env.getProperty("batch.metrics.export.graphite.server"), env.getProperty(
-				"batch.metrics.v2.export.graphite.server", Integer.class, 2003)));
+				"batch.metrics.export.graphite.port", Integer.class, 2003)));
 		String hostname;
 		try {
 			hostname = InetAddress.getLocalHost().getHostName();
