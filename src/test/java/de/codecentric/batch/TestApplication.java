@@ -30,8 +30,8 @@ import org.springframework.context.annotation.Import;
 @Import(TestListenerConfiguration.class)
 public class TestApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(TestApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(TestApplication.class, args);
+	}
 
 }

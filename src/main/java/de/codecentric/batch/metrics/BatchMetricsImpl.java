@@ -15,7 +15,6 @@
  */
 package de.codecentric.batch.metrics;
 
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
@@ -109,9 +108,7 @@ public class BatchMetricsImpl implements BatchMetrics {
 	private String getStepExecutionIdentifier() {
 		StepContext stepContext = StepSynchronizationManager.getContext();
 		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		// TODO Do we really need this in the metricName?: jobExecution.getId()
-		return stepContext.getJobName() + "." + jobExecution.getId() + "." + stepExecution.getStepName();
+		return stepContext.getJobName() + "." + stepExecution.getStepName();
 	}
 
 }

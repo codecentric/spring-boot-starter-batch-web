@@ -51,6 +51,7 @@ import com.codahale.metrics.ScheduledReporter;
  * important for restarted jobs.
  * 
  * @author Tobias Flohre
+ * @author Dennis Schulte
  */
 public class MetricsListener extends StepExecutionListenerSupport implements Ordered, JobExecutionListener {
 
@@ -65,18 +66,18 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	private RichGaugeRepository richGaugeRepository;
 	private MetricRepository metricRepository;
-	private ScheduledReporter reporter;
+	private List<ScheduledReporter> metricReporters;
 	private boolean deleteMetricsOnStepFinish;
 	@Autowired(required = false)
 	private MetricsOutputFormatter metricsOutputFormatter = new SimpleMetricsOutputFormatter();
 
 	public MetricsListener(GaugeService gaugeService, CounterService counterService, RichGaugeRepository richGaugeRepository,
-			MetricRepository metricRepository, ScheduledReporter reporter, boolean deleteMetricsOnStepFinish) {
+			MetricRepository metricRepository, List<ScheduledReporter> metricReporters, boolean deleteMetricsOnStepFinish) {
 		this.gaugeService = gaugeService;
 		this.counterService = counterService;
 		this.richGaugeRepository = richGaugeRepository;
 		this.metricRepository = metricRepository;
-		this.reporter = reporter;
+		this.metricReporters = metricReporters;
 		this.deleteMetricsOnStepFinish = deleteMetricsOnStepFinish;
 	}
 
@@ -87,24 +88,23 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	@Override
 	public void beforeStep(StepExecution stepExecution) {
-		counterService.increment(COUNTER_PREFIX + stepExecution.getJobExecution().getJobInstance().getJobName() + ".step."
-				+ stepExecution.getStepName());
+		counterService.increment(COUNTER_PREFIX + getStepExecutionIdentifier());
 	}
 
 	@Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
 		// Calculate step execution time
 		// Why is stepExecution.getEndTime().getTime() not available here? (see AbstractStep)
-		long duration = System.currentTimeMillis() - stepExecution.getStartTime().getTime();
-		gaugeService.submit(GAUGE_PREFIX + stepExecution.getJobExecution().getJobInstance().getJobName() + ".step." + stepExecution.getStepName()
-				+ ".duration", duration);
-		long count = stepExecution.getWriteCount() + stepExecution.getSkipCount();
-		gaugeService.submit(GAUGE_PREFIX + stepExecution.getJobExecution().getJobInstance().getJobName() + ".step." + stepExecution.getStepName()
-				+ ".item.count", count);
+		long stepDuration = System.currentTimeMillis() - stepExecution.getStartTime().getTime();
+		gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier() + ".duration", stepDuration);
+		long itemCount = stepExecution.getWriteCount() + stepExecution.getSkipCount();
+		gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier() + ".item.count", itemCount);
 		// Calculate execution time per item
-		long durationPerItem = duration / count;
-		gaugeService.submit(GAUGE_PREFIX + stepExecution.getJobExecution().getJobInstance().getJobName() + ".step." + stepExecution.getStepName()
-				+ ".item.duration", durationPerItem);
+		long durationPerItem = 0;
+		if (itemCount > 0) {
+			durationPerItem = stepDuration / itemCount;
+		}
+		gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier() + ".item.duration", durationPerItem);
 		// What the f*** is that Thread.sleep doing here? ;-)
 		// Metrics are written asynchronously to Spring Boot's repository. In our tests we experienced
 		// that sometimes batch execution was so fast that this listener couldn't export the metrics
@@ -115,63 +115,52 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		// Export Metrics to the Step-ExecutionContext, so that they are available after a restart
-		List<RichGauge> gauges = exportBatchRichGauges(stepExecution);
-		List<Metric<?>> metrics = exportBatchMetrics(stepExecution);
-		LOGGER.info(metricsOutputFormatter.format(gauges, metrics));
+		// Export Metrics to console
+		List<RichGauge> gauges = exportBatchRichGauges();
+		LOGGER.info(metricsOutputFormatter.format(gauges, null));
 		return null;
 	}
 
 	@Override
 	public void afterJob(JobExecution jobExecution) {
-		long duration = jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime();
-		gaugeService.submit("batch." + jobExecution.getJobInstance().getJobName() + ".duration", duration);
+		long jobDuration = jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime();
+		gaugeService.submit(GAUGE_PREFIX + jobExecution.getJobInstance().getJobName() + ".duration", jobDuration);
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		reporter.report();
-	}
-
-	private List<Metric<?>> exportBatchMetrics(StepExecution stepExecution) {
-		String stepExecutionIdentifier = getStepExecutionIdentifier();
-		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
-		for (Metric<?> metric : metricRepository.findAll()) {
-			if (metric.getName().startsWith(COUNTER_PREFIX + stepExecutionIdentifier)) {
-				if (metric.getValue() instanceof Long) {
-					// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
-					String key = metric.getName().substring((COUNTER_PREFIX + stepExecutionIdentifier).length() + 1);
-					// Values from former failed StepExecution runs are added
-					Long newValue = (Long) metric.getValue();
-					if (stepExecution.getExecutionContext().containsKey(key)) {
-						Long oldValue = stepExecution.getExecutionContext().getLong(key);
-						newValue += oldValue;
-						metric = metric.set(newValue);
-					}
-					stepExecution.getExecutionContext().putLong(key, newValue);
-				}
-				metrics.add(metric);
-				if (deleteMetricsOnStepFinish) {
-					metricRepository.reset(metric.getName());
+		if (metricReporters != null) {
+			for (ScheduledReporter reporter : metricReporters) {
+				if (reporter != null) {
+					LOGGER.info("Exporting Metrics with " + reporter.getClass().getName());
+					reporter.report();
 				}
 			}
+		}
+		// Delete local metrics on step finish?
+		if (deleteMetricsOnStepFinish) {
+			for (Metric<?> metric : metricRepository.findAll()) {
+				metricRepository.reset(metric.getName());
+			}
+			for (RichGauge gauge : richGaugeRepository.findAll()) {
+				richGaugeRepository.reset(gauge.getName());
+			}
+		}
+	}
+
+	private List<Metric<?>> exportBatchMetrics() {
+		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
+		for (Metric<?> metric : metricRepository.findAll()) {
+			metrics.add(metric);
 		}
 		return metrics;
 	}
 
-	private List<RichGauge> exportBatchRichGauges(StepExecution stepExecution) {
-		String stepExecutionIdentifier = getStepExecutionIdentifier();
+	private List<RichGauge> exportBatchRichGauges() {
 		List<RichGauge> gauges = new ArrayList<RichGauge>();
 		for (RichGauge gauge : richGaugeRepository.findAll()) {
-			if (gauge.getName().startsWith(GAUGE_PREFIX + stepExecutionIdentifier)) {
-				// "batch."+ stepExecutionIdentifier is removed from the key before insertion in Step-ExecutionContext
-				stepExecution.getExecutionContext().put(gauge.getName().substring((GAUGE_PREFIX + stepExecutionIdentifier).length() + 1), gauge);
-				gauges.add(gauge);
-				if (deleteMetricsOnStepFinish) {
-					richGaugeRepository.reset(gauge.getName());
-				}
-			}
+			gauges.add(gauge);
 		}
 		return gauges;
 	}
@@ -181,11 +170,15 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		@Override
 		public String format(List<RichGauge> gauges, List<Metric<?>> metrics) {
 			StringBuilder builder = new StringBuilder("\n########## Metrics Start ##########\n");
-			for (RichGauge gauge : gauges) {
-				builder.append(gauge.toString() + "\n");
+			if (gauges != null) {
+				for (RichGauge gauge : gauges) {
+					builder.append(gauge.toString() + "\n");
+				}
 			}
-			for (Metric<?> metric : metrics) {
-				builder.append(metric.toString() + "\n");
+			if (metrics != null) {
+				for (Metric<?> metric : metrics) {
+					builder.append(metric.toString() + "\n");
+				}
 			}
 			builder.append("########## Metrics End ############");
 			return builder.toString();
@@ -201,8 +194,6 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	private String getStepExecutionIdentifier() {
 		StepContext stepContext = StepSynchronizationManager.getContext();
 		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		return stepContext.getJobName() + "." + jobExecution.getId() + "." + stepExecution.getStepName();
+		return stepContext.getJobName() + "." + stepExecution.getStepName();
 	}
-
 }

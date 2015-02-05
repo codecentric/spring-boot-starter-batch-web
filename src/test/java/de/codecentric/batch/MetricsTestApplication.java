@@ -43,42 +43,47 @@ import de.codecentric.batch.metrics.MetricsOutputFormatter;
 @Import(TestListenerConfiguration.class)
 public class MetricsTestApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(MetricsTestApplication.class, args);
-    }
-  
-    @Autowired
-    private BaseConfiguration baseConfig;
-    
-    @Bean
-    public ListenerMetricsAspect listenerMetricsAspect(){
-    	return new ListenerMetricsAspect(baseConfig.gaugeService());
-    }
-    
-    @Bean
-    public MetricsOutputFormatter metricsOutputFormatter(){
-    	return new MetricsOutputFormatter(){
+	public static void main(String[] args) {
+		SpringApplication.run(MetricsTestApplication.class, args);
+	}
+
+	@Autowired
+	private BaseConfiguration baseConfig;
+
+	@Bean
+	public ListenerMetricsAspect listenerMetricsAspect() {
+		return new ListenerMetricsAspect(baseConfig.gaugeService());
+	}
+
+	@Bean
+	public MetricsOutputFormatter metricsOutputFormatter() {
+		return new MetricsOutputFormatter() {
 
 			@Override
 			public String format(List<RichGauge> gauges, List<Metric<?>> metrics) {
 				StringBuilder builder = new StringBuilder("\n########## Personal Header for metrics! #####\n########## Metrics Start ##########\n");
-				for (RichGauge gauge: gauges){
-					builder.append(gauge.toString()+"\n");
+				if (gauges != null) {
+					for (RichGauge gauge : gauges) {
+						builder.append(gauge.toString() + "\n");
+					}
 				}
-				for (Metric<?> metric: metrics){
-					builder.append(metric.toString()+"\n");
+				if (metrics != null) {
+					for (Metric<?> metric : metrics) {
+						builder.append(metric.toString() + "\n");
+					}
 				}
 				builder.append("########## Metrics End ############");
 				return builder.toString();
 			}
-    		
-    	};
-    }
+
+		};
+	}
 
 	@Bean(name = "primaryMetricWriter")
 	@Primary
 	static public MetricWriter primaryMetricWriter(List<MetricWriter> writers) {
-		//Normally the Metrics are written asynchronously to Spring Boot's repository. In tests we need to do it synchronously to be able to verify the correct output.
+		// Normally the Metrics are written asynchronously to Spring Boot's repository. In tests we need to do it synchronously to be able to verify
+		// the correct output.
 		MetricWriter compositeMetricWriter = new CompositeMetricWriter(writers);
 		return compositeMetricWriter;
 	}

@@ -24,12 +24,10 @@ import org.junit.runner.RunWith;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.repository.MetricRepository;
-import org.springframework.boot.actuate.metrics.rich.RichGauge;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -45,45 +43,41 @@ import de.codecentric.batch.MetricsTestApplication;
  * @author Tobias Flohre
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes=MetricsTestApplication.class)
+@SpringApplicationConfiguration(classes = MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"server.port=0","batch.metrics.enabled=true","batch.metrics.deletemetricsonstepfinish=false","batch.metrics.profiling.readprocesswrite.enabled=true"})
+@IntegrationTest({ "server.port=0", "batch.metrics.enabled=true", "batch.metrics.deletemetricsonstepfinish=false",
+		"batch.metrics.profiling.readprocesswrite.enabled=true" })
 public class BatchMetricsAspectIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
-	
+
 	@Autowired
 	private JobExplorer jobExplorer;
 	@Autowired
 	private MetricRepository metricRepository;
-	
+
 	@Value("${local.server.port}")
 	int port;
-	
+
 	@Test
-	public void testRunJob() throws InterruptedException{
-		Long executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/simpleBatchMetricsJob", "",Long.class);
-		while (!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+	public void testRunJob() throws InterruptedException {
+		Long executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/simpleBatchMetricsJob", "", Long.class);
+		while (!restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}", String.class, executionId)
+				.equals("COMPLETED")) {
 			Thread.sleep(1000);
 		}
-		String log = restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}/log", String.class, executionId);
-		assertThat(log.length()>20,is(true));
+		String log = restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}/log", String.class,
+				executionId);
+		assertThat(log.length() > 20, is(true));
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
-		assertThat(jobExecution.getStatus(),is(BatchStatus.COMPLETED));
-		ExecutionContext stepExecutionContext = jobExecution.getStepExecutions().iterator().next().getExecutionContext();
-		RichGauge readerGauge = (RichGauge) stepExecutionContext.get("DummyItemReader.read");
-		RichGauge processorGauge = (RichGauge) stepExecutionContext.get("MetricsItemProcessor.process");
-		RichGauge writerGauge = (RichGauge) stepExecutionContext.get("LogItemWriter.write");
-		RichGauge listenerGauge = (RichGauge) stepExecutionContext.get("LogItemWriteListener.beforeWrite");
-		assertThat(readerGauge.getCount(),is(8L));
-		assertThat(processorGauge.getCount(),is(7L));
-		assertThat(writerGauge.getCount(),is(3L));
-		assertThat(listenerGauge.getCount(),is(3L));
-		String jobExecutionString = restTemplate.getForObject("http://localhost:"+port+"/batch/monitoring/jobs/executions/{executionId}",String.class,executionId);
-		assertThat(jobExecutionString.contains("COMPLETED"),is(true));		
-		Metric<?> metric = metricRepository.findOne("counter.batch.simpleBatchMetricsJob."+jobExecution.getId()+".simpleBatchMetricsStep.processor");
-		assertThat(metric,is(notNullValue()));	
-		assertThat((Long)metric.getValue(),is(7l));
+		assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
+		String jobExecutionString = restTemplate.getForObject("http://localhost:" + port + "/batch/monitoring/jobs/executions/{executionId}",
+				String.class, executionId);
+		assertThat(jobExecutionString.contains("COMPLETED"), is(true));
+		Metric<?> metric = metricRepository.findOne("counter.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
+		assertThat(metric, is(notNullValue()));
+		assertThat((Long) metric.getValue(), is(notNullValue()));
+		assertThat((Long) metric.getValue(), is(7l));
 	}
 
 }

@@ -15,12 +15,9 @@
  */
 package de.codecentric.batch.configuration;
 
-import java.net.InetSocketAddress;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
 
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecutionListener;
@@ -36,16 +33,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.MetricFilter;
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
-import com.codahale.metrics.graphite.Graphite;
-import com.codahale.metrics.graphite.GraphiteReporter;
 
 import de.codecentric.batch.metrics.BatchMetricsImpl;
 import de.codecentric.batch.metrics.MetricsListener;
 import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
+import de.codecentric.batch.metrics.StepExecutionMetricWriter;
 
 /**
  * Configuration containing all metrics stuff. Can be activated by setting the property
@@ -69,8 +62,8 @@ public class MetricsConfiguration implements ListenerProvider {
 	private CounterService counterService;
 	@Autowired
 	private MetricWriter metricWriter;
-	@Autowired
-	private MetricRegistry metricRegistry;
+	@Autowired(required = false)
+	private List<ScheduledReporter> metricReporters;
 
 	@Bean
 	public BatchMetricsImpl batchMetrics() {
@@ -85,8 +78,8 @@ public class MetricsConfiguration implements ListenerProvider {
 
 	@Bean
 	public MetricsListener metricsListener() {
-		return new MetricsListener(gaugeService, counterService, richGaugeRepository, baseConfig.metricRepository(), reporter(), env.getProperty(
-				"batch.metrics.deletemetricsonstepfinish", boolean.class, true));
+		return new MetricsListener(gaugeService, counterService, richGaugeRepository, baseConfig.metricRepository(), metricReporters,
+				env.getProperty("batch.metrics.deletemetricsonstepfinish", boolean.class, true));
 	}
 
 	@Override
@@ -119,47 +112,11 @@ public class MetricsConfiguration implements ListenerProvider {
 			return new InMemoryRichGaugeRepository();
 		}
 
-	}
+		@Bean
+		public MetricWriter stepExecutionMetricWriter() {
+			return new StepExecutionMetricWriter();
+		}
 
-	@Bean
-	public ScheduledReporter reporter() {
-		return consoleReporter();
 	}
-
-	@Bean
-	public ScheduledReporter consoleReporter() {
-		ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS)
-				.convertDurationsTo(TimeUnit.MILLISECONDS).build();
-		return reporter;
-	}
-
-	@PostConstruct
-	public void configureConsoleReporter() throws Exception {
-		consoleReporter().start(10, TimeUnit.MINUTES);
-	}
-
-	@Bean
-	public ScheduledReporter graphiteReporter() {
-		Graphite graphite = new Graphite(new InetSocketAddress("mule-di3.hv.devk.de", 2003));
-		GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry).prefixedWith("hostname").convertRatesTo(TimeUnit.SECONDS)
-				.convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(graphite);
-		return reporter;
-	}
-
-	@PostConstruct
-	public void configureGraphiteReporter() {
-		reporter().start(10, TimeUnit.MINUTES);
-	}
-
-	// @PostConstruct
-	// public void configureReporter() throws Exception {
-	// final Influxdb influxdb = new Influxdb("192.168.59.103", 8086, "mydata", "root", "root");
-	// influxdb.debugJson = true; // to print json on System.err
-	// // influxdb.jsonBuilder = new MyJsonBuildler(); // to use MyJsonBuilder to create json
-	// final InfluxdbReporter reporter = InfluxdbReporter.forRegistry(metricRegistry)
-	// // .prefixedWith("test")
-	// .convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(influxdb);
-	// reporter.start(10, TimeUnit.SECONDS);
-	// }
 
 }
