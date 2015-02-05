@@ -5,6 +5,9 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
+import metrics_influxdb.Influxdb;
+import metrics_influxdb.InfluxdbReporter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,6 +33,7 @@ public class MetricsExporterConfiguration {
 
 	@Bean
 	@ConditionalOnProperty("batch.metrics.export.console.enabled")
+	@ConditionalOnClass(MetricRegistry.class)
 	public ScheduledReporter consoleReporter(MetricRegistry metricRegistry) {
 		ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS)
 				.convertDurationsTo(TimeUnit.MILLISECONDS).build();
@@ -55,14 +59,23 @@ public class MetricsExporterConfiguration {
 		return reporter;
 	}
 
-	// @PostConstruct
-	// public void configureReporter() throws Exception {
-	// final Influxdb influxdb = new Influxdb("192.168.59.103", 8086, "mydata", "root", "root");
-	// influxdb.debugJson = true; // to print json on System.err
-	// // influxdb.jsonBuilder = new MyJsonBuildler(); // to use MyJsonBuilder to create json
-	// final InfluxdbReporter reporter = InfluxdbReporter.forRegistry(metricRegistry)
-	// // .prefixedWith("test")
-	// .convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(influxdb);
-	// reporter.start(10, TimeUnit.SECONDS);
-	// }
+	@Bean
+	@ConditionalOnProperty("batch.metrics.export.influxdb.enabled")
+	@ConditionalOnClass(InfluxdbReporter.class)
+	public ScheduledReporter influxdbReporter(MetricRegistry metricRegistry) throws Exception {
+		Influxdb influxdb = new Influxdb(env.getProperty("batch.metrics.export.influxdb.server"), env.getProperty(
+				"batch.metrics.export.graphite.port", Integer.class, 8086), env.getProperty("batch.metrics.export.graphite.port", "mydata"),
+				env.getProperty("batch.metrics.export.graphite.username", "root"), env.getProperty("batch.metrics.export.graphite.password", "root"));
+		String hostname;
+		try {
+			hostname = InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			hostname = "unknown";
+		}
+		final InfluxdbReporter reporter = InfluxdbReporter.forRegistry(metricRegistry).prefixedWith(hostname).convertRatesTo(TimeUnit.SECONDS)
+				.convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(influxdb);
+		reporter.start(env.getProperty("batch.metrics.export.influxdb.interval", Integer.class, 10), TimeUnit.MINUTES);
+		return reporter;
+	}
+
 }
