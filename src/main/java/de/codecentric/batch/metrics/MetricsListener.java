@@ -116,8 +116,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 			throw new RuntimeException(e);
 		}
 		// Export Metrics to console
-		List<RichGauge> gauges = exportBatchRichGauges();
-		LOGGER.info(metricsOutputFormatter.format(gauges, null));
+		LOGGER.info(metricsOutputFormatter.format(exportBatchRichGauges(), exportBatchMetrics()));
 		return null;
 	}
 
