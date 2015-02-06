@@ -1,5 +1,19 @@
 # Metrics for Spring Batch
 
+## Setup
+
+### Graphite with Grafana
+
+### InfluxDB with Grafana
+
+https://coderwall.com/p/fg18jq/getting-started-influxdb-grafana-docker
+https://github.com/tutumcloud/tutum-docker-influxdb
+
+docker run -d -p 8083:8083 -p 8086:8086 -e PRE_CREATE_DB="db1" tutum/influxdb:latest
+docker run -d -name grafana -p 8080:80 -e INFLUXDB_HOST=192.168.59.103 -e INFLUXDB_PORT=8086 -e INFLUXDB_NAME=db1 -e INFLUXDB_USER=root -e INFLUXDB_PASS=root tutum/grafana
+
+curl -G 'http://localhost:8086/db/db1/series?u=root&p=root' --data-urlencode "q=select * from denschu.counter.batch.simpleBatchMetricsJob.count"
+
 
 ## Counter
 

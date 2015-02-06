@@ -37,7 +37,7 @@ public class MetricsExporterConfiguration {
 	public ScheduledReporter consoleReporter(MetricRegistry metricRegistry) {
 		ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS)
 				.convertDurationsTo(TimeUnit.MILLISECONDS).build();
-		reporter.start(env.getProperty("batch.metrics.export.console.interval", Integer.class, 10), TimeUnit.MINUTES);
+		reporter.start(env.getProperty("batch.metrics.export.console.interval", Integer.class, 10000), TimeUnit.MILLISECONDS);
 		return reporter;
 	}
 
@@ -55,7 +55,7 @@ public class MetricsExporterConfiguration {
 		}
 		GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry).prefixedWith(hostname).convertRatesTo(TimeUnit.SECONDS)
 				.convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(graphite);
-		reporter.start(env.getProperty("batch.metrics.export.graphite.interval", Integer.class, 10), TimeUnit.MINUTES);
+		reporter.start(env.getProperty("batch.metrics.export.graphite.interval", Integer.class, 10000), TimeUnit.MILLISECONDS);
 		return reporter;
 	}
 
@@ -64,8 +64,9 @@ public class MetricsExporterConfiguration {
 	@ConditionalOnClass(InfluxdbReporter.class)
 	public ScheduledReporter influxdbReporter(MetricRegistry metricRegistry) throws Exception {
 		Influxdb influxdb = new Influxdb(env.getProperty("batch.metrics.export.influxdb.server"), env.getProperty(
-				"batch.metrics.export.graphite.port", Integer.class, 8086), env.getProperty("batch.metrics.export.graphite.port", "mydata"),
-				env.getProperty("batch.metrics.export.graphite.username", "root"), env.getProperty("batch.metrics.export.graphite.password", "root"));
+				"batch.metrics.export.influxdb.port", Integer.class, 8086), env.getProperty("batch.metrics.export.influxdb.db", "db1"),
+				env.getProperty("batch.metrics.export.influxdb.username", "root"), env.getProperty("batch.metrics.export.influxdb.password", "root"));
+		influxdb.debugJson = true;
 		String hostname;
 		try {
 			hostname = InetAddress.getLocalHost().getHostName();
@@ -74,7 +75,7 @@ public class MetricsExporterConfiguration {
 		}
 		final InfluxdbReporter reporter = InfluxdbReporter.forRegistry(metricRegistry).prefixedWith(hostname).convertRatesTo(TimeUnit.SECONDS)
 				.convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(influxdb);
-		reporter.start(env.getProperty("batch.metrics.export.influxdb.interval", Integer.class, 10), TimeUnit.MINUTES);
+		reporter.start(env.getProperty("batch.metrics.export.influxdb.interval", Integer.class, 10000), TimeUnit.MILLISECONDS);
 		return reporter;
 	}
 
