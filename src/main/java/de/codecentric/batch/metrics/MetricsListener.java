@@ -59,6 +59,8 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	public static final String GAUGE_PREFIX = "gauge.batch.";
 
+	public static final String RICHGAUGE_PREFIX = "histogram.batch.";
+	
 	public static final String COUNTER_PREFIX = "counter.batch.";
 
 	private GaugeService gaugeService;
@@ -104,7 +106,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		if (itemCount > 0) {
 			durationPerItem = stepDuration / itemCount;
 		}
-		gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier() + ".item.duration", durationPerItem);
+		gaugeService.submit(RICHGAUGE_PREFIX + getStepExecutionIdentifier() + ".item.duration", durationPerItem);
 		// What the f*** is that Thread.sleep doing here? ;-)
 		// Metrics are written asynchronously to Spring Boot's repository. In our tests we experienced
 		// that sometimes batch execution was so fast that this listener couldn't export the metrics
