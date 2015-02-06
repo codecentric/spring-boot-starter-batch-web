@@ -46,7 +46,7 @@ import de.codecentric.batch.MetricsTestApplication;
 @SpringApplicationConfiguration(classes = MetricsTestApplication.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "batch.metrics.enabled=true", "batch.metrics.deletemetricsonstepfinish=false",
-		"batch.metrics.profiling.readprocesswrite.enabled=true", "batch.metrics.export.console.enabled=true","batch.metrics.export.influxdb.server=192.168.59.103" })
+		"batch.metrics.profiling.readprocesswrite.enabled=true", "batch.metrics.export.console.enabled=true" })
 public class BatchMetricsExporterIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
