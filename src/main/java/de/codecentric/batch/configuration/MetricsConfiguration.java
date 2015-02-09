@@ -38,7 +38,6 @@ import com.codahale.metrics.ScheduledReporter;
 import de.codecentric.batch.metrics.BatchMetricsImpl;
 import de.codecentric.batch.metrics.MetricsListener;
 import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
-import de.codecentric.batch.metrics.StepExecutionMetricWriter;
 
 /**
  * Configuration containing all metrics stuff. Can be activated by setting the property
@@ -67,7 +66,7 @@ public class MetricsConfiguration implements ListenerProvider {
 
 	@Bean
 	public BatchMetricsImpl batchMetrics() {
-		return new BatchMetricsImpl(metricWriter);
+		return new BatchMetricsImpl();
 	}
 
 	@ConditionalOnProperty("batch.metrics.profiling.readprocesswrite.enabled")
@@ -78,8 +77,7 @@ public class MetricsConfiguration implements ListenerProvider {
 
 	@Bean
 	public MetricsListener metricsListener() {
-		return new MetricsListener(gaugeService, counterService, richGaugeRepository, baseConfig.metricRepository(), metricReporters,
-				env.getProperty("batch.metrics.deletemetricsonstepfinish", boolean.class, true));
+		return new MetricsListener(gaugeService, counterService, richGaugeRepository, baseConfig.metricRepository(), metricReporters);
 	}
 
 	@Override
@@ -110,11 +108,6 @@ public class MetricsConfiguration implements ListenerProvider {
 		@ConditionalOnMissingBean(RichGaugeRepository.class)
 		public RichGaugeRepository richGaugeRepository() {
 			return new InMemoryRichGaugeRepository();
-		}
-
-		@Bean
-		public MetricWriter stepExecutionMetricWriter() {
-			return new StepExecutionMetricWriter();
 		}
 
 	}

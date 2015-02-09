@@ -45,8 +45,7 @@ import de.codecentric.batch.MetricsTestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "batch.metrics.enabled=true", "batch.metrics.deletemetricsonstepfinish=false",
-		"batch.metrics.profiling.readprocesswrite.enabled=true" })
+@IntegrationTest({ "server.port=0", "batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true" })
 public class BatchMetricsAspectIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
@@ -74,10 +73,10 @@ public class BatchMetricsAspectIntegrationTest {
 		String jobExecutionString = restTemplate.getForObject("http://localhost:" + port + "/batch/monitoring/jobs/executions/{executionId}",
 				String.class, executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"), is(true));
-		Metric<?> metric = metricRepository.findOne("counter.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
+		Metric<?> metric = metricRepository.findOne("gauge.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
 		assertThat(metric, is(notNullValue()));
-		assertThat((Long) metric.getValue(), is(notNullValue()));
-		assertThat((Long) metric.getValue(), is(7l));
+		assertThat((Double) metric.getValue(), is(notNullValue()));
+		assertThat((Double) metric.getValue(), is(7.0));
 	}
 
 }

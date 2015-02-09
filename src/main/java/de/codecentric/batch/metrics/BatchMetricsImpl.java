@@ -15,100 +15,188 @@
  */
 package de.codecentric.batch.metrics;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
-import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.boot.actuate.metrics.writer.Delta;
-import org.springframework.boot.actuate.metrics.writer.MetricWriter;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * See {@link BatchMetrics} for documentation.
  * 
  * @author Tobias Flohre
+ * @author Dennis Schulte
  */
-public class BatchMetricsImpl implements BatchMetrics {
+public class BatchMetricsImpl extends TransactionSynchronizationAdapter implements BatchMetrics {
 
-	private MetricWriter metricWriter;
-	private MetricWriter transactionAwareMetricWriter;
+	private static final Log LOG = LogFactory.getLog(BatchMetricsImpl.class);
 
-	public BatchMetricsImpl(MetricWriter metricWriter) {
-		this.metricWriter = metricWriter;
-		this.transactionAwareMetricWriter = new TransactionAwareMetricWriter(metricWriter);
+	private ThreadLocal<MetricContainer> metricContainer;
+	private final Object serviceKey;
+
+	public BatchMetricsImpl() {
+		this.serviceKey = new Object();
+		this.metricContainer = new ThreadLocal<MetricContainer>();
 	}
 
 	@Override
 	public void increment(String metricName) {
-		transactionAwareMetricWriter.increment(new Delta<Long>(wrapCounter(metricName), 1L));
+		increment(metricName, 1L);
+
 	}
 
 	@Override
 	public void increment(String metricName, Long value) {
-		transactionAwareMetricWriter.increment(new Delta<Long>(wrapCounter(metricName), value));
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
+			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
+			metricContainer.get().metrics.add(Pair.of(metricName, value));
+		} else {
+			incrementNonTransactional(metricName);
+		}
 	}
 
 	@Override
 	public void decrement(String metricName) {
-		transactionAwareMetricWriter.increment(new Delta<Long>(wrapCounter(metricName), -1L));
+		decrement(metricName, -1L);
 	}
 
 	@Override
 	public void decrement(String metricName, Long value) {
-		transactionAwareMetricWriter.increment(new Delta<Long>(wrapCounter(metricName), -value));
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
+			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
+			metricContainer.get().metrics.add(Pair.of(metricName, -value));
+		} else {
+			decrementNonTransactional(metricName);
+		}
 	}
 
 	@Override
 	public void reset(String metricName) {
-		transactionAwareMetricWriter.reset(wrapCounter(metricName));
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
+			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
+			metricContainer.get().metrics.add(Pair.of(metricName, (Number) null));
+		} else {
+			resetNonTransactional(metricName);
+		}
 	}
 
 	@Override
 	public void submit(String metricName, double value) {
-		transactionAwareMetricWriter.set(new Metric<Double>(wrapGauge(metricName), value));
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
+			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
+			metricContainer.get().metrics.add(Pair.of(metricName, value));
+		} else {
+			set(metricName, value);
+		}
 	}
 
 	@Override
 	public void incrementNonTransactional(String metricName) {
-		metricWriter.increment(new Delta<Long>(wrapCounter(metricName), 1L));
+		incrementNonTransactional(metricName, 1L);
 	}
 
 	@Override
 	public void incrementNonTransactional(String metricName, Long value) {
-		metricWriter.increment(new Delta<Long>(wrapCounter(metricName), value));
+		modifyCounter(metricName, value);
 	}
 
 	@Override
 	public void decrementNonTransactional(String metricName) {
-		metricWriter.increment(new Delta<Long>(wrapCounter(metricName), -1L));
+		decrementNonTransactional(metricName, -1L);
 	}
 
 	@Override
 	public void decrementNonTransactional(String metricName, Long value) {
-		metricWriter.increment(new Delta<Long>(wrapCounter(metricName), -value));
+		modifyCounter(metricName, -value);
 	}
 
 	@Override
 	public void resetNonTransactional(String metricName) {
-		metricWriter.reset(wrapCounter(metricName));
+		remove(metricName);
 	}
 
 	@Override
 	public void submitNonTransactional(String metricName, double value) {
-		metricWriter.set(new Metric<Double>(wrapGauge(metricName), value));
+		set(metricName, value);
 	}
 
-	private String wrapCounter(String metricName) {
-		return "counter." + "batch." + getStepExecutionIdentifier() + "." + metricName;
+	@Override
+	public void afterCompletion(int status) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Entered afterCompletion with status " + status + ".");
+		}
+		if (status == STATUS_COMMITTED) {
+			MetricContainer currentMetricContainer = metricContainer.get();
+			for (Pair<String, ? extends Number> metric : currentMetricContainer.metrics) {
+				if (metric.getRight() instanceof Long) {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("Increment " + metric + ".");
+					}
+					incrementNonTransactional(metric.getLeft(), (Long) metric.getRight());
+				} else if (metric.getRight() instanceof Double) {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("Gauge " + metric + ".");
+					}
+					set(metric.getLeft(), (Double) metric.getRight());
+				} else if (metric.getRight() == null) {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("Reset " + metric + ".");
+					}
+					remove(metric.getLeft());
+				}
+			}
+		}
+		metricContainer.remove();
+		if (TransactionSynchronizationManager.hasResource(serviceKey)) {
+			TransactionSynchronizationManager.unbindResource(serviceKey);
+		}
 	}
 
-	private String wrapGauge(String metricName) {
-		return "gauge." + "batch." + getStepExecutionIdentifier() + "." + metricName;
+	private void modifyCounter(String metricName, Long value) {
+		StepExecution stepExecution = getStepExecution();
+		Long oldValue = 0L;
+		if (stepExecution.getExecutionContext().containsKey(metricName)) {
+			oldValue = stepExecution.getExecutionContext().getLong(metricName);
+		}
+		stepExecution.getExecutionContext().put(metricName, oldValue + value);
 	}
 
-	private String getStepExecutionIdentifier() {
-		StepContext stepContext = StepSynchronizationManager.getContext();
-		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
-		return stepContext.getJobName() + "." + stepExecution.getStepName();
+	private void remove(String metricName) {
+		StepExecution stepExecution = getStepExecution();
+		if (stepExecution.getExecutionContext().containsKey(metricName)) {
+			stepExecution.getExecutionContext().remove(metricName);
+		}
+	}
+
+	private void set(String metricName, double value) {
+		StepExecution stepExecution = getStepExecution();
+		stepExecution.getExecutionContext().put(metricName, value);
+	}
+
+	private static class MetricContainer {
+		List<Pair<String, ? extends Number>> metrics = new ArrayList<Pair<String, ? extends Number>>();
+	}
+
+	private StepExecution getStepExecution() {
+		if (StepSynchronizationManager.getContext() != null) {
+			return StepSynchronizationManager.getContext().getStepExecution();
+		}
+		return null;
+	}
+
+	private void initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary() {
+		if (!TransactionSynchronizationManager.hasResource(serviceKey)) {
+			TransactionSynchronizationManager.bindResource(serviceKey, new StringBuffer());
+			TransactionSynchronizationManager.registerSynchronization(this);
+		}
+		if (metricContainer.get() == null) {
+			metricContainer.set(new MetricContainer());
+		}
 	}
 
 }

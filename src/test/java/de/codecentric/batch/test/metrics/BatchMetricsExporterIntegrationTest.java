@@ -47,8 +47,8 @@ import de.codecentric.batch.MetricsTestApplication;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "batch.metrics.enabled=true", "batch.metrics.deletemetricsonstepfinish=false",
-		"batch.metrics.profiling.readprocesswrite.enabled=true", "batch.metrics.export.console.enabled=true" })
+@IntegrationTest({ "server.port=0", "batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true",
+		"batch.metrics.export.console.enabled=true" })
 public class BatchMetricsExporterIntegrationTest {
 
 	RestTemplate restTemplate = new TestRestTemplate();
@@ -65,7 +65,8 @@ public class BatchMetricsExporterIntegrationTest {
 	public void testRunJob() throws InterruptedException {
 		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "run=2");
-		Long executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/simpleBatchMetricsJob", requestMap, Long.class);
+		Long executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/simpleBatchMetricsJob", requestMap,
+				Long.class);
 		while (!restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}", String.class, executionId)
 				.equals("COMPLETED")) {
 			Thread.sleep(1000);
@@ -78,10 +79,10 @@ public class BatchMetricsExporterIntegrationTest {
 		String jobExecutionString = restTemplate.getForObject("http://localhost:" + port + "/batch/monitoring/jobs/executions/{executionId}",
 				String.class, executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"), is(true));
-		Metric<?> metric = metricRepository.findOne("counter.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
+		Metric<?> metric = metricRepository.findOne("gauge.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
 		assertThat(metric, is(notNullValue()));
-		assertThat((Long) metric.getValue(), is(notNullValue()));
-		assertThat((Long) metric.getValue(), is(7l));
+		assertThat((Double) metric.getValue(), is(notNullValue()));
+		assertThat((Double) metric.getValue(), is(7.0));
 	}
 
 }
