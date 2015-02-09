@@ -33,6 +33,8 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import de.codecentric.batch.MetricsTestApplication;
@@ -61,7 +63,9 @@ public class BatchMetricsExporterIntegrationTest {
 
 	@Test
 	public void testRunJob() throws InterruptedException {
-		Long executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/simpleBatchMetricsJob", "", Long.class);
+		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
+		requestMap.add("jobParameters", "run=2");
+		Long executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/simpleBatchMetricsJob", requestMap, Long.class);
 		while (!restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}", String.class, executionId)
 				.equals("COMPLETED")) {
 			Thread.sleep(1000);
