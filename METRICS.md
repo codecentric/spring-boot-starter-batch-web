@@ -14,7 +14,6 @@ docker run -d -name grafana -p 8080:80 -e INFLUXDB_HOST=192.168.59.103 -e INFLUX
 
 curl -G 'http://localhost:8086/db/db1/series?u=root&p=root' --data-urlencode "q=select * from denschu.counter.batch.simpleBatchMetricsJob.count"
 
-
 ## Counter
 
 ### Job
@@ -55,7 +54,7 @@ gauge.batch.simpleJob.step.simpleStep.ExampleService.callExternalRemoteService.d
 ### Show count of job executions for a specific interval
 summarize(hostname.counter.batch.example-job.count, '10m', 'sum', false)
 
-### Show item duration/count for a specific job execution
+### Show item duration/count for a specific job name
 hostname.gauge.batch.example-job.step.item.duration
 hostname.gauge.batch.example-job.step.item.count
 
@@ -64,9 +63,9 @@ hostname.gauge.batch.example-job.step.item.count
 <hostname>.gauge.batch.example-job.step.item.duration
 <hostname>.gauge.batch.example-job.step.item.count
 
-VHVP169368.counter.batch.lf-snts-to-daus-job.count
-VHVP169368.gauge.batch.lf-snts-to-daus-job.*.xmlFileReadingStepMaster.item.duration
-VHVP169368.gauge.batch.lf-snts-to-daus-job.*.xmlFileReadingStepMaster.item.count
+denschu.counter.batch.example-job.example-step.count
+denschu.gauge.batch.example-job.example-step.item.duration
+denschu.gauge.batch.example-job.example-step.item.count
 
 ## Notes
 
