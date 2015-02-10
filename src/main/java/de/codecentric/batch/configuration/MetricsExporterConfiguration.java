@@ -1,3 +1,18 @@
+/*
+ * Copyright 2014 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.codecentric.batch.configuration;
 
 import java.net.InetAddress;
@@ -8,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 import metrics_influxdb.Influxdb;
 import metrics_influxdb.InfluxdbReporter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,16 +45,20 @@ import com.codahale.metrics.graphite.GraphiteReporter;
  */
 public class MetricsExporterConfiguration {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(MetricsExporterConfiguration.class);
+
 	@Autowired
 	private Environment env;
 
 	@Bean
 	@ConditionalOnProperty("batch.metrics.export.console.enabled")
-	@ConditionalOnClass(MetricRegistry.class)
 	public ScheduledReporter consoleReporter(MetricRegistry metricRegistry) {
 		ConsoleReporter reporter = ConsoleReporter.forRegistry(metricRegistry).convertRatesTo(TimeUnit.SECONDS)
 				.convertDurationsTo(TimeUnit.MILLISECONDS).build();
-		reporter.start(env.getProperty("batch.metrics.export.console.interval", Integer.class, 10000), TimeUnit.MILLISECONDS);
+		Integer interval = env.getProperty("batch.metrics.export.console.interval", Integer.class, 0);
+		if (interval > 0) {
+			reporter.start(interval, TimeUnit.MILLISECONDS);
+		}
 		return reporter;
 	}
 
@@ -45,6 +66,10 @@ public class MetricsExporterConfiguration {
 	@ConditionalOnProperty("batch.metrics.export.graphite.enabled")
 	@ConditionalOnClass(GraphiteReporter.class)
 	public ScheduledReporter graphiteReporter(MetricRegistry metricRegistry) {
+		if (!env.containsProperty("batch.metrics.export.graphite.server")) {
+			LOGGER.warn("The hostname for the Graphite server is missing (batch.metrics.export.graphite.server).");
+			return null;
+		}
 		Graphite graphite = new Graphite(new InetSocketAddress(env.getProperty("batch.metrics.export.graphite.server"), env.getProperty(
 				"batch.metrics.export.graphite.port", Integer.class, 2003)));
 		String hostname;
@@ -55,10 +80,13 @@ public class MetricsExporterConfiguration {
 		}
 		GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry).prefixedWith(hostname).convertRatesTo(TimeUnit.SECONDS)
 				.convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(graphite);
-		reporter.start(env.getProperty("batch.metrics.export.graphite.interval", Integer.class, 10000), TimeUnit.MILLISECONDS);
+		Integer interval = env.getProperty("batch.metrics.export.graphite.interval", Integer.class, 0);
+		if (interval > 0) {
+			reporter.start(interval, TimeUnit.MILLISECONDS);
+		}
 		return reporter;
 	}
-
+	
 	@Bean
 	@ConditionalOnProperty("batch.metrics.export.influxdb.enabled")
 	@ConditionalOnClass(InfluxdbReporter.class)
@@ -75,8 +103,10 @@ public class MetricsExporterConfiguration {
 		}
 		final InfluxdbReporter reporter = InfluxdbReporter.forRegistry(metricRegistry).prefixedWith(hostname).convertRatesTo(TimeUnit.SECONDS)
 				.convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL).build(influxdb);
-		reporter.start(env.getProperty("batch.metrics.export.influxdb.interval", Integer.class, 10000), TimeUnit.MILLISECONDS);
+		Integer interval = env.getProperty("batch.metrics.export.influxdb.interval", Integer.class, 0);
+		if (interval > 0) {			
+			reporter.start(interval, TimeUnit.MILLISECONDS);
+		}
 		return reporter;
 	}
-
 }
