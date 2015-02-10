@@ -157,7 +157,7 @@ public class BatchMetricsImpl extends TransactionSynchronizationAdapter implemen
 		}
 	}
 
-	private void modifyCounter(String metricName, Long value) {
+	synchronized private void modifyCounter(String metricName, Long value) {
 		StepExecution stepExecution = getStepExecution();
 		Long oldValue = 0L;
 		if (stepExecution.getExecutionContext().containsKey(metricName)) {
