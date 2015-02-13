@@ -31,12 +31,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.Metric;
+import org.springframework.boot.actuate.metrics.export.Exporter;
 import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.boot.actuate.metrics.rich.RichGauge;
 import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
 import org.springframework.core.Ordered;
-
-import com.codahale.metrics.ScheduledReporter;
 
 /**
  * This listener exports all metrics with the prefix 'counter.batch.{jobName}.{jobExecutionId}.{stepName}
@@ -66,17 +65,17 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	private RichGaugeRepository richGaugeRepository;
 	private MetricRepository metricRepository;
-	private List<ScheduledReporter> metricReporters;
+	private List<Exporter> exporters;
 	@Autowired(required = false)
 	private MetricsOutputFormatter metricsOutputFormatter = new SimpleMetricsOutputFormatter();
 
 	public MetricsListener(GaugeService gaugeService, CounterService counterService, RichGaugeRepository richGaugeRepository,
-			MetricRepository metricRepository, List<ScheduledReporter> metricReporters) {
+			MetricRepository metricRepository, List<Exporter> exporters) {
 		this.gaugeService = gaugeService;
 		this.counterService = counterService;
 		this.richGaugeRepository = richGaugeRepository;
 		this.metricRepository = metricRepository;
-		this.metricReporters = metricReporters;
+		this.exporters = exporters;
 	}
 
 	@Override
@@ -132,11 +131,11 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		// Export Metrics to Console or Remote Systems
 		LOGGER.info(metricsOutputFormatter.format(exportBatchRichGauges(), exportBatchMetrics()));
 		// Codahale
-		if (metricReporters != null) {
-			for (ScheduledReporter reporter : metricReporters) {
-				if (reporter != null) {
-					LOGGER.info("Exporting Metrics with " + reporter.getClass().getName());
-					reporter.report();
+		if (exporters != null) {
+			for (Exporter exporter : exporters) {
+				if (exporter != null) {
+					LOGGER.info("Exporting Metrics with " + exporter.getClass().getName());
+					exporter.export();
 				}
 			}
 		}

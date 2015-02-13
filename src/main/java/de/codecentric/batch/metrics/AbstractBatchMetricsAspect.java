@@ -45,7 +45,7 @@ public abstract class AbstractBatchMetricsAspect {
 
 	private GaugeService gaugeService;
 
-	public static final String RICHGAUGE_PREFIX = "histogram.batch.";
+	public static final String TIMER_PREFIX = "timer.batch.";
 
 	public AbstractBatchMetricsAspect(GaugeService gaugeService) {
 		this.gaugeService = gaugeService;
@@ -56,7 +56,7 @@ public abstract class AbstractBatchMetricsAspect {
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit(RICHGAUGE_PREFIX + getStepIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass()) + "."
+			gaugeService.submit(TIMER_PREFIX + getStepIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass()) + "."
 					+ pjp.getSignature().getName(), getTotalTimeMillis(stopWatch));
 		}
 	}

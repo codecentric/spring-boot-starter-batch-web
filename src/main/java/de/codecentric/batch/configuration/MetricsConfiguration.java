@@ -24,6 +24,7 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
+import org.springframework.boot.actuate.metrics.export.Exporter;
 import org.springframework.boot.actuate.metrics.rich.InMemoryRichGaugeRepository;
 import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
@@ -32,8 +33,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-
-import com.codahale.metrics.ScheduledReporter;
 
 import de.codecentric.batch.metrics.BatchMetricsImpl;
 import de.codecentric.batch.metrics.MetricsListener;
@@ -62,7 +61,7 @@ public class MetricsConfiguration implements ListenerProvider {
 	@Autowired
 	private MetricWriter metricWriter;
 	@Autowired(required = false)
-	private List<ScheduledReporter> metricReporters;
+	private List<Exporter> exporters;
 
 	@Bean
 	public BatchMetricsImpl batchMetrics() {
@@ -77,7 +76,7 @@ public class MetricsConfiguration implements ListenerProvider {
 
 	@Bean
 	public MetricsListener metricsListener() {
-		return new MetricsListener(gaugeService, counterService, richGaugeRepository, baseConfig.metricRepository(), metricReporters);
+		return new MetricsListener(gaugeService, counterService, richGaugeRepository, baseConfig.metricRepository(), exporters);
 	}
 
 	@Override
