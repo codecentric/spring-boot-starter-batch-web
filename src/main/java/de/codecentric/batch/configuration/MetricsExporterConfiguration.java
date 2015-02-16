@@ -15,19 +15,22 @@
  */
 package de.codecentric.batch.configuration;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import metrics_influxdb.InfluxdbReporter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.export.Exporter;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
+import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.GraphiteReporter;
 
@@ -40,41 +43,68 @@ import de.codecentric.batch.metrics.InfluxdbMetricsExporter;
  * 
  * @author Dennis Schulte
  */
+@ConditionalOnClass(MetricRegistry.class)
 @ConditionalOnProperty("batch.metrics.enabled")
 @Configuration
 @EnableScheduling
 public class MetricsExporterConfiguration {
 
 	@Autowired
+	private Environment env;
+
+	@Autowired
 	private MetricReader metricReader;
-	
+
 	@Autowired
 	private MetricRegistry metricRegistry;
-	
+
 	@Bean
 	@ConditionalOnProperty("batch.metrics.export.console.enabled")
-	public Exporter consoleExporter(){
-		return new ConsoleMetricsExporter(metricRegistry,metricReader);
+	@ConditionalOnClass(ConsoleReporter.class)
+	public Exporter consoleExporter() {
+		return new ConsoleMetricsExporter(metricRegistry);
 	}
-	
+
 	@Bean
 	@ConditionalOnProperty("batch.metrics.export.graphite.enabled")
 	@ConditionalOnClass(GraphiteReporter.class)
-	public Exporter graphiteExporter(){
-		return new GraphiteMetricsExporter(metricRegistry,metricReader);
+	public Exporter graphiteExporter() {
+		String server = env.getProperty("batch.metrics.export.graphite.server");
+		Integer port = env.getProperty(
+				"batch.metrics.export.graphite.port", Integer.class, 2003);
+		String environment = env.getProperty("batch.metrics.export.environment",
+				getShortHostname());
+		return new GraphiteMetricsExporter(metricRegistry, metricReader, server, port, environment);
 	}
-	
+
 	@Bean
 	@ConditionalOnProperty("batch.metrics.export.influxdb.enabled")
 	@ConditionalOnClass(InfluxdbReporter.class)
-	public Exporter influxdbExporter() throws Exception{
-		return new InfluxdbMetricsExporter(metricRegistry);
+	public Exporter influxdbExporter() throws Exception {
+		String server = env.getProperty("batch.metrics.export.influxdb.server");
+		Integer port = env.getProperty("batch.metrics.export.influxdb.port",
+				Integer.class, 8086);
+		String dbName = env.getProperty("batch.metrics.export.influxdb.db", "db1");
+		String user = env.getProperty("batch.metrics.export.influxdb.username", "root");
+		String password = env.getProperty("batch.metrics.export.influxdb.password",
+				"root");
+		String environment = env.getProperty("batch.metrics.export.environment",
+				getShortHostname());
+		return new InfluxdbMetricsExporter(metricRegistry, metricReader, server, port,
+				dbName, user, password, environment);
 	}
-	
-	@Scheduled(initialDelay = 60000, fixedDelay = 60000)
-	@ConditionalOnBean(name = "graphiteExporter")
-    void exportMetrics() {
-		graphiteExporter().export();
-    }
+
+	private String getShortHostname() {
+		try {
+			String hostname = InetAddress.getLocalHost().getHostName();
+			if (hostname.indexOf('.') > 0) {
+				hostname = hostname.substring(0, hostname.indexOf('.'));
+			}
+			return hostname;
+		}
+		catch (UnknownHostException e) {
+			return "unknown";
+		}
+	}
 
 }

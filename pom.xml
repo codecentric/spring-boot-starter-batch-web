@@ -85,16 +85,19 @@
 			<groupId>io.dropwizard.metrics</groupId>
 			<artifactId>metrics-core</artifactId>
 			<version>3.1.0</version>
+			<scope>optional</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.dropwizard.metrics</groupId>
 			<artifactId>metrics-graphite</artifactId>
 			<version>3.1.0</version>
+			<scope>optional</scope>
 		</dependency>		
 		<dependency>
 			<groupId>net.alchim31</groupId>
 			<artifactId>metrics-influxdb</artifactId>
 			<version>0.5.0</version>
+			<scope>optional</scope>
 		</dependency>
 		<!-- Test -->
 		<dependency>

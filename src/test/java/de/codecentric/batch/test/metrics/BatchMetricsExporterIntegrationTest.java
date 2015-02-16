@@ -40,14 +40,16 @@ import org.springframework.web.client.RestTemplate;
 import de.codecentric.batch.MetricsTestApplication;
 
 /**
- * This test class starts a batch job configured in JavaConfig and tests a simple metrics use case.
+ * This test class starts a batch job configured in JavaConfig and tests a simple metrics
+ * use case.
  * 
  * @author Tobias Flohre
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MetricsTestApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true",
+@IntegrationTest({ "server.port=0", "batch.metrics.enabled=true",
+		"batch.metrics.profiling.readprocesswrite.enabled=true",
 		"batch.metrics.export.console.enabled=true" })
 public class BatchMetricsExporterIntegrationTest {
 
@@ -65,21 +67,26 @@ public class BatchMetricsExporterIntegrationTest {
 	public void testRunJob() throws InterruptedException {
 		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "run=2");
-		Long executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/simpleBatchMetricsJob", requestMap,
-				Long.class);
-		while (!restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}", String.class, executionId)
-				.equals("COMPLETED")) {
+		Long executionId = restTemplate.postForObject("http://localhost:" + port
+				+ "/batch/operations/jobs/simpleBatchMetricsJob", requestMap, Long.class);
+		while (!restTemplate.getForObject(
+				"http://localhost:" + port
+						+ "/batch/operations/jobs/executions/{executionId}",
+				String.class, executionId).equals("COMPLETED")) {
 			Thread.sleep(1000);
 		}
-		String log = restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}/log", String.class,
+		String log = restTemplate.getForObject("http://localhost:" + port
+				+ "/batch/operations/jobs/executions/{executionId}/log", String.class,
 				executionId);
 		assertThat(log.length() > 20, is(true));
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
-		String jobExecutionString = restTemplate.getForObject("http://localhost:" + port + "/batch/monitoring/jobs/executions/{executionId}",
-				String.class, executionId);
+		String jobExecutionString = restTemplate.getForObject("http://localhost:" + port
+				+ "/batch/monitoring/jobs/executions/{executionId}", String.class,
+				executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"), is(true));
-		Metric<?> metric = metricRepository.findOne("gauge.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
+		Metric<?> metric = metricRepository
+				.findOne("gauge.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
 		assertThat(metric, is(notNullValue()));
 		assertThat((Double) metric.getValue(), is(notNullValue()));
 		assertThat((Double) metric.getValue(), is(7.0));
