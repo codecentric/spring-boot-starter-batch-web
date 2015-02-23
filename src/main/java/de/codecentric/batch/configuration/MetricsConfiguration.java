@@ -22,7 +22,6 @@ import java.util.Set;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.export.Exporter;
 import org.springframework.boot.actuate.metrics.rich.InMemoryRichGaugeRepository;
@@ -57,8 +56,6 @@ public class MetricsConfiguration implements ListenerProvider {
 	@Autowired
 	private GaugeService gaugeService;
 	@Autowired
-	private CounterService counterService;
-	@Autowired
 	private MetricWriter metricWriter;
 	@Autowired(required = false)
 	private List<Exporter> exporters;
@@ -76,7 +73,7 @@ public class MetricsConfiguration implements ListenerProvider {
 
 	@Bean
 	public MetricsListener metricsListener() {
-		return new MetricsListener(gaugeService, counterService, richGaugeRepository, baseConfig.metricRepository(), exporters);
+		return new MetricsListener(gaugeService, richGaugeRepository, baseConfig.metricRepository(), exporters);
 	}
 
 	@Override

@@ -28,7 +28,6 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.export.Exporter;
@@ -54,11 +53,8 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
 
 	public static final String GAUGE_PREFIX = "gauge.batch.";
-
-	public static final String COUNTER_PREFIX = "counter.batch.";
-
+	
 	private GaugeService gaugeService;
-	private CounterService counterService;
 
 	private RichGaugeRepository richGaugeRepository;
 	private MetricRepository metricRepository;
@@ -66,10 +62,9 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	@Autowired(required = false)
 	private MetricsOutputFormatter metricsOutputFormatter = new SimpleMetricsOutputFormatter();
 
-	public MetricsListener(GaugeService gaugeService, CounterService counterService, RichGaugeRepository richGaugeRepository,
+	public MetricsListener(GaugeService gaugeService, RichGaugeRepository richGaugeRepository,
 			MetricRepository metricRepository, List<Exporter> exporters) {
 		this.gaugeService = gaugeService;
-		this.counterService = counterService;
 		this.richGaugeRepository = richGaugeRepository;
 		this.metricRepository = metricRepository;
 		this.exporters = exporters;
@@ -77,12 +72,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
-		counterService.increment(COUNTER_PREFIX + jobExecution.getJobInstance().getJobName());
-	}
-
-	@Override
-	public void beforeStep(StepExecution stepExecution) {
-		counterService.increment(COUNTER_PREFIX + getStepExecutionIdentifier(stepExecution));
+		// no action
 	}
 
 	@Override
