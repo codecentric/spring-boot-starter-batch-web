@@ -39,12 +39,9 @@ import org.springframework.core.Ordered;
 
 /**
  * This listener exports all metrics with the prefix 'counter.batch.{jobName}.{jobExecutionId}.{stepName}
- * and all gauges with the prefix 'gauge.batch.{jobName}.{jobExecutionId}.{stepName}' to the Step-
+ * and all gauges with the prefix 'gauge.batch.{jobName}.{stepName}' to the Step-
  * ExecutionContext without the prefix. All metrics and gauges are logged as well. For
  * overriding the default format of the logging a component implementing {@link MetricsOutputFormatter} may be added to the ApplicationContext.
- * 
- * If deleteMetricsOnStepFinish is true, all metrics will be removed from Spring Boot's metric
- * framework (MetricRepository) when the job finishes and the metrics are written to the Step-ExecutionContext.
  * 
  * Counters are cumulated over several StepExecutions belonging to one Step in one JobInstance,
  * important for restarted jobs.

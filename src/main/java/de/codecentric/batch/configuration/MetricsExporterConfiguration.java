@@ -38,7 +38,9 @@ import de.codecentric.batch.metrics.GraphiteMetricsExporter;
 import de.codecentric.batch.metrics.InfluxdbMetricsExporter;
 
 /**
- * Configuration for the Metrics Exporters
+ * Configuration for the Metrics Exporters. Actually Console, InfluxDB and Graphite are
+ * supported. To add a new implementation just implement the generic {@link Export}
+ * interface for metric exports and register it as a Spring Bean.
  * 
  * @author Dennis Schulte
  */
@@ -68,11 +70,12 @@ public class MetricsExporterConfiguration {
 	@ConditionalOnClass(GraphiteReporter.class)
 	public Exporter graphiteExporter() {
 		String server = env.getProperty("batch.metrics.export.graphite.server");
-		Integer port = env.getProperty(
-				"batch.metrics.export.graphite.port", Integer.class, 2003);
+		Integer port = env.getProperty("batch.metrics.export.graphite.port",
+				Integer.class, 2003);
 		String environment = env.getProperty("batch.metrics.export.environment",
 				getShortHostname());
-		return new GraphiteMetricsExporter(metricRegistry, metricReader, server, port, environment);
+		return new GraphiteMetricsExporter(metricRegistry, metricReader, server, port,
+				environment);
 	}
 
 	@Bean
