@@ -54,6 +54,8 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	public static final String GAUGE_PREFIX = "gauge.batch.";
 	
+	public static final String TIMER_PREFIX = "timer.batch.";
+
 	private GaugeService gaugeService;
 
 	private RichGaugeRepository richGaugeRepository;
@@ -80,7 +82,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		// Calculate step execution time
 		// Why is stepExecution.getEndTime().getTime() not available here? (see AbstractStep)
 		long stepDuration = System.currentTimeMillis() - stepExecution.getStartTime().getTime();
-		gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier(stepExecution) + ".duration", stepDuration);
+		gaugeService.submit(TIMER_PREFIX + getStepExecutionIdentifier(stepExecution) + ".duration", stepDuration);
 		long itemCount = stepExecution.getWriteCount() + stepExecution.getSkipCount();
 		gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier(stepExecution) + ".item.count", itemCount);
 		// Calculate execution time per item
@@ -88,7 +90,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		if (itemCount > 0) {
 			durationPerItem = stepDuration / itemCount;
 		}
-		gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier(stepExecution) + ".item.duration", durationPerItem);
+		gaugeService.submit(TIMER_PREFIX + getStepExecutionIdentifier(stepExecution) + ".item.duration", durationPerItem);
 		// Export metrics from StepExecution to MetricRepositories
 		Set<Entry<String, Object>> metrics = stepExecution.getExecutionContext().entrySet();
 		for (Entry<String, Object> metric : metrics) {
@@ -104,7 +106,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		long jobDuration = jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime();
-		gaugeService.submit(GAUGE_PREFIX + jobExecution.getJobInstance().getJobName() + ".duration", jobDuration);
+		gaugeService.submit(TIMER_PREFIX + jobExecution.getJobInstance().getJobName() + ".duration", jobDuration);
 		// What the f*** is that Thread.sleep doing here? ;-)
 		// Metrics are written asynchronously to Spring Boot's repository. In our tests we experienced
 		// that sometimes batch execution was so fast that this listener couldn't export the metrics
