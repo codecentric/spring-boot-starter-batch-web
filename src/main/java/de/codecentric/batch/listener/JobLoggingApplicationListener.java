@@ -9,7 +9,7 @@ import org.springframework.core.Ordered;
  * This ApplicationListener makes the batch.joblog.path available before the LoggingSystem is started.
  * @author Johannes Stelzer
  */
-public class LoggingApplicationListener implements ApplicationListener<ApplicationPreparedEvent>, Ordered {
+public class JobLoggingApplicationListener implements ApplicationListener<ApplicationPreparedEvent>, Ordered {
 
     @Override
     public void onApplicationEvent(ApplicationPreparedEvent event) {
@@ -24,7 +24,7 @@ public class LoggingApplicationListener implements ApplicationListener<Applicati
 
     @Override
     public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE + 10;
+            return Ordered.HIGHEST_PRECEDENCE + 11;
     }
 
 }
