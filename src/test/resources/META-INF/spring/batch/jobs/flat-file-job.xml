@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
 	<batch:job id="flatFile2JobXml">
-		<batch:step id="step">
+		<batch:step id="flatFile2JobXmlStep">
 			<batch:tasklet>
 				<batch:chunk commit-interval="1" reader="reader" writer="writer">
 				</batch:chunk>

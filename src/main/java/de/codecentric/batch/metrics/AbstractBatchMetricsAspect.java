@@ -16,9 +16,6 @@
 package de.codecentric.batch.metrics;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
@@ -27,12 +24,12 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StopWatch;
 
 /**
- * This is a helper class for implementing method level profiling. See {@link ReaderProcessorWriterMetricsAspect} for an 
+ * This is a helper class for implementing method level profiling. See {@link ReaderProcessorWriterMetricsAspect} for an
  * aspect extending this class. All calls to an adviced method are tracked in a RichGauge, so you'll see average duration time,
  * maximum / minimum time, number of method calls and so on. For the name of the metric a special naming scheme is used so that
  * our {@link MetricsListener} picks up the gauge and writes it to the ExecutionContext of the StepExecution and to the log.
  * 
- * Job configurations need to enable auto-proxying so that aspects may be applied. In JavaConfig just add 
+ * Job configurations need to enable auto-proxying so that aspects may be applied. In JavaConfig just add
  * {@code @EnableAspectJAutoProxy(proxyTargetClass=true)} as a class level annotation. In xml add
  * {@code <aop:aspectj-autoproxy proxy-target-class="true"/>} to the xml configuration file. This needs to be done because jobs reside
  * in child application contexts and don't inherit this kind of configuration from the parent. proxyTargetClass=true means using
@@ -42,9 +39,9 @@ import org.springframework.util.StopWatch;
  */
 public abstract class AbstractBatchMetricsAspect {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractBatchMetricsAspect.class);
-
 	private GaugeService gaugeService;
+
+	public static final String TIMER_PREFIX = "timer.batch.";
 
 	public AbstractBatchMetricsAspect(GaugeService gaugeService) {
 		this.gaugeService = gaugeService;
@@ -55,8 +52,8 @@ public abstract class AbstractBatchMetricsAspect {
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit(MetricsListener.GAUGE_PREFIX + getStepIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass())+ "."+pjp.getSignature().getName(),
-					getTotalTimeMillis(stopWatch));
+			gaugeService.submit(TIMER_PREFIX + getStepIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass()) + "."
+					+ pjp.getSignature().getName(), getTotalTimeMillis(stopWatch));
 		}
 	}
 
@@ -75,13 +72,7 @@ public abstract class AbstractBatchMetricsAspect {
 	private String getStepIdentifier() {
 		StepContext stepContext = StepSynchronizationManager.getContext();
 		StepExecution stepExecution = StepSynchronizationManager.getContext().getStepExecution();
-		JobExecution jobExecution = stepExecution.getJobExecution();
-		String stepIdentifier = stepContext.getJobName()+"."+jobExecution.getId()+"."+stepExecution.getStepName();
-		if (stepIdentifier == null) {
-			LOG.warn("Step identifier could not be read from MDC.");
-			stepIdentifier = "unknown";
-		}
-		return stepIdentifier;
+		return stepContext.getJobName() + "." + stepExecution.getStepName();
 	}
 
 }

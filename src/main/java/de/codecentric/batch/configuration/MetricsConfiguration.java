@@ -16,11 +16,14 @@
 package de.codecentric.batch.configuration;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.GaugeService;
+import org.springframework.boot.actuate.metrics.export.Exporter;
 import org.springframework.boot.actuate.metrics.rich.InMemoryRichGaugeRepository;
 import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
@@ -42,8 +45,8 @@ import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
  */
 @ConditionalOnProperty("batch.metrics.enabled")
 @Configuration
-public class MetricsConfiguration implements ListenerProvider{
-	
+public class MetricsConfiguration implements ListenerProvider {
+
 	@Autowired
 	private Environment env;
 	@Autowired
@@ -51,13 +54,17 @@ public class MetricsConfiguration implements ListenerProvider{
 	@Autowired
 	private RichGaugeRepository richGaugeRepository;
 	@Autowired
+	private GaugeService gaugeService;
+	@Autowired
 	private MetricWriter metricWriter;
-	
+	@Autowired(required = false)
+	private List<Exporter> exporters;
+
 	@Bean
-	public BatchMetricsImpl batchMetrics(){
-		return new BatchMetricsImpl(metricWriter);
+	public BatchMetricsImpl batchMetrics() {
+		return new BatchMetricsImpl();
 	}
-	
+
 	@ConditionalOnProperty("batch.metrics.profiling.readprocesswrite.enabled")
 	@Bean
 	public ReaderProcessorWriterMetricsAspect batchMetricsAspects() {
@@ -65,13 +72,15 @@ public class MetricsConfiguration implements ListenerProvider{
 	}
 
 	@Bean
-	public MetricsListener metricsListener(){
-		return new MetricsListener(richGaugeRepository,baseConfig.metricRepository(), env.getProperty("batch.metrics.deletemetricsonstepfinish", boolean.class, true));
+	public MetricsListener metricsListener() {
+		return new MetricsListener(gaugeService, richGaugeRepository, baseConfig.metricRepository(), exporters);
 	}
 
 	@Override
 	public Set<JobExecutionListener> jobExecutionListeners() {
-		return new HashSet<JobExecutionListener>();
+		Set<JobExecutionListener> listeners = new HashSet<JobExecutionListener>();
+		listeners.add(metricsListener());
+		return listeners;
 	}
 
 	@Override
@@ -80,7 +89,7 @@ public class MetricsConfiguration implements ListenerProvider{
 		listeners.add(metricsListener());
 		return listeners;
 	}
-	
+
 	@ConditionalOnProperty("batch.metrics.enabled")
 	@Configuration
 	static class MetricsRepositoryConfiguration {

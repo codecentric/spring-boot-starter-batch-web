@@ -39,7 +39,6 @@ import org.springframework.core.io.FileSystemResource;
 import de.codecentric.batch.metrics.BatchMetrics;
 import de.codecentric.batch.metrics.Item;
 import de.codecentric.batch.metrics.MetricsTestException;
-import de.codecentric.batch.metrics.item.MetricsTestSkipListener;
 import de.codecentric.batch.metrics.item.MetricsTestChunkListener;
 import de.codecentric.batch.metrics.item.MetricsTestItemProcessListener;
 import de.codecentric.batch.metrics.item.MetricsTestItemProcessor;
@@ -47,6 +46,7 @@ import de.codecentric.batch.metrics.item.MetricsTestItemReadListener;
 import de.codecentric.batch.metrics.item.MetricsTestItemReader;
 import de.codecentric.batch.metrics.item.MetricsTestItemWriteListener;
 import de.codecentric.batch.metrics.item.MetricsTestItemWriter;
+import de.codecentric.batch.metrics.item.MetricsTestSkipListener;
 
 /**
  * @author Tobias Flohre

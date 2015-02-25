@@ -40,27 +40,26 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * This configuration class will be picked up by Spring Boot's auto configuration capabilities as soon as it's
  * on the classpath.
  * 
- * <p>It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer}
- * and imports the web endpoint configuration ({@link WebConfig}.<br>
- * It also imports {@link AutomaticJobRegistrarConfiguration} which looks for jobs in a modular fashion, meaning 
- * that every job configuration file gets its own Child-ApplicationContext. Configuration files can be XML files in 
- * the location /META-INF/spring/batch/jobs, overridable via property batch.config.path.xml, and JavaConfig classes 
- * in the package spring.batch.jobs, overridable via property batch.config.package.javaconfig.<br>
- * In addition to collecting jobs a number of default listeners is added to each job. The 
- * {@link de.codecentric.batch.listener.ProtocolListener} adds a protocol to the log. It is activated by default
- * and can be deactivated by setting the property batch.defaultprotocol.enabled to false.<br> 
- * {@link de.codecentric.batch.listener.LoggingListener} and {@link de.codecentric.batch.listener.LoggingAfterJobListener} 
- * add a log file separation per job run, are activated by default and can be deactivated by setting the property
- * batch.logfileseparation.enabled to false. The {@link de.codecentric.batch.listener.RunningExecutionTrackerListener}
- * is needed for knowing which JobExecutions are currently running on this node.
+ * <p>
+ * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer} and imports the web endpoint
+ * configuration ({@link WebConfig}.<br>
+ * It also imports {@link AutomaticJobRegistrarConfiguration} which looks for jobs in a modular fashion, meaning that every job configuration file
+ * gets its own Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs, overridable via property
+ * batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs, overridable via property batch.config.package.javaconfig.<br>
+ * In addition to collecting jobs a number of default listeners is added to each job. The {@link de.codecentric.batch.listener.ProtocolListener} adds
+ * a protocol to the log. It is activated by default and can be deactivated by setting the property batch.defaultprotocol.enabled to false.<br>
+ * {@link de.codecentric.batch.listener.LoggingListener} and {@link de.codecentric.batch.listener.LoggingAfterJobListener} add a log file separation
+ * per job run, are activated by default and can be deactivated by setting the property batch.logfileseparation.enabled to false. The
+ * {@link de.codecentric.batch.listener.RunningExecutionTrackerListener} is needed for knowing which JobExecutions are currently running on this node.
  * 
  * @author Tobias Flohre
- *
+ * 
  */
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
-@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class, Jsr352BatchConfiguration.class, MetricsConfiguration.class,TaskExecutorConfiguration.class})
+@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class,
+		Jsr352BatchConfiguration.class, MetricsConfiguration.class, MetricsExporterConfiguration.class, TaskExecutorConfiguration.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	@Autowired
@@ -69,55 +68,56 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	@Autowired
 	private BaseConfiguration baseConfig;
 
-	//################### Listeners automatically added to each job #################################
-	
+	// ################### Listeners automatically added to each job #################################
+
 	@Bean
-	public LoggingListener loggingListener(){
+	public LoggingListener loggingListener() {
 		return new LoggingListener();
 	}
-	
+
 	@Bean
-	public LoggingAfterJobListener loggingAfterJobListener(){
+	public LoggingAfterJobListener loggingAfterJobListener() {
 		return new LoggingAfterJobListener();
 	}
-	
+
 	@Bean
 	public ProtocolListener protocolListener() {
 		return new ProtocolListener();
 	}
-	
+
 	@Bean
-	public RunningExecutionTracker runningExecutionTracker(){
+	public RunningExecutionTracker runningExecutionTracker() {
 		return new RunningExecutionTracker();
 	}
-	
+
 	@Bean
-	public RunningExecutionTrackerListener runningExecutionTrackerListener(){
+	public RunningExecutionTrackerListener runningExecutionTrackerListener() {
 		return new RunningExecutionTrackerListener(runningExecutionTracker());
 	}
-	
+
 	@Bean
-	public AddListenerToJobService addListenerToJobService(){
+	public AddListenerToJobService addListenerToJobService() {
 		boolean addProtocolListener = env.getProperty("batch.defaultprotocol.enabled", boolean.class, true);
 		boolean addLoggingListener = env.getProperty("batch.logfileseparation.enabled", boolean.class, true);
-		return new AddListenerToJobService(addProtocolListener, addLoggingListener, protocolListener(), runningExecutionTrackerListener(), loggingListener(), loggingAfterJobListener());
+		return new AddListenerToJobService(addProtocolListener, addLoggingListener, protocolListener(), runningExecutionTrackerListener(),
+				loggingListener(), loggingAfterJobListener());
 	}
-	
+
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		try {
 			for (String jobName : baseConfig.jobRegistry().getJobNames()) {
-				AbstractJob job = (AbstractJob)baseConfig.jobRegistry().getJob(jobName);
+				AbstractJob job = (AbstractJob) baseConfig.jobRegistry().getJob(jobName);
 				this.addListenerToJobService().addListenerToJob(job);
 			}
 		} catch (NoSuchJobException e) {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE;
 	}
-	
+
 }
