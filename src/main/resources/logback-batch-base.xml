@@ -7,15 +7,15 @@
 		<!-- in the absence of the class attribute, it is assumed that the desired discriminator type is ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
 		<discriminator>
 			<key>jobLogFileName</key>
-			<defaultValue>batch-common.log</defaultValue>
+			<defaultValue>batch-default</defaultValue>
 		</discriminator>
 		<sift>
-			<appender name="${jobLogFileName}-protocol" class="ch.qos.logback.core.FileAppender">
+			<appender name="${jobLogFileName}" class="ch.qos.logback.core.FileAppender">
 				<file>${JOB_LOG_PATH}${jobLogFileName}.log</file>
 				<append>true</append>
-				<layout class="ch.qos.logback.classic.PatternLayout">
+				<encoder>
 					<pattern>${FILE_LOG_PATTERN}</pattern>
-				</layout>
+				</encoder>
 			</appender>
 		</sift>
 	</appender>
