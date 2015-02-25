@@ -56,7 +56,7 @@ public class BatchMetricsImpl extends TransactionSynchronizationAdapter implemen
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
 			metricContainer.get().metrics.add(Pair.of(metricName, value));
 		} else {
-			incrementNonTransactional(metricName);
+			incrementNonTransactional(metricName, value);
 		}
 	}
 
@@ -71,7 +71,7 @@ public class BatchMetricsImpl extends TransactionSynchronizationAdapter implemen
 			initializeMetricContainerAndRegisterTransactionSynchronizationIfNecessary();
 			metricContainer.get().metrics.add(Pair.of(metricName, -value));
 		} else {
-			decrementNonTransactional(metricName);
+			decrementNonTransactional(metricName, value);
 		}
 	}
 
