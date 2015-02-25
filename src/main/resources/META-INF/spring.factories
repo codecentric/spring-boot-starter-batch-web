@@ -2,4 +2,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=de.codecentric.batch.configuration.BatchWebAutoConfiguration
 
 # Application Listeners
-org.springframework.context.ApplicationListener=de.codecentric.batch.listener.LoggingApplicationListener
+org.springframework.context.ApplicationListener=de.codecentric.batch.listener.JobLoggingApplicationListener
