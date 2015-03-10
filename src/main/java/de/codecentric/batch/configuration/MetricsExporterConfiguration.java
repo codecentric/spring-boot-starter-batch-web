@@ -18,8 +18,6 @@ package de.codecentric.batch.configuration;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import metrics_influxdb.InfluxdbReporter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.export.Exporter;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
@@ -31,7 +29,6 @@ import org.springframework.core.env.Environment;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.graphite.GraphiteReporter;
 
 import de.codecentric.batch.metrics.ConsoleMetricsExporter;
 import de.codecentric.batch.metrics.GraphiteMetricsExporter;
@@ -67,7 +64,7 @@ public class MetricsExporterConfiguration {
 
 	@Bean
 	@ConditionalOnProperty("batch.metrics.export.graphite.enabled")
-	@ConditionalOnClass(GraphiteReporter.class)
+	@ConditionalOnClass(name="com.codahale.metrics.graphite.GraphiteReporter")
 	public Exporter graphiteExporter() {
 		String server = env.getProperty("batch.metrics.export.graphite.server");
 		Integer port = env.getProperty("batch.metrics.export.graphite.port",
@@ -80,7 +77,7 @@ public class MetricsExporterConfiguration {
 
 	@Bean
 	@ConditionalOnProperty("batch.metrics.export.influxdb.enabled")
-	@ConditionalOnClass(InfluxdbReporter.class)
+	@ConditionalOnClass(name="metrics_influxdb.InfluxdbReporter")
 	public Exporter influxdbExporter() throws Exception {
 		String server = env.getProperty("batch.metrics.export.influxdb.server");
 		Integer port = env.getProperty("batch.metrics.export.influxdb.port",
