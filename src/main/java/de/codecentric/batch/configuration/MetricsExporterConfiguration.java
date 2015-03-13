@@ -36,7 +36,8 @@ import de.codecentric.batch.metrics.InfluxdbMetricsExporter;
 
 /**
  * Configuration for the Metrics Exporters. Actually Console, InfluxDB and Graphite are
- * supported. To add a new implementation just implement the generic {@link Export}
+ * supported. To add a new implementation just implement the generic
+ * {@link org.springframework.boot.actuate.metrics.export.Exporter}
  * interface for metric exports and register it as a Spring Bean.
  * 
  * @author Dennis Schulte
