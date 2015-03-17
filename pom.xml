@@ -172,12 +172,10 @@
 				<version>${asciidoctor.maven.plugin.version}</version>
 				<configuration>
 					<sourceDirectory>src/docs/asciidoc</sourceDirectory>
-					<attributes>
-						<project-baseUri>${project.baseUri}</project-baseUri>					
-						<endpoint-url>http://example.org</endpoint-url>
+					<attributes>				
 						<sourcedir>${project.build.sourceDirectory}</sourcedir>
 						<testsourcedir>${project.build.testSourceDirectory}</testsourcedir>						
-						<project-version>${project.version}</project-version>
+						<projectversion>${project.version}</projectversion>
 					</attributes>
 				</configuration>
 				<executions>
@@ -190,15 +188,9 @@
 						<configuration>
 							<backend>html5</backend>
 							<sourceHighlighter>coderay</sourceHighlighter>
-							<doctype>book</doctype>
 							<attributes>
-								<imagesdir>./images</imagesdir>
 								<toc>left</toc>
-								<icons>font</icons>
-								<sectanchors>true</sectanchors>
-								<idprefix />
-								<idseparator>-</idseparator>
-								<docinfo1>true</docinfo1>
+								<numbered>true</numbered>
 							</attributes>
 						</configuration>
 					</execution>

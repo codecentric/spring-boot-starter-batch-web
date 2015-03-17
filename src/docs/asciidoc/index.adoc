@@ -1,9 +1,5 @@
 = Spring Boot Starter Batch Web Reference Guide
-:toc:
-:toclevels: 4
-:source-highlighter: prettify
-:numbered:
-
+   
 == What is spring-boot-starter-batch-web?
 
 Java batch is becoming a hot topic in enterprise environments these days, but how do you do it the right way? The project spring-boot-starter-batch-web offers a best practice approach to modern batch architectures, answering the following questions:
@@ -30,6 +26,16 @@ https://blog.codecentric.de/en/2014/11/enterprise-java-batch-best-practice-archi
 == Getting Started
 
 . Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-samples/blob/master/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to spring-boot-starter-batch-web like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
+
+[source,xml]
+----
+<dependency>
+	<groupId>de.codecentric</groupId>
+	<artifactId>spring-boot-starter-batch-web</artifactId>
+	<version>1.3.4.RELEASE</version>
+</dependency>
+----
+
 . If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in https://github.com/codecentric/spring-samples/blob/master/batch-boot-file-to-db/src/main/resources/application.properties[this example]. If you don't specify these properties you'll get an in-memory database for the Spring Batch meta data tables.
 . Add a simple logback.xml for logging. Here's an https://github.com/codecentric/spring-samples/blob/master/batch-boot-file-to-db/src/main/resources/logback.xml[example] inheriting from our basic log configuration to support log file separation.
 . Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path.xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package.javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.
@@ -120,7 +126,7 @@ https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/src/mai
 
 This is a simple example for an initscript template to control your Spring Boot batch application:
 
-[indent=0]
+[source,shell]
 ----
 #!/bin/sh
 #
@@ -280,7 +286,7 @@ batch.metrics.export.influxdb.password=password
 
 * Run it with Docker
 
-[indent=0]
+[source,shell]
 ----
 docker run -d -p 8083:8083 -p 8086:8086 -e PRE_CREATE_DB="db1" tutum/influxdb:latest
 docker run -d -name grafana -p 8080:80 -e INFLUXDB_HOST=192.168.59.103 -e INFLUXDB_PORT=8086 -e INFLUXDB_NAME=db1 -e INFLUXDB_USER=root -e INFLUXDB_PASS=root tutum/grafana
@@ -288,7 +294,7 @@ docker run -d -name grafana -p 8080:80 -e INFLUXDB_HOST=192.168.59.103 -e INFLUX
 
 * Retrieve some metrics per HTTP
 
-[indent=0]
+[source,shell]
 ----
 curl -G 'http://localhost:8080/db/db1/series?u=root&p=root' --data-urlencode "q=select * from <hostname>.counter.batch.simpleBatchMetricsJob.count"
 ----
