@@ -14,7 +14,7 @@ Features include:
 * An operations http endpoint for starting and stopping jobs, for retrieving the BatchStatus and the log file.
 * A monitoring http endpoint for retrieving detailed information on a job execution, for knowing all deployed jobs and all running job executions.
 
-Take a look at the [Getting Started page](https://github.com/codecentric/spring-boot-starter-batch-web/wiki/Getting-Started). 
+Take a look at the [Getting Started page](http://codecentric.github.io/spring-boot-starter-batch-web/#_getting_started). 
 
 There are the following samples available:
 
