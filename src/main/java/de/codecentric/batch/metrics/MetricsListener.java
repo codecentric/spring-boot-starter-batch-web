@@ -146,6 +146,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		return gauges;
 	}
 
+	// tag::contains[]
 	private static class SimpleMetricsOutputFormatter implements MetricsOutputFormatter {
 
 		@Override
@@ -166,6 +167,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		}
 
 	}
+	// end::contains[]
 
 	@Override
 	public int getOrder() {
