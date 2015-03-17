@@ -5,7 +5,7 @@ Enterprise-ready production-ready batch applications powered by Spring Boot
 
 The project spring-boot-starter-batch-web is a Spring Boot starter for Spring Batch taking care of everything except writing the jobs. 
 
-See the [Wiki](https://github.com/codecentric/spring-boot-starter-batch-web/wiki/) for full documentation, examples, operational details and other information.
+See the [Documentation](http://codecentric.github.io/spring-boot-starter-batch-web/) for detailed infos, examples and operational details.
 
 Features include:
 
