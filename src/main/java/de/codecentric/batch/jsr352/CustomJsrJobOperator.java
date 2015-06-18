@@ -50,6 +50,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
 
 import de.codecentric.batch.listener.AddListenerToJobService;
@@ -79,8 +80,9 @@ public class CustomJsrJobOperator extends JsrJobOperator implements ApplicationC
 	public CustomJsrJobOperator(JobExplorer jobExplorer,
 			JobRepository jobRepository,
 			JobParametersConverter jobParametersConverter,
-			AddListenerToJobService addListenerToJobService) {
-		super(jobExplorer, jobRepository, jobParametersConverter);
+			AddListenerToJobService addListenerToJobService, 
+			PlatformTransactionManager transactionManager) {
+		super(jobExplorer, jobRepository, jobParametersConverter, transactionManager);
 		this.jobRepository = jobRepository;
 		this.jobParametersConverter = jobParametersConverter;
 		this.addListenerToJobService = addListenerToJobService;
