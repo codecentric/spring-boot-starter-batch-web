@@ -23,6 +23,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import de.codecentric.batch.scheduling.concurrent.MdcThreadPoolTaskExecutor;
+
 /**
  * This is the default configuration for a {@link org.springframework.core.task.TaskExecutor} used in the {@link org.springframework.batch.core.launch.support.SimpleJobLauncher}
  * for starting jobs asynchronously. Its core thread pool is configured to five threads by default, which can be changed
@@ -53,7 +55,7 @@ public class TaskExecutorConfiguration {
 	
 	@Bean
 	public TaskExecutor taskExecutor() {
-		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+		ThreadPoolTaskExecutor taskExecutor = new MdcThreadPoolTaskExecutor();
 		taskExecutor.setCorePoolSize(env.getProperty("batch.core.pool.size", Integer.class, 5));
 		taskExecutor.setQueueCapacity(env.getProperty("batch.queue.capacity", Integer.class, Integer.MAX_VALUE));
 		taskExecutor.setMaxPoolSize(env.getProperty("batch.max.pool.size", Integer.class, Integer.MAX_VALUE));
