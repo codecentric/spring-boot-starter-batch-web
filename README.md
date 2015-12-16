@@ -1,9 +1,11 @@
 Enterprise-ready production-ready batch applications powered by Spring Boot
 =============================
 [![Build Status](https://travis-ci.org/codecentric/spring-boot-starter-batch-web.png?branch=master)](https://travis-ci.org/codecentric/spring-boot-starter-batch-web)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.codecentric/spring-boot-starter-batch-web/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.codecentric/spring-boot-starter-batch-web/)
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 
-The project spring-boot-starter-batch-web is a Spring Boot starter for Spring Batch taking care of everything except writing the jobs. 
+The project spring-boot-starter-batch-web is a Spring Boot starter for Spring Batch taking care of everything except writing the jobs.
 
 See the [Documentation](http://codecentric.github.io/spring-boot-starter-batch-web/) for detailed infos, examples and operational details.
 
@@ -14,7 +16,7 @@ Features include:
 * An operations http endpoint for starting and stopping jobs, for retrieving the BatchStatus and the log file.
 * A monitoring http endpoint for retrieving detailed information on a job execution, for knowing all deployed jobs and all running job executions.
 
-Take a look at the [Getting Started page](http://codecentric.github.io/spring-boot-starter-batch-web/#_getting_started). 
+Take a look at the [Getting Started page](http://codecentric.github.io/spring-boot-starter-batch-web/#_getting_started).
 
 There are the following samples available:
 
