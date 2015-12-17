@@ -1,6 +1,7 @@
 Enterprise-ready production-ready batch applications powered by Spring Boot
 =============================
 [![Build Status](https://travis-ci.org/codecentric/spring-boot-starter-batch-web.png?branch=master)](https://travis-ci.org/codecentric/spring-boot-starter-batch-web)
+[![Coverage Status](https://coveralls.io/repos/codecentric/spring-boot-starter-batch-web/badge.svg?branch=master&service=github)](https://coveralls.io/github/codecentric/spring-boot-starter-batch-web?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/de.codecentric/spring-boot-starter-batch-web/badge.svg)](https://maven-badges.herokuapp.com/maven-central/de.codecentric/spring-boot-starter-batch-web/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
