@@ -24,14 +24,14 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.export.Exporter;
+import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.actuate.metrics.rich.InMemoryRichGaugeRepository;
+import org.springframework.boot.actuate.metrics.rich.RichGaugeReader;
 import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
-import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 import de.codecentric.batch.metrics.BatchMetricsImpl;
 import de.codecentric.batch.metrics.MetricsListener;
@@ -40,7 +40,7 @@ import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
 /**
  * Configuration containing all metrics stuff. Can be activated by setting the property
  * batch.metrics.enabled to true.
- * 
+ *
  * @author Tobias Flohre
  */
 @ConditionalOnProperty("batch.metrics.enabled")
@@ -48,17 +48,13 @@ import de.codecentric.batch.metrics.ReaderProcessorWriterMetricsAspect;
 public class MetricsConfiguration implements ListenerProvider {
 
 	@Autowired
-	private Environment env;
-	@Autowired
-	private BaseConfiguration baseConfig;
-	@Autowired
-	private RichGaugeRepository richGaugeRepository;
+	private RichGaugeReader richGaugeReader;
 	@Autowired
 	private GaugeService gaugeService;
-	@Autowired
-	private MetricWriter metricWriter;
 	@Autowired(required = false)
 	private List<Exporter> exporters;
+	@Autowired
+	private MetricReader metricReader;
 
 	@Bean
 	public BatchMetricsImpl batchMetrics() {
@@ -68,12 +64,12 @@ public class MetricsConfiguration implements ListenerProvider {
 	@ConditionalOnProperty("batch.metrics.profiling.readprocesswrite.enabled")
 	@Bean
 	public ReaderProcessorWriterMetricsAspect batchMetricsAspects() {
-		return new ReaderProcessorWriterMetricsAspect(baseConfig.gaugeService());
+		return new ReaderProcessorWriterMetricsAspect(gaugeService);
 	}
 
 	@Bean
 	public MetricsListener metricsListener() {
-		return new MetricsListener(gaugeService, richGaugeRepository, baseConfig.metricRepository(), exporters);
+		return new MetricsListener(gaugeService, richGaugeReader, metricReader, exporters);
 	}
 
 	@Override

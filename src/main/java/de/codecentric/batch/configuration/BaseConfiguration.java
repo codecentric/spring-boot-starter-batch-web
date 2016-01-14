@@ -23,24 +23,22 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.GaugeService;
-import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 
 /**
- * I don't like autowiring of business components, I prefer to reference them from a 
+ * I don't like autowiring of business components, I prefer to reference them from a
  * JavaConfig configuration class. But since some components are created through other
  * Spring Boot components or by special mechanisms (for example the BatchConfigurer
  * mechanism) I want to have one place where I autowire all of those components and
  * explain where they are coming from. Whenever I need one of those components I
  * import this configuration class and reference those components via method call.
- * 
+ *
  * @author Tobias Flohre
  */
 @Configuration
 public class BaseConfiguration {
-	
+
 	// Created by spring-boot-starter-batch in combination with our TaskExecutorBatchConfigurer
 	@Autowired
 	private JobOperator jobOperator;
@@ -52,21 +50,15 @@ public class BaseConfiguration {
 	private JobRepository jobRepository;
 	@Autowired
 	private JobLauncher jobLauncher;
-	
+
 	// Created by spring-boot-starter-jdbc
 	@Autowired
 	private DataSource dataSource;
-	
-	// Created by our TaskExecutorBatchConfigurer if it is used. If an alternative BatchConfigurer is used, 
+
+	// Created by our TaskExecutorBatchConfigurer if it is used. If an alternative BatchConfigurer is used,
 	// a TaskExecutor instance has to be provided somehow.
 	@Autowired
 	private TaskExecutor taskExecutor;
-	
-	// Created by spring-boot-starter-actuator in MetricRepositoryAutoConfiguration.
-	@Autowired(required=false)
-	private GaugeService gaugeService;
-	@Autowired
-	private MetricRepository metricRepository;
 
 	public JobOperator jobOperator() {
 		return jobOperator;
@@ -89,11 +81,4 @@ public class BaseConfiguration {
 	public TaskExecutor taskExecutor() {
 		return taskExecutor;
 	}
-	public GaugeService gaugeService() {
-		return gaugeService;
-	}
-	public MetricRepository metricRepository(){
-		return metricRepository;
-	}
-	
 }
