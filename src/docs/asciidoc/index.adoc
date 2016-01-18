@@ -254,57 +254,6 @@ In this Starter there are a lot of metrics that will be written during jobruns (
 batch.metrics.enabled=true
 ----
 
-==== Add Codahale to your pom.xml
-
-[source,xml]
-----
-<dependency>
-    <groupId>io.dropwizard.metrics</groupId>
-    <artifactId>metrics-core</artifactId>
-    <version>3.1.0</version>
-</dependency>   
-<dependency>
-    <groupId>net.alchim31</groupId>
-    <artifactId>metrics-influxdb</artifactId>
-    <version>0.5.0</version>
-</dependency>
-----
-
-==== Enable e.g. InfluxDB Reporter
-
-[source,java]
-----
-batch.metrics.export.influxdb.enabled=true
-batch.metrics.export.influxdb.server=localhost
-batch.metrics.export.influxdb.port=8086
-batch.metrics.export.influxdb.db=db1
-batch.metrics.export.influxdb.username=user
-batch.metrics.export.influxdb.password=password
-----
-
-==== Setup InfluxDB with Grafana
-
-* Run it with Docker
-
-[source,shell]
-----
-docker run -d -p 8083:8083 -p 8086:8086 -e PRE_CREATE_DB="db1" tutum/influxdb:latest
-docker run -d -name grafana -p 8080:80 -e INFLUXDB_HOST=192.168.59.103 -e INFLUXDB_PORT=8086 -e INFLUXDB_NAME=db1 -e INFLUXDB_USER=root -e INFLUXDB_PASS=root tutum/grafana
-----
-
-* Retrieve some metrics per HTTP
-
-[source,shell]
-----
-curl -G 'http://localhost:8080/db/db1/series?u=root&p=root' --data-urlencode "q=select * from <hostname>.counter.batch.simpleBatchMetricsJob.count"
-----
-
-* References 
-
-https://coderwall.com/p/fg18jq/getting-started-influxdb-grafana-docker
-
-https://github.com/tutumcloud/tutum-docker-influxdb
-
 === Gauges
 ==== Job duration for a specific job name
 [indent=0]
@@ -340,8 +289,4 @@ timer.batch.simpleJob.step.simpleStep.ExampleService.callExternalRemoteService.d
 gauge.batch.simpleJob.step.simpleStep.businesscounter
 ----
 
-=== Notes
-
-".count" is added automatically when using a Counter with GraphiteReporter ".value" is added automatically when using a Gauge with InfluxDBReporter
-All metrics will be prefixed with the Hostname or an Environment identifier (dev, test, qa, prod)
 

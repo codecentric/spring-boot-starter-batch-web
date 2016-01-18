@@ -59,7 +59,7 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
 @Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class,
-		Jsr352BatchConfiguration.class, MetricsConfiguration.class, MetricsExporterConfiguration.class, TaskExecutorConfiguration.class })
+		Jsr352BatchConfiguration.class, MetricsConfiguration.class, TaskExecutorConfiguration.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	@Autowired
