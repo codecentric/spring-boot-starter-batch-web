@@ -34,7 +34,6 @@ import org.springframework.batch.support.transaction.ResourcelessTransactionMana
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -43,11 +42,11 @@ import org.springframework.transaction.PlatformTransactionManager;
  * This batch infrastructure configuration is quite similar to the
  * {@link org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer}, it only
  * references a {@link org.springframework.core.task.TaskExecutor} used in the {@link org.springframework.batch.core.launch.support.SimpleJobLauncher}
- * for starting jobs asynchronously. 
- * 
+ * for starting jobs asynchronously.
+ *
  * @author Tobias Flohre
  * @author Dennis Schulte
- * 
+ *
  */
 @ConditionalOnMissingBean(BatchConfigurer.class)
 @Configuration
@@ -55,19 +54,20 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 
 	private static final Log logger = LogFactory.getLog(TaskExecutorBatchConfigurer.class);
 
-	@Autowired
-	private Environment env;
-	
-	// Created by TaskExecutorConfiguration if it is used. If an alternative TaskExecutor is configured, 
+	// Created by TaskExecutorConfiguration if it is used. If an alternative TaskExecutor is configured,
 	// it will be injected here.
 	@Autowired
 	private TaskExecutor taskExecutor;
-	
+
+	@Autowired
+	private BatchConfigurationProperties batchConfig;
+
 	private DataSource dataSource;
 	private PlatformTransactionManager transactionManager;
 	private JobRepository jobRepository;
 	private JobLauncher jobLauncher;
 	private JobExplorer jobExplorer;
+
 
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
@@ -107,16 +107,16 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 		JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
 		factory.setDataSource(dataSource);
 		factory.setTransactionManager(transactionManager);
-		String isolationLevelForCreate = env.getProperty("batch.repository.isolationlevelforcreate");
+		String isolationLevelForCreate = batchConfig.getRepository().getIsolationLevelForCreate();
 		if (isolationLevelForCreate != null) {
 			factory.setIsolationLevelForCreate(isolationLevelForCreate);
 		}
-		String tablePrefix = env.getProperty("batch.repository.tableprefix");
+		String tablePrefix = batchConfig.getRepository().getTablePrefix();
 		if (tablePrefix != null) {
 			factory.setTablePrefix(tablePrefix);
 		}
 		factory.afterPropertiesSet();
-		return (JobRepository) factory.getObject();
+		return factory.getObject();
 	}
 
 	@PostConstruct
