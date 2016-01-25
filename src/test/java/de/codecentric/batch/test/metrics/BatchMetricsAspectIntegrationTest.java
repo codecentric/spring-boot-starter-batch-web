@@ -27,7 +27,7 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.boot.actuate.metrics.repository.MetricRepository;
+import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -39,7 +39,7 @@ import de.codecentric.batch.MetricsTestApplication;
 
 /**
  * This test class starts a batch job configured in JavaConfig and tests a simple metrics use case.
- * 
+ *
  * @author Tobias Flohre
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -53,7 +53,7 @@ public class BatchMetricsAspectIntegrationTest {
 	@Autowired
 	private JobExplorer jobExplorer;
 	@Autowired
-	private MetricRepository metricRepository;
+	private MetricReader metricReader;
 
 	@Value("${local.server.port}")
 	int port;
@@ -73,7 +73,7 @@ public class BatchMetricsAspectIntegrationTest {
 		String jobExecutionString = restTemplate.getForObject("http://localhost:" + port + "/batch/monitoring/jobs/executions/{executionId}",
 				String.class, executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"), is(true));
-		Metric<?> metric = metricRepository.findOne("gauge.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
+		Metric<?> metric = metricReader.findOne("gauge.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
 		assertThat(metric, is(notNullValue()));
 		assertThat((Double) metric.getValue(), is(notNullValue()));
 		assertThat((Double) metric.getValue(), is(7.0));

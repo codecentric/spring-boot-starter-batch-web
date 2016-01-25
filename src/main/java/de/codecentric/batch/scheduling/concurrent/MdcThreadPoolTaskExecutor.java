@@ -8,11 +8,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * A SLF4J MDC-compatible {@link ThreadPoolExecutor}.
- * <p/>
+ * <p>
  * In general, MDC is used to store diagnostic information (e.g. logfile name) in per-thread variables, to facilitate logging. However, although MDC
  * data is passed to thread children, this doesn't work when threads are reused in a thread pool. This is a drop-in replacement for
  * {@link ThreadPoolTaskExecutor} sets MDC data before each task appropriately.
- * <p/>
+ * </p>
  *
  * @author Dennis Schulte
  */
