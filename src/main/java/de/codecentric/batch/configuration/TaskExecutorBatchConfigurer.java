@@ -140,6 +140,10 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 
 			JobExplorerFactoryBean jobExplorerFactoryBean = new JobExplorerFactoryBean();
 			jobExplorerFactoryBean.setDataSource(this.dataSource);
+			String tablePrefix = env.getProperty("batch.repository.tableprefix");
+			if (tablePrefix != null) {
+				jobExplorerFactoryBean.setTablePrefix(tablePrefix);
+			}
 			jobExplorerFactoryBean.afterPropertiesSet();
 			this.jobExplorer = jobExplorerFactoryBean.getObject();
 		}
