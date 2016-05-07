@@ -29,7 +29,6 @@ import org.springframework.batch.core.configuration.support.GenericApplicationCo
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -42,25 +41,25 @@ import org.springframework.util.SystemPropertyUtils;
 /**
  * Configuration for registration of {@link ApplicationContextFactory} with the {@link AutomaticJobRegistrar} that
  * is instantiated inside the {@link ModularBatchConfiguration}.
- * 
- * This configuration looks for jobs in a modular fashion, meaning that every job configuration file gets its own 
- * Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs, 
- * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs, 
+ *
+ * This configuration looks for jobs in a modular fashion, meaning that every job configuration file gets its own
+ * Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs,
+ * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs,
  * overridable via property batch.config.package.javaconfig.
- * 
+ *
  * Customization is done by adding a Configuration class that extends {@link AutomaticJobRegistrarConfigurationSupport}.
  * This will disable this auto configuration.
- * 
+ *
  * @author Thomas Bosch
  */
 @Configuration
 @ConditionalOnMissingBean({ AutomaticJobRegistrarConfigurationSupport.class })
 public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarConfigurationSupport {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(AutomaticJobRegistrarConfiguration.class);
 
 	@Autowired
-	private Environment env;
+	private BatchConfigurationProperties batchConfig;
 
 	/**
 	 * @see de.codecentric.batch.configuration.AutomaticJobRegistrarConfigurationSupport#addApplicationContextFactories(org.springframework.batch.core.configuration.support.AutomaticJobRegistrar)
@@ -74,8 +73,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 	protected void registerJobsFromXml(AutomaticJobRegistrar automaticJobRegistrar) throws IOException {
 		// Add all XML-Configurations to the AutomaticJobRegistrar
 		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-		Resource[] xmlConfigurations = resourcePatternResolver.getResources("classpath*:"
-				+ env.getProperty("batch.config.path.xml", "/META-INF/spring/batch/jobs") + "/*.xml");
+		Resource[] xmlConfigurations = resourcePatternResolver.getResources(batchConfig.getConfig().getPathXml());
 		for (Resource resource : xmlConfigurations) {
 			LOGGER.info("Register jobs from {}", resource);
 			automaticJobRegistrar.addApplicationContextFactory(new GenericApplicationContextFactory(resource));
@@ -84,7 +82,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 
 	protected void registerJobsFromJavaConfig(AutomaticJobRegistrar automaticJobRegistrar) throws ClassNotFoundException,
 			IOException {
-		List<Class<?>> classes = findMyTypes(env.getProperty("batch.config.package.javaconfig", "spring.batch.jobs"));
+		List<Class<?>> classes = findMyTypes(batchConfig.getConfig().getPackageJavaconfig());
 		for (Class<?> clazz : classes) {
 			LOGGER.info("Register jobs from {}", clazz);
 			automaticJobRegistrar.addApplicationContextFactory(new GenericApplicationContextFactory(clazz));

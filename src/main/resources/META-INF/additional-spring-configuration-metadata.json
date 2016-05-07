@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "batch.metrics.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Enable the transaction safe batch metrics framework",
+    "sourceType": "de.codecentric.batch.configuration.MetricsConfiguration",
+    "defaultValue": "false"
+  },
+  {
+    "name": "batch.metrics.profiling.readprocesswrite.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Enables the profiling for readers, processors and writers using RichGauges",
+    "sourceType": "de.codecentric.batch.configuration.MetricsConfiguration",
+    "defaultValue": "false"
+  },
+  {
+    "name": "batch.web.operation.base",
+    "type": "java.lang.String",
+    "description": "Base URL for the operations endpoint",
+    "sourceType": "de.codecentric.batch.web.JobOperationsController",
+    "defaultValue": "/batch/operations"
+  },
+  {
+    "name": "batch.web.monitioring.base",
+    "type": "java.lang.String",
+    "description": "Base URL for the monitoring endpoint",
+    "sourceType": "de.codecentric.batch.web.JobMonitoringController",
+    "defaultValue": "/batch/monitoring"
+  },
+  {
+    "name": "batch.joblog.path",
+    "type": "java.lang.String",
+    "description": "Path where the separate logfiles are stored. Can be used as JOB_LOG_PATH in logback configuration.",
+    "sourceType": "de.codecentric.batch.listener.JobLoggingApplicationListener"
+  }
+]}
+
