@@ -116,7 +116,7 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 			factory.setTablePrefix(tablePrefix);
 		}
 		factory.afterPropertiesSet();
-		return (JobRepository) factory.getObject();
+		return factory.getObject();
 	}
 
 	@PostConstruct

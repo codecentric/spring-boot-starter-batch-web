@@ -34,7 +34,7 @@ import de.codecentric.batch.web.JobOperationsController;
  * This configuration adds the controllers for the two endpoints, and it adds a Jackson MixIn to the
  * message converter to avoid a stack overflow through circular references in the JobExecution /
  * StepExecution.
- * 
+ *
  * @author Tobias Flohre
  *
  */
@@ -53,8 +53,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 		for (HttpMessageConverter<?> httpMessageConverter : converters) {
 			if (httpMessageConverter instanceof MappingJackson2HttpMessageConverter) {
 				final MappingJackson2HttpMessageConverter converter = (MappingJackson2HttpMessageConverter) httpMessageConverter;
-				converter.getObjectMapper().addMixInAnnotations(StepExecution.class,
-						StepExecutionJacksonMixIn.class);
+				converter.getObjectMapper().addMixIn(StepExecution.class, StepExecutionJacksonMixIn.class);
 			}
 		}
 	}
@@ -63,10 +62,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	public JobMonitoringController jobMonitoringController(){
 		return new JobMonitoringController(baseConfig.jobOperator(),baseConfig.jobExplorer(),batchWebAutoConfiguration.runningExecutionTracker());
 	}
-	
+
 	@Bean
 	public JobOperationsController jobOperationsController(){
 		return new JobOperationsController(baseConfig.jobOperator(),baseConfig.jobExplorer(),baseConfig.jobRegistry(),baseConfig.jobRepository(),baseConfig.jobLauncher(),jsrJobOperator);
 	}
-	
+
 }

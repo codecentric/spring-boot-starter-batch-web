@@ -77,17 +77,17 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
 /**
  * Very simple REST-API for starting and stopping jobs and keeping track of its status.
  * Made for script interaction.
- * 
+ *
  * <p>The base url can be set via property batch.web.operations.base, its default is /batch/operations.
  * There are four endpoints available:
- * 
+ *
  * <ol>
  * <li>Starting jobs<br>
  * {base_url}/jobs/{jobName} / POST<br>
  * Optionally you may define job parameters via request param 'jobParameters'. If a JobParametersIncrementer
  * is specified in the job, it is used to increment the parameters.<br>
  * On success, it returns the JobExecution's id as a plain string.<br>
- * On failure, it returns the message of the Exception as a plain string. There are different failure 
+ * On failure, it returns the message of the Exception as a plain string. There are different failure
  * possibilities:
  * <ul>
  * <li>HTTP response code 404 (NOT_FOUND): the job cannot be found, not deployed on this server.</li>
@@ -95,32 +95,32 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * <li>HTTP response code 422 (UNPROCESSABLE_ENTITY): the job parameters didn't pass the validator.</li>
  * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
  * </ul></li>
- * 
+ *
  * <li>Retrieving an JobExecution's ExitCode<br>
  * {base_url}/jobs/executions/{executionId} / GET<br>
  * On success, it returns the ExitCode of the JobExecution specified by the executionId as a plain string.<br>
- * On failure, it returns the message of the Exception as a plain string. There are different failure 
+ * On failure, it returns the message of the Exception as a plain string. There are different failure
  * possibilities:
  * <ul>
  * <li>HTTP response code 404 (NOT_FOUND): the JobExecution cannot be found.</li>
  * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
  * </ul></li>
- * 
+ *
  * <li>Retrieving a log file for a specific JobExecution<br>
  * {base_url}/jobs/executions/{executionId}/log / GET<br>
- * On success, it returns the log file belonging to the run of the JobExecution specified by the executionId 
+ * On success, it returns the log file belonging to the run of the JobExecution specified by the executionId
  * as a plain string.<br>
- * On failure, it returns the message of the Exception as a plain string. There are different failure 
+ * On failure, it returns the message of the Exception as a plain string. There are different failure
  * possibilities:
  * <ul>
  * <li>HTTP response code 404 (NOT_FOUND): the log file cannot be found.</li>
  * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
  * </ul></li>
- * 
+ *
  * <li>Stopping jobs<br>
  * {base_url}/jobs/executions/{executionId} / DELETE<br>
  * On success, it returns true.<br>
- * On failure, it returns the message of the Exception as a plain string. There are different failure 
+ * On failure, it returns the message of the Exception as a plain string. There are different failure
  * possibilities:
  * <ul>
  * <li>HTTP response code 404 (NOT_FOUND): the JobExecution cannot be found.</li>
@@ -128,7 +128,7 @@ import de.codecentric.batch.logging.JobLogFileNameCreator;
  * <li>HTTP response code 500 (INTERNAL_SERVER_ERROR): any other unexpected failure.</li>
  * </ul></li>
  * </ol>
- * 
+ *
  *
  * @author Dennis Schulte
  * @author Tobias Flohre
@@ -150,7 +150,7 @@ public class JobOperationsController {
 	private JsrJobOperator jsrJobOperator;
 	private JobParametersConverter jobParametersConverter = new DefaultJobParametersConverter();
 	private JobLogFileNameCreator jobLogFileNameCreator = new DefaultJobLogFileNameCreator();
-	
+
 	public JobOperationsController(JobOperator jobOperator,
 			JobExplorer jobExplorer, JobRegistry jobRegistry,
 			JobRepository jobRepository, JobLauncher jobLauncher,
@@ -165,7 +165,7 @@ public class JobOperationsController {
 	}
 
 	@RequestMapping(value = "/jobs/{jobName}", method = RequestMethod.POST)
-	public String launch(@PathVariable String jobName, @RequestParam MultiValueMap<String, String> payload) throws NoSuchJobException, JobInstanceAlreadyExistsException, JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersNotFoundException {
+	public String launch(@PathVariable String jobName, @RequestParam MultiValueMap<String, String> payload)	throws NoSuchJobException, JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException,	JobInstanceAlreadyCompleteException, JobParametersNotFoundException {
 		String parameters = payload.getFirst(JOB_PARAMETERS);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Attempt to start job with name " + jobName + " and parameters "+parameters+".");
@@ -187,7 +187,7 @@ public class JobOperationsController {
 			}
 		}
 	}
-	
+
 	private JobParameters createJobParametersWithIncrementerIfAvailable(String parameters, Job job) throws JobParametersNotFoundException {
 		JobParameters jobParameters = jobParametersConverter.getJobParameters(PropertiesConverter.stringToProperties(parameters));
 		// use JobParametersIncrementer to create JobParameters if incrementer is set and only if the job is no restart
@@ -211,7 +211,7 @@ public class JobOperationsController {
 		}
 		return jobParameters;
 	}
-	
+
 	/**
 	 * Borrowed from CommandLineJobRunner.
 	 * @param job the job that we need to find the next parameters for
@@ -258,28 +258,28 @@ public class JobOperationsController {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Get log file for job with executionId: " + executionId);
 		}
-    	String loggingPath = createLoggingPath();
+		String loggingPath = createLoggingPath();
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		if (jobExecution == null){
 			throw new NoSuchJobExecutionException("JobExecution with id "+executionId+" not found.");
 		}
-        File downloadFile = new File(loggingPath+jobLogFileNameCreator.getName(jobExecution));
-        InputStream is = new FileInputStream(downloadFile);	        
-        FileCopyUtils.copy(is, response.getOutputStream());
-        response.flushBuffer();
+		File downloadFile = new File(loggingPath+jobLogFileNameCreator.getName(jobExecution));
+		InputStream is = new FileInputStream(downloadFile);
+		FileCopyUtils.copy(is, response.getOutputStream());
+		response.flushBuffer();
 	}
 
 	private String createLoggingPath() {
 		String loggingPath = System.getProperty("LOG_PATH");
-    	if (loggingPath == null){
-    		loggingPath = System.getProperty("java.io.tmpdir");
-    	}
-    	if (loggingPath == null){
-    		loggingPath = "/tmp";
-    	}
-    	if (!loggingPath.endsWith("/")){
-    		loggingPath = loggingPath+"/";
-    	}
+		if (loggingPath == null){
+			loggingPath = System.getProperty("java.io.tmpdir");
+		}
+		if (loggingPath == null){
+			loggingPath = "/tmp";
+		}
+		if (!loggingPath.endsWith("/")){
+			loggingPath = loggingPath+"/";
+		}
 		return loggingPath;
 	}
 
@@ -296,49 +296,49 @@ public class JobOperationsController {
 	@ExceptionHandler({NoSuchJobException.class, NoSuchJobExecutionException.class, JobStartException.class})
 	public String handleNotFound(Exception ex) {
 		LOG.warn("Job or JobExecution not found.",ex);
-	    return ex.getMessage();
+		return ex.getMessage();
 	}
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ExceptionHandler(JobParametersNotFoundException.class)
 	public String handleNoBootstrapParametersCreatedByIncrementer(Exception ex) {
 		LOG.warn("JobParametersIncrementer didn't provide bootstrap parameters.",ex);
-	    return ex.getMessage();
+		return ex.getMessage();
 	}
 
 	@ResponseStatus(HttpStatus.CONFLICT)
 	@ExceptionHandler({UnexpectedJobExecutionException.class, JobInstanceAlreadyExistsException.class, JobInstanceAlreadyCompleteException.class})
 	public String handleAlreadyExists(Exception ex) {
 		LOG.warn("JobInstance or JobExecution already exists.",ex);
-	    return ex.getMessage();
+		return ex.getMessage();
 	}
 
 	@ResponseStatus(HttpStatus.CONFLICT)
 	@ExceptionHandler({JobExecutionAlreadyRunningException.class, JobExecutionAlreadyCompleteException.class, JobRestartException.class})
 	public String handleAlreadyRunningOrComplete(Exception ex) {
 		LOG.warn("JobExecution already running or complete.",ex);
-	    return ex.getMessage();
+		return ex.getMessage();
 	}
 
 	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 	@ExceptionHandler(JobParametersInvalidException.class)
 	public String handleParametersInvalid(Exception ex) {
 		LOG.warn("Job parameters are invalid.",ex);
-	    return ex.getMessage();
+		return ex.getMessage();
 	}
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ExceptionHandler(FileNotFoundException.class)
 	public String handleFileNotFound(Exception ex) {
 		LOG.warn("Logfile not found.",ex);
-	    return ex.getMessage();
+		return ex.getMessage();
 	}
 
 	@ResponseStatus(HttpStatus.CONFLICT)
 	@ExceptionHandler(JobExecutionNotRunningException.class)
 	public String handleNotRunning(Exception ex) {
 		LOG.warn("JobExecution is not running.",ex);
-	    return ex.getMessage();
+		return ex.getMessage();
 	}
 
 	@Autowired(required=false)
