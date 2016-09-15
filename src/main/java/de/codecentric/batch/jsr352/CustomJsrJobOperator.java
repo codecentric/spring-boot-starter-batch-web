@@ -46,7 +46,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.task.TaskExecutor;
@@ -57,19 +56,19 @@ import de.codecentric.batch.listener.AddListenerToJobService;
 
 /**
  * We cannot use Spring Batch's JsrJobOperator out of two reasons:
- * 
+ *
  * <p>In the current implementation it's not possible to use an existing ApplicationContext
  * as base context for the batch job contexts.<br>
  * Second reason is that we want to add listeners automatically to the job for having features
  * like log file separation and standard batch protocols.<br>
- * 
+ *
  * That's why I patched it to add the functionality we need.
- * 
+ *
  * @author Tobias Flohre
  */
-public class CustomJsrJobOperator extends JsrJobOperator implements ApplicationContextAware{
+public class CustomJsrJobOperator extends JsrJobOperator {
 	private static final String JSR_JOB_CONTEXT_BEAN_NAME = "jsr_jobContext";
-	
+
 	private ApplicationContext parentContext;
 	private JobRepository jobRepository;
 	private TaskExecutor taskExecutor;
@@ -80,7 +79,7 @@ public class CustomJsrJobOperator extends JsrJobOperator implements ApplicationC
 	public CustomJsrJobOperator(JobExplorer jobExplorer,
 			JobRepository jobRepository,
 			JobParametersConverter jobParametersConverter,
-			AddListenerToJobService addListenerToJobService, 
+			AddListenerToJobService addListenerToJobService,
 			PlatformTransactionManager transactionManager) {
 		super(jobExplorer, jobRepository, jobParametersConverter, transactionManager);
 		this.jobRepository = jobRepository;
@@ -209,7 +208,7 @@ public class CustomJsrJobOperator extends JsrJobOperator implements ApplicationC
 		}
 		return jobExecution.getId();
 	}
-	
+
 	private static class ExecutingJobRegistry {
 
 		private Map<Long, Job> registry = new ConcurrentHashMap<Long, Job>();

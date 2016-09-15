@@ -42,21 +42,21 @@ import org.springframework.util.SystemPropertyUtils;
 /**
  * Configuration for registration of {@link ApplicationContextFactory} with the {@link AutomaticJobRegistrar} that
  * is instantiated inside the {@link ModularBatchConfiguration}.
- * 
- * This configuration looks for jobs in a modular fashion, meaning that every job configuration file gets its own 
- * Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs, 
- * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs, 
+ *
+ * This configuration looks for jobs in a modular fashion, meaning that every job configuration file gets its own
+ * Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs,
+ * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs,
  * overridable via property batch.config.package.javaconfig.
- * 
+ *
  * Customization is done by adding a Configuration class that extends {@link AutomaticJobRegistrarConfigurationSupport}.
  * This will disable this auto configuration.
- * 
+ *
  * @author Thomas Bosch
  */
 @Configuration
 @ConditionalOnMissingBean({ AutomaticJobRegistrarConfigurationSupport.class })
 public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarConfigurationSupport {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(AutomaticJobRegistrarConfiguration.class);
 
 	@Autowired
@@ -83,7 +83,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 	}
 
 	protected void registerJobsFromJavaConfig(AutomaticJobRegistrar automaticJobRegistrar) throws ClassNotFoundException,
-			IOException {
+	IOException {
 		List<Class<?>> classes = findMyTypes(env.getProperty("batch.config.package.javaconfig", "spring.batch.jobs"));
 		for (Class<?> clazz : classes) {
 			LOGGER.info("Register jobs from {}", clazz);
@@ -97,7 +97,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 
 		List<Class<?>> candidates = new ArrayList<Class<?>>();
 		String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + resolveBasePackage(basePackage)
-				+ "/" + "**/*.class";
+		+ "/" + "**/*.class";
 		Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
 		for (Resource resource : resources) {
 			if (resource.isReadable()) {
@@ -114,7 +114,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 		return ClassUtils.convertClassNameToResourcePath(SystemPropertyUtils.resolvePlaceholders(basePackage));
 	}
 
-	private boolean isCandidate(MetadataReader metadataReader) throws ClassNotFoundException {
+	private boolean isCandidate(MetadataReader metadataReader) {
 		try {
 			Class<?> c = Class.forName(metadataReader.getClassMetadata().getClassName());
 			if (c.getAnnotation(Configuration.class) != null) {

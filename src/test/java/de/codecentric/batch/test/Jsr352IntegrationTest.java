@@ -27,34 +27,30 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import de.codecentric.batch.TestApplication;
 
 /**
  * This test class starts a JSR-352 type batch job and tests several endpoints.
- * 
+ *
  * @author Tobias Flohre
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes=TestApplication.class)
-@WebAppConfiguration
-@IntegrationTest("server.port=0")
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = TestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class Jsr352IntegrationTest {
 
-	RestTemplate restTemplate = new TestRestTemplate();
-	
+	private TestRestTemplate restTemplate = new TestRestTemplate();
+
 	@Autowired
 	private JobExplorer jobExplorer;
-	
+
 	@Value("${local.server.port}")
 	int port;
-	
+
 	@Test
 	public void testRunJob() throws InterruptedException{
 		Long executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/simpleJsr352Job", "",Long.class);
@@ -75,5 +71,5 @@ public class Jsr352IntegrationTest {
 		List<String> jobNames = restTemplate.getForObject("http://localhost:"+port+"/batch/monitoring/jobs", List.class);
 		assertThat(jobNames.contains("simpleJsr352Job"), is(true));
 	}
-	
+
 }

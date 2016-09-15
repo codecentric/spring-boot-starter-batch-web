@@ -12,7 +12,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.boot.test.OutputCapture;
+import org.springframework.boot.test.rule.OutputCapture;
 
 public class ProtocolListenerTest {
 
