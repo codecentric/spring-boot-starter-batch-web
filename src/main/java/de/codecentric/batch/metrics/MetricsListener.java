@@ -27,13 +27,12 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.export.Exporter;
-import org.springframework.boot.actuate.metrics.repository.MetricRepository;
+import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.actuate.metrics.rich.RichGauge;
-import org.springframework.boot.actuate.metrics.rich.RichGaugeRepository;
+import org.springframework.boot.actuate.metrics.rich.RichGaugeReader;
 import org.springframework.core.Ordered;
 
 /**
@@ -41,10 +40,10 @@ import org.springframework.core.Ordered;
  * and all gauges with the prefix 'gauge.batch.{jobName}.{stepName}' to the Step-
  * ExecutionContext without the prefix. All metrics and gauges are logged as well. For
  * overriding the default format of the logging a component implementing {@link MetricsOutputFormatter} may be added to the ApplicationContext.
- * 
+ *
  * Counters are cumulated over several StepExecutions belonging to one Step in one JobInstance,
  * important for restarted jobs.
- * 
+ *
  * @author Tobias Flohre
  * @author Dennis Schulte
  */
@@ -53,22 +52,20 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
 
 	public static final String GAUGE_PREFIX = "gauge.batch.";
-	
+
 	public static final String TIMER_PREFIX = "timer.batch.";
 
 	private GaugeService gaugeService;
-
-	private RichGaugeRepository richGaugeRepository;
-	private MetricRepository metricRepository;
+	private RichGaugeReader richGaugeReader;
+	private MetricReader metricReader;
 	private List<Exporter> exporters;
-	@Autowired(required = false)
 	private MetricsOutputFormatter metricsOutputFormatter = new SimpleMetricsOutputFormatter();
 
-	public MetricsListener(GaugeService gaugeService, RichGaugeRepository richGaugeRepository,
-			MetricRepository metricRepository, List<Exporter> exporters) {
+	public MetricsListener(GaugeService gaugeService, RichGaugeReader richGaugeReader,
+			MetricReader metricReader, List<Exporter> exporters) {
 		this.gaugeService = gaugeService;
-		this.richGaugeRepository = richGaugeRepository;
-		this.metricRepository = metricRepository;
+		this.richGaugeReader = richGaugeReader;
+		this.metricReader = metricReader;
 		this.exporters = exporters;
 	}
 
@@ -132,7 +129,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	private List<Metric<?>> exportBatchMetrics() {
 		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
-		for (Metric<?> metric : metricRepository.findAll()) {
+		for (Metric<?> metric : metricReader.findAll()) {
 			metrics.add(metric);
 		}
 		return metrics;
@@ -140,7 +137,7 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	private List<RichGauge> exportBatchRichGauges() {
 		List<RichGauge> gauges = new ArrayList<RichGauge>();
-		for (RichGauge gauge : richGaugeRepository.findAll()) {
+		for (RichGauge gauge : richGaugeReader.findAll()) {
 			gauges.add(gauge);
 		}
 		return gauges;
@@ -176,5 +173,9 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	private String getStepExecutionIdentifier(StepExecution stepExecution) {
 		return stepExecution.getJobExecution().getJobInstance().getJobName() + "." + stepExecution.getStepName();
+	}
+
+	public void setMetricsOutputFormatter(MetricsOutputFormatter metricsOutputFormatter) {
+		this.metricsOutputFormatter = metricsOutputFormatter;
 	}
 }

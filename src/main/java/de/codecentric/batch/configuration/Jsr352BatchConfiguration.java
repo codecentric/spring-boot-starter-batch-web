@@ -15,12 +15,11 @@
  */
 package de.codecentric.batch.configuration;
 
-import javax.sql.DataSource;
-
 import org.springframework.batch.core.jsr.JsrJobParametersConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import de.codecentric.batch.jsr352.CustomJsrJobOperator;
 
@@ -38,8 +37,8 @@ public class Jsr352BatchConfiguration {
 	private BatchWebAutoConfiguration batchWebAutoConfiguration;
 	
 	@Bean
-	public CustomJsrJobOperator jsrJobOperator(DataSource dataSource) throws Exception{
-		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(baseConfig.jobExplorer(), baseConfig.jobRepository(), jsrJobParametersConverter(), batchWebAutoConfiguration.addListenerToJobService());
+	public CustomJsrJobOperator jsrJobOperator(PlatformTransactionManager transactionManager) throws Exception{
+		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(baseConfig.jobExplorer(), baseConfig.jobRepository(), jsrJobParametersConverter(), batchWebAutoConfiguration.addListenerToJobService(), transactionManager);
 		jsrJobOperator.setTaskExecutor(baseConfig.taskExecutor());
 		return jsrJobOperator;
 	}

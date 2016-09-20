@@ -20,6 +20,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +40,7 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 /**
  * This configuration class will be picked up by Spring Boot's auto configuration capabilities as soon as it's
  * on the classpath.
- * 
+ *
  * <p>
  * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer} and imports the web endpoint
  * configuration ({@link WebConfig}.<br>
@@ -51,15 +52,16 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * {@link de.codecentric.batch.listener.LoggingListener} and {@link de.codecentric.batch.listener.LoggingAfterJobListener} add a log file separation
  * per job run, are activated by default and can be deactivated by setting the property batch.logfileseparation.enabled to false. The
  * {@link de.codecentric.batch.listener.RunningExecutionTrackerListener} is needed for knowing which JobExecutions are currently running on this node.
- * 
+ *
  * @author Tobias Flohre
- * 
+ *
  */
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
+@AutoConfigureAfter({org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration.class})
 @Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class,
-		Jsr352BatchConfiguration.class, MetricsConfiguration.class, MetricsExporterConfiguration.class, TaskExecutorConfiguration.class })
+		Jsr352BatchConfiguration.class, MetricsConfiguration.class, TaskExecutorConfiguration.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	@Autowired

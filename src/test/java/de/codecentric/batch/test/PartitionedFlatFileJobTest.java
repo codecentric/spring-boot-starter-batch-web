@@ -25,15 +25,15 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import de.codecentric.batch.AutoconfigureBatchWebStarter;
 import de.codecentric.batch.TestConfiguration;
 
-@SpringApplicationConfiguration(classes=TestConfiguration.class)
-@RunWith(SpringJUnit4ClassRunner.class)
-@IntegrationTest({"batch.metrics.enabled=true"})
+@RunWith(SpringRunner.class)
+@AutoconfigureBatchWebStarter
+@SpringBootTest(classes = TestConfiguration.class, properties = { "batch.metrics.enabled=true" })
 public class PartitionedFlatFileJobTest {
 
 	@Autowired

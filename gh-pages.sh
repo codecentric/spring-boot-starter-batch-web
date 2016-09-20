@@ -18,7 +18,7 @@ git diff-index --quiet HEAD
 dirty=$?
 if [ "$dirty" != "0" ]; then git stash; fi
 
-# Switch to gh-pages branch to sync it with asciidoc
+# Switch to gh-pages branch to sync it with master
 ###################################################################
 git checkout gh-pages
 
@@ -31,7 +31,7 @@ for f in target/generated-docs/*; do
     fi
 done
 
-git commit -a -m "Sync docs from asciidoc to gh-pages"
+git commit -a -m "Sync docs from master to gh-pages"
 
 # Uncomment the following push if you want to auto push to
 # the gh-pages branch whenever you commit to master locally.
@@ -39,8 +39,8 @@ git commit -a -m "Sync docs from asciidoc to gh-pages"
 ###################################################################
 git push origin gh-pages
 
-# Finally, switch back to the asciidoc branch and exit block
-git checkout asciidoc
+# Finally, switch back to the master branch and exit block
+git checkout master
 if [ "$dirty" != "0" ]; then git stash pop; fi
 
 exit 0
