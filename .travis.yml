@@ -7,13 +7,13 @@ env:
     - # ^^ OSSRH_PASSWORD
     - secure: "gVNhdL2ccZsy+fo1oEt18u7pwKjx55zA1QgGaELGZyo3VzjA1f1yHiCYHVYRMux/rIcKP1LvAHkMfGMiUP9fzpfvCDH0SRCEMTp7/1d9MR2uGBF590sqVB9S+GDwB5TGAVwFrqIxPE65Vl99Tv/WE95Ae0zONc8gtofJliMzPHA="
     - # ^^ GPG_KEY_NAME
-    - secure: "BXOr+XYiAzs1n1/8XxltlCIXCZA/34bOkhX/EGwBH8LfTTw6RMfZEbtuDrCfPkSsaEA0NakAbCg0I9+mcagAbZKNEO1kPGIZRcBtEtz8oPICMYY1GJNcomCxU7+mBkXtqbgRVS7lkDXZJa3Aceqz/BP8/lgmp7UHVCyUHdroPOc="
+    - secure: "mSQMmqojEQk4zBUf9k1sqn2llwGwS/zA/XwjETEIjshQH0rXbHnruMOCtwR53k21EOC9XMUr0UKrFRUyiy3Wb2ujmUNSapTsQDsTORgjLE/lMp6I5UcPU2Hi94B7tiJ10b/5NUDrmTbjx6qLe6ZWden2TAEQ3dEf8uMLl4VkGSM="
     - # ^^ GPG_PASSPHRASE
     - secure: "NgdLziSLzCNvCFbs12YsEyXD+bjXEGc5SIp5ZDKxRdV97n7c70zP/17cVNSYrFMGSRlE4ZlMyxRLX2IZkVNk9KzDoaZyWsV4GH0pxy7cRn/Tfc4L9O6YEHMQNHt/LCsY0eXSMZNZ1BS17L1ltfflwi+dgTpE2J+jEpZbNsQ+bkU="
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_b6c74d7f8e86_key -iv $encrypted_b6c74d7f8e86_iv -in codesigning.asc.enc -out codesigning.asc -d
-  - gpg --fast-import codesigning.asc --yes --batch
+  - gpg --fast-import codesigning.asc
   - 'if [[ ${TRAVIS_TAG} != "" ]]; then mvn versions:set -DnewVersion="${TRAVIS_TAG}"; fi'
 
 script: mvn clean verify
