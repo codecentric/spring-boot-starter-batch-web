@@ -13,7 +13,7 @@ env:
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_b6c74d7f8e86_key -iv $encrypted_b6c74d7f8e86_iv -in codesigning.asc.enc -out codesigning.asc -d
-  - gpg --batch --yes --fast-import codesigning.asc
+  - gpg --batch --fast-import codesigning.asc
   - 'if [[ ${TRAVIS_TAG} != "" ]]; then mvn versions:set -DnewVersion="${TRAVIS_TAG}"; fi'
 
 script: mvn clean verify
