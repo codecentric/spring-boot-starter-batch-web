@@ -1,8 +1,19 @@
 language: java
 sudo: false
+env:
+  global:
+    - secure: "iBhREAKe9rori2gk7UM8VkO9nVevniPRNrHRHNQh6+pofmp5Tswxf3lm6rIXmARJoJdyrQO3O2ZOYX3BOotmr85G+5CJQtPYy7BWyGMiP8dWbn5z0crNxdIjiyF9U4EFdfMiuO3Ys1rlpDjFkH0iYFwVwfDR3W0ySEWNP6zhU3A="
+    - # ^^ OSSRH_USER
+    - secure: "gVNhdL2ccZsy+fo1oEt18u7pwKjx55zA1QgGaELGZyo3VzjA1f1yHiCYHVYRMux/rIcKP1LvAHkMfGMiUP9fzpfvCDH0SRCEMTp7/1d9MR2uGBF590sqVB9S+GDwB5TGAVwFrqIxPE65Vl99Tv/WE95Ae0zONc8gtofJliMzPHA="
+    - # ^^ OSSRH_PASSWORD
+    - secure: "dkwtFB6vasLtt21GkzYKoF2ozX1P3YOVLHAD3lZvv2gZ5jYetQqO41zjlyfvTDQGQUNYW5wPOQVt5j3oVunCTjQIwY1r8re9glYWHbfAgjl13JVeLJ8bTzbEKYSMquIDDrr8BTjZJXBIQeaBkvOdZd6+nr5oaO3IpXEHgnQWV+Q="
+    - # ^^ GPG_KEY_NAME
+    - secure: "NgdLziSLzCNvCFbs12YsEyXD+bjXEGc5SIp5ZDKxRdV97n7c70zP/17cVNSYrFMGSRlE4ZlMyxRLX2IZkVNk9KzDoaZyWsV4GH0pxy7cRn/Tfc4L9O6YEHMQNHt/LCsY0eXSMZNZ1BS17L1ltfflwi+dgTpE2J+jEpZbNsQ+bkU="
+    - # ^^ GPG_PASSPHRASE
 
 before_install:
-  - 'if [[ -n "$DECRYPT_KEYPHRASE" ]]; then openssl aes-256-cbc -d -pass "env:DECRYPT_KEYPHRASE" -in .gnupg.tar.enc | tar xv; fi'
+  - openssl aes-256-cbc -K $encrypted_b6c74d7f8e86_key -iv $encrypted_b6c74d7f8e86_iv -in codesigning.asc.enc -out codesigning.asc -d
+  - gpg --fast-import signingkey.asc;
   - 'if [[ ${TRAVIS_TAG} != "" ]]; then mvn versions:set -DnewVersion="${TRAVIS_TAG}"; fi'
 
 script: mvn clean verify
