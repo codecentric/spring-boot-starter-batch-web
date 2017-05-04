@@ -34,7 +34,7 @@
 	</scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.boot.version>1.4.1.RELEASE</spring.boot.version>
+		<spring.boot.version>1.5.2.RELEASE</spring.boot.version>
 		<asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
 	</properties>
 	<dependencyManagement>
@@ -146,8 +146,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -181,6 +181,35 @@
 				</executions>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+		  <plugins>
+		    <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+		    <plugin>
+		      <groupId>org.eclipse.m2e</groupId>
+		      <artifactId>lifecycle-mapping</artifactId>
+		      <version>1.0.0</version>
+		      <configuration>
+		        <lifecycleMappingMetadata>
+		          <pluginExecutions>
+		            <pluginExecution>
+		              <pluginExecutionFilter>
+		                <groupId>org.asciidoctor</groupId>
+		                <artifactId>asciidoctor-maven-plugin</artifactId>
+		                <versionRange>[1.5.2,)</versionRange>
+		                <goals>
+		                  <goal>process-asciidoc</goal>
+		                </goals>
+		              </pluginExecutionFilter>
+		              <action>
+		                <ignore></ignore>
+		              </action>
+		            </pluginExecution>
+		          </pluginExecutions>
+		        </lifecycleMappingMetadata>
+		      </configuration>
+		    </plugin>
+		  </plugins>
+		</pluginManagement>
 	</build>
 	<profiles>
 		<profile>
