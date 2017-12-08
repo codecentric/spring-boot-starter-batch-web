@@ -49,7 +49,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	private JsrJobOperator jsrJobOperator;
 
 	@Override
-	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+	public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
 		for (HttpMessageConverter<?> httpMessageConverter : converters) {
 			if (httpMessageConverter instanceof MappingJackson2HttpMessageConverter) {
 				final MappingJackson2HttpMessageConverter converter = (MappingJackson2HttpMessageConverter) httpMessageConverter;
