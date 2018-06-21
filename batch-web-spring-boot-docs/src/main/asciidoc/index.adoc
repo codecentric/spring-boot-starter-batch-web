@@ -1,5 +1,9 @@
 = Spring Boot Starter Batch Web Reference Guide
-   
+:revnumber: {project-version}
+:revdate: {commit-time}
+:toc: left
+:numbered: true
+
 == What is spring-boot-starter-batch-web?
 
 Java batch is becoming a hot topic in enterprise environments these days, but how do you do it the right way? The project spring-boot-starter-batch-web offers a best practice approach to modern batch architectures, answering the following questions:
@@ -51,7 +55,7 @@ There are two ways to influence spring-boot-starter-batch-web's behaviour. The f
 |===
 |Property name |Description |Default value
 
-|batch.config.path.xml 	 	
+|batch.config.path.xml
 |Location in the classpath where Spring Batch job definitions in XML are picked up.
 |/META-INF/spring/batch/jobs
 
@@ -95,7 +99,7 @@ There are two ways to influence spring-boot-starter-batch-web's behaviour. The f
 |Prefix for Spring Batch meta data tables.
 |Not set
 
-|batch.web.operations.base 	
+|batch.web.operations.base
 |Base URL for the operations endpoint.
 |/batch/operations
 

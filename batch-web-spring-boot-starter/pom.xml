@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>batch-web-spring-boot-starter</artifactId>
+	<packaging>pom</packaging>
+	<name>Spring Boot Starter Batch Starter</name>
+	<description>Spring Boot Starter Batch Starter</description>
+	<parent>
+		<groupId>de.codecentric</groupId>
+		<artifactId>batch-web-spring-boot-build</artifactId>
+		<version>${revision}</version>
+		<relativePath>../batch-web-spring-boot-build</relativePath>
+	</parent>
+</project>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>batch-web-spring-boot-dependencies</artifactId>
+	<packaging>pom</packaging>
+	<name>Spring Boot Starter Batch Dependencies</name>
+	<description>Spring Boot Starter Batch Dependencies</description>
+	<parent>
+		<groupId>de.codecentric</groupId>
+		<artifactId>batch-web-spring-boot</artifactId>
+		<version>${revision}</version>
+		<relativePath>..</relativePath>
+	</parent>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>de.codecentric</groupId>
+				<artifactId>batch-web-spring-boot-autoconfigure</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.codecentric</groupId>
+				<artifactId>batch-web-spring-boot-starter</artifactId>
+				<version>${revision}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<!-- Flatten and simplify our own POM for install/deploy -->
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+						<configuration>
+							<updatePomFile>true</updatePomFile>
+							<flattenMode>bom</flattenMode>
+							<pomElements>
+								<properties>remove</properties>
+								<distributionManagement>remove</distributionManagement>
+								<dependencyManagement>resolve</dependencyManagement>
+							</pomElements>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
