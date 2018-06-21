@@ -1,6 +1,20 @@
-/target
-/.settings
-/.classpath
-/.project
+# Maven
+target/
+.flattened-pom.xml
+
+# Eclipse
+.settings/
+.classpath
+.project
+.factorypath
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Apple
 .DS_Store
-.gnupg
+
+# GnuPG keyring
+/.gnupg
