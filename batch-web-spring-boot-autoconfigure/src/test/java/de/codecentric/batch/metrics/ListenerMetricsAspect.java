@@ -18,13 +18,14 @@ package de.codecentric.batch.metrics;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.boot.actuate.metrics.GaugeService;
+
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Aspect
 public class ListenerMetricsAspect extends AbstractBatchMetricsAspect {
 
-	public ListenerMetricsAspect(GaugeService gaugeService) {
-		super(gaugeService);
+	public ListenerMetricsAspect(MeterRegistry meterRegistry) {
+		super(meterRegistry);
 	}
 
 	@Around("execution(* org.springframework.batch.core.ItemWriteListener.beforeWrite(..))")

@@ -23,7 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
@@ -35,8 +36,8 @@ import de.codecentric.batch.configuration.BatchWebAutoConfiguration;
 
 /**
  *
- * {@link AutoImportConfoguration} for typical BatchWebStarter tests. Restricts the loaded Autoconfiguration to the BatchWebStarter parts and respects
- * the correct ordering.
+ * {@link AutoImportConfoguration} for typical BatchWebStarter tests. Restricts the loaded Autoconfiguration to the
+ * BatchWebStarter parts and respects the correct ordering.
  *
  * @author Johannes Edmeier
  */
@@ -45,8 +46,10 @@ import de.codecentric.batch.configuration.BatchWebAutoConfiguration;
 @Documented
 @Inherited
 @ImportAutoConfiguration({ BatchWebAutoConfiguration.class, DataSourceAutoConfiguration.class,
-	HibernateJpaAutoConfiguration.class, /* since the BatchAutoConfiguration is ordered afer HibernateJpaAutoConfiguration we need to include it otherwise it will be executed before DataSourceAutoConfiguration. */
-	BatchAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class, MetricRepositoryAutoConfiguration.class,
-	AopAutoConfiguration.class })
+		HibernateJpaAutoConfiguration.class,
+		// since the BatchAutoConfiguration is ordered after HibernateJpaAutoConfiguration we need to
+		// include it otherwise it will be executed before DataSourceAutoConfiguration
+		BatchAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class, MetricsAutoConfiguration.class,
+		AopAutoConfiguration.class, SimpleMetricsExportAutoConfiguration.class })
 public @interface AutoconfigureBatchWebStarter {
 }

@@ -15,23 +15,20 @@
  */
 package de.codecentric.batch;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.metrics.GaugeService;
-import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.boot.actuate.metrics.rich.RichGauge;
-import org.springframework.boot.actuate.metrics.writer.CompositeMetricWriter;
-import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 
 import de.codecentric.batch.metrics.ListenerMetricsAspect;
 import de.codecentric.batch.metrics.MetricsOutputFormatter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 /**
  * Application for integration testing.
@@ -48,11 +45,11 @@ public class MetricsTestApplication {
 	}
 
 	@Autowired
-	private GaugeService gaugeService;
+	private MeterRegistry meterRegistry;
 
 	@Bean
 	public ListenerMetricsAspect listenerMetricsAspect() {
-		return new ListenerMetricsAspect(gaugeService);
+		return new ListenerMetricsAspect(meterRegistry);
 	}
 
 	@Bean
@@ -60,32 +57,23 @@ public class MetricsTestApplication {
 		return new MetricsOutputFormatter() {
 
 			@Override
-			public String format(List<RichGauge> gauges, List<Metric<?>> metrics) {
-				StringBuilder builder = new StringBuilder("\n########## Personal Header for metrics! #####\n########## Metrics Start ##########\n");
-				if (gauges != null) {
-					for (RichGauge gauge : gauges) {
-						builder.append(gauge.toString() + "\n");
-					}
-				}
-				if (metrics != null) {
-					for (Metric<?> metric : metrics) {
-						builder.append(metric.toString() + "\n");
-					}
-				}
+			public String format(Collection<Gauge> gauges, Collection<Timer> timers) {
+				StringBuilder builder = new StringBuilder(
+						"\n########## Personal Header for metrics! #####\n########## Metrics Start ##########\n");
+				gauges.stream().forEach(gauge -> {
+					builder.append("Gauge [" + gauge.getId() + "]: ");
+					builder.append(gauge.value() + "\n");
+				});
+				timers.stream().forEach(timer -> {
+					builder.append("Timer [" + timer.getId() + "]: ");
+					builder.append(
+							"totalTime=" + timer.totalTime(timer.baseTimeUnit()) + " " + timer.baseTimeUnit() + "\n");
+				});
 				builder.append("########## Metrics End ############");
 				return builder.toString();
 			}
 
 		};
-	}
-
-	@Bean(name = "primaryMetricWriter")
-	@Primary
-	static public MetricWriter primaryMetricWriter(List<MetricWriter> writers) {
-		// Normally the Metrics are written asynchronously to Spring Boot's repository. In tests we need to do it synchronously to be able to verify
-		// the correct output.
-		MetricWriter compositeMetricWriter = new CompositeMetricWriter(writers);
-		return compositeMetricWriter;
 	}
 
 }

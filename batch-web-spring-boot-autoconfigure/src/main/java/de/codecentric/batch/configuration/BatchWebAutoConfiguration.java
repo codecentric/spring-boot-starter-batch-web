@@ -20,6 +20,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
@@ -38,30 +39,33 @@ import de.codecentric.batch.listener.RunningExecutionTrackerListener;
 import de.codecentric.batch.monitoring.RunningExecutionTracker;
 
 /**
- * This configuration class will be picked up by Spring Boot's auto configuration capabilities as soon as it's
- * on the classpath.
- *
+ * This configuration class will be picked up by Spring Boot's auto configuration capabilities as soon as it's on the
+ * classpath.
  * <p>
- * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer} and imports the web endpoint
- * configuration ({@link WebConfig}.<br>
- * It also imports {@link AutomaticJobRegistrarConfiguration} which looks for jobs in a modular fashion, meaning that every job configuration file
- * gets its own Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs, overridable via property
- * batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs, overridable via property batch.config.package.javaconfig.<br>
- * In addition to collecting jobs a number of default listeners is added to each job. The {@link de.codecentric.batch.listener.ProtocolListener} adds
- * a protocol to the log. It is activated by default and can be deactivated by setting the property batch.defaultprotocol.enabled to false.<br>
- * {@link de.codecentric.batch.listener.LoggingListener} and {@link de.codecentric.batch.listener.LoggingAfterJobListener} add a log file separation
- * per job run, are activated by default and can be deactivated by setting the property batch.logfileseparation.enabled to false. The
- * {@link de.codecentric.batch.listener.RunningExecutionTrackerListener} is needed for knowing which JobExecutions are currently running on this node.
+ * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer} and
+ * imports the web endpoint configuration ({@link WebConfig}.<br>
+ * It also imports {@link AutomaticJobRegistrarConfiguration} which looks for jobs in a modular fashion, meaning that
+ * every job configuration file gets its own Child-ApplicationContext. Configuration files can be XML files in the
+ * location /META-INF/spring/batch/jobs, overridable via property batch.config.path.xml, and JavaConfig classes in the
+ * package spring.batch.jobs, overridable via property batch.config.package.javaconfig.<br>
+ * In addition to collecting jobs a number of default listeners is added to each job. The
+ * {@link de.codecentric.batch.listener.ProtocolListener} adds a protocol to the log. It is activated by default and can
+ * be deactivated by setting the property batch.defaultprotocol.enabled to false.<br>
+ * {@link de.codecentric.batch.listener.LoggingListener} and
+ * {@link de.codecentric.batch.listener.LoggingAfterJobListener} add a log file separation per job run, are activated by
+ * default and can be deactivated by setting the property batch.logfileseparation.enabled to false. The
+ * {@link de.codecentric.batch.listener.RunningExecutionTrackerListener} is needed for knowing which JobExecutions are
+ * currently running on this node.
  *
  * @author Tobias Flohre
- *
  */
 @Configuration
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:spring-boot-starter-batch-web.properties")
-@AutoConfigureAfter({org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration.class})
-@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class, BaseConfiguration.class,
-		Jsr352BatchConfiguration.class, MetricsConfiguration.class, TaskExecutorConfiguration.class })
+@AutoConfigureAfter({ MetricsAutoConfiguration.class })
+@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class,
+		BaseConfiguration.class, Jsr352BatchConfiguration.class, MetricsConfiguration.class,
+		TaskExecutorConfiguration.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
 	@Autowired
@@ -101,8 +105,8 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	public AddListenerToJobService addListenerToJobService() {
 		boolean addProtocolListener = env.getProperty("batch.defaultprotocol.enabled", boolean.class, true);
 		boolean addLoggingListener = env.getProperty("batch.logfileseparation.enabled", boolean.class, true);
-		return new AddListenerToJobService(addProtocolListener, addLoggingListener, protocolListener(), runningExecutionTrackerListener(),
-				loggingListener(), loggingAfterJobListener());
+		return new AddListenerToJobService(addProtocolListener, addLoggingListener, protocolListener(),
+				runningExecutionTrackerListener(), loggingListener(), loggingAfterJobListener());
 	}
 
 	@Override

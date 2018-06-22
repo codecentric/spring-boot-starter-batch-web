@@ -18,7 +18,8 @@ package de.codecentric.batch.metrics;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.boot.actuate.metrics.GaugeService;
+
+import io.micrometer.core.instrument.MeterRegistry;
 
 /**
  * Central aspect-configuration to profile Spring Batch Jobs with AspectJ and Spring Boot Metrics.
@@ -28,8 +29,8 @@ import org.springframework.boot.actuate.metrics.GaugeService;
 @Aspect
 public class ReaderProcessorWriterMetricsAspect extends AbstractBatchMetricsAspect {
 
-	public ReaderProcessorWriterMetricsAspect(GaugeService gaugeService) {
-		super(gaugeService);
+	public ReaderProcessorWriterMetricsAspect(MeterRegistry meterRegistry) {
+		super(meterRegistry);
 	}
 
 	@Around("execution(* org.springframework.batch.item.ItemReader.read(..))")

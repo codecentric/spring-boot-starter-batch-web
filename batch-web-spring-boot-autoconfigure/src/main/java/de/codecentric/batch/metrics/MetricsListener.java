@@ -15,8 +15,8 @@
  */
 package de.codecentric.batch.metrics;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -27,22 +27,22 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
-import org.springframework.boot.actuate.metrics.GaugeService;
-import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.boot.actuate.metrics.export.Exporter;
-import org.springframework.boot.actuate.metrics.reader.MetricReader;
-import org.springframework.boot.actuate.metrics.rich.RichGauge;
-import org.springframework.boot.actuate.metrics.rich.RichGaugeReader;
 import org.springframework.core.Ordered;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.ImmutableTag;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.search.Search;
+
 /**
- * This listener exports all metrics with the prefix 'counter.batch.{jobName}.{jobExecutionId}.{stepName}
- * and all gauges with the prefix 'gauge.batch.{jobName}.{stepName}' to the Step-
- * ExecutionContext without the prefix. All metrics and gauges are logged as well. For
- * overriding the default format of the logging a component implementing {@link MetricsOutputFormatter} may be added to the ApplicationContext.
+ * This listener exports all metrics with the prefix 'counter.batch.{jobName}.{jobExecutionId}.{stepName} and all gauges
+ * with the prefix 'gauge.batch.{jobName}.{stepName}' to the Step- ExecutionContext without the prefix. All metrics and
+ * gauges are logged as well. For overriding the default format of the logging a component implementing
+ * {@link MetricsOutputFormatter} may be added to the ApplicationContext.
  *
- * Counters are cumulated over several StepExecutions belonging to one Step in one JobInstance,
- * important for restarted jobs.
+ * Counters are cumulated over several StepExecutions belonging to one Step in one JobInstance, important for restarted
+ * jobs.
  *
  * @author Tobias Flohre
  * @author Dennis Schulte
@@ -51,22 +51,14 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 
 	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
 
-	public static final String GAUGE_PREFIX = "gauge.batch.";
+	public static final String METRIC_NAME = "batch.metrics";
 
-	public static final String TIMER_PREFIX = "timer.batch.";
+	private MeterRegistry meterRegistry;
 
-	private GaugeService gaugeService;
-	private RichGaugeReader richGaugeReader;
-	private MetricReader metricReader;
-	private List<Exporter> exporters;
 	private MetricsOutputFormatter metricsOutputFormatter = new SimpleMetricsOutputFormatter();
 
-	public MetricsListener(GaugeService gaugeService, RichGaugeReader richGaugeReader,
-			MetricReader metricReader, List<Exporter> exporters) {
-		this.gaugeService = gaugeService;
-		this.richGaugeReader = richGaugeReader;
-		this.metricReader = metricReader;
-		this.exporters = exporters;
+	public MetricsListener(MeterRegistry meterRegistry) {
+		this.meterRegistry = meterRegistry;
 	}
 
 	@Override
@@ -79,22 +71,32 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		// Calculate step execution time
 		// Why is stepExecution.getEndTime().getTime() not available here? (see AbstractStep)
 		long stepDuration = System.currentTimeMillis() - stepExecution.getStartTime().getTime();
-		gaugeService.submit(TIMER_PREFIX + getStepExecutionIdentifier(stepExecution) + ".duration", stepDuration);
+		meterRegistry.gauge(METRIC_NAME, Arrays.asList(//
+				new ImmutableTag("context", getStepExecutionIdentifier(stepExecution)), //
+				new ImmutableTag("name", "duration")//
+		), stepDuration);
 		long itemCount = stepExecution.getWriteCount() + stepExecution.getSkipCount();
-		gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier(stepExecution) + ".item.count", itemCount);
+		meterRegistry.gauge(METRIC_NAME, Arrays.asList(//
+				new ImmutableTag("context", getStepExecutionIdentifier(stepExecution)), //
+				new ImmutableTag("name", "item.count")//
+		), itemCount);
 		// Calculate execution time per item
 		long durationPerItem = 0;
 		if (itemCount > 0) {
 			durationPerItem = stepDuration / itemCount;
 		}
-		gaugeService.submit(TIMER_PREFIX + getStepExecutionIdentifier(stepExecution) + ".item.duration", durationPerItem);
+		meterRegistry.gauge(METRIC_NAME, Arrays.asList(//
+				new ImmutableTag("context", getStepExecutionIdentifier(stepExecution)), //
+				new ImmutableTag("name", "item.duration")//
+		), durationPerItem);
 		// Export metrics from StepExecution to MetricRepositories
 		Set<Entry<String, Object>> metrics = stepExecution.getExecutionContext().entrySet();
 		for (Entry<String, Object> metric : metrics) {
-			if (metric.getValue() instanceof Long) {
-				gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier(stepExecution) + "." + metric.getKey(), (Long) metric.getValue());
-			} else if (metric.getValue() instanceof Double) {
-				gaugeService.submit(GAUGE_PREFIX + getStepExecutionIdentifier(stepExecution) + "." + metric.getKey(), (Double) metric.getValue());
+			if (metric.getValue() instanceof Number) {
+				meterRegistry.gauge(METRIC_NAME, Arrays.asList(//
+						new ImmutableTag("context", getStepExecutionIdentifier(stepExecution)), //
+						new ImmutableTag("name", metric.getKey())//
+				), (Number) metric.getValue());
 			}
 		}
 		return null;
@@ -103,7 +105,10 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		long jobDuration = jobExecution.getEndTime().getTime() - jobExecution.getStartTime().getTime();
-		gaugeService.submit(TIMER_PREFIX + jobExecution.getJobInstance().getJobName() + ".duration", jobDuration);
+		meterRegistry.gauge(METRIC_NAME, Arrays.asList(//
+				new ImmutableTag("context", jobExecution.getJobInstance().getJobName()), //
+				new ImmutableTag("name", "duration")//
+		), jobDuration);
 		// What the f*** is that Thread.sleep doing here? ;-)
 		// Metrics are written asynchronously to Spring Boot's repository. In our tests we experienced
 		// that sometimes batch execution was so fast that this listener couldn't export the metrics
@@ -114,51 +119,26 @@ public class MetricsListener extends StepExecutionListenerSupport implements Ord
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		// Export Metrics to Console or Remote Systems
-		LOGGER.info(metricsOutputFormatter.format(exportBatchRichGauges(), exportBatchMetrics()));
-		// Codahale
-		if (exporters != null) {
-			for (Exporter exporter : exporters) {
-				if (exporter != null) {
-					LOGGER.info("Exporting Metrics with " + exporter.getClass().getName());
-					exporter.export();
-				}
-			}
-		}
-	}
-
-	private List<Metric<?>> exportBatchMetrics() {
-		List<Metric<?>> metrics = new ArrayList<Metric<?>>();
-		for (Metric<?> metric : metricReader.findAll()) {
-			metrics.add(metric);
-		}
-		return metrics;
-	}
-
-	private List<RichGauge> exportBatchRichGauges() {
-		List<RichGauge> gauges = new ArrayList<RichGauge>();
-		for (RichGauge gauge : richGaugeReader.findAll()) {
-			gauges.add(gauge);
-		}
-		return gauges;
+		// Export Metrics to Console
+		Search search = meterRegistry.find(METRIC_NAME);
+		LOGGER.info(metricsOutputFormatter.format(search.gauges(), search.timers()));
 	}
 
 	// tag::contains[]
 	private static class SimpleMetricsOutputFormatter implements MetricsOutputFormatter {
 
 		@Override
-		public String format(List<RichGauge> gauges, List<Metric<?>> metrics) {
+		public String format(Collection<Gauge> gauges, Collection<Timer> timers) {
 			StringBuilder builder = new StringBuilder("\n########## Metrics Start ##########\n");
-			if (gauges != null) {
-				for (RichGauge gauge : gauges) {
-					builder.append(gauge.toString() + "\n");
-				}
-			}
-			if (metrics != null) {
-				for (Metric<?> metric : metrics) {
-					builder.append(metric.toString() + "\n");
-				}
-			}
+			gauges.stream().forEach(gauge -> {
+				builder.append("Gauge [" + gauge.getId() + "]: ");
+				builder.append(gauge.value() + "\n");
+			});
+			timers.stream().forEach(timer -> {
+				builder.append("Timer [" + timer.getId() + "]: ");
+				builder.append(
+						"totalTime=" + timer.totalTime(timer.baseTimeUnit()) + " " + timer.baseTimeUnit() + "\n");
+			});
 			builder.append("########## Metrics End ############");
 			return builder.toString();
 		}

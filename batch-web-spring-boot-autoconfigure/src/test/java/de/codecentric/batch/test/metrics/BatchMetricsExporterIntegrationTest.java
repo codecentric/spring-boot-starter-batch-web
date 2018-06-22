@@ -26,8 +26,6 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -36,25 +34,29 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import de.codecentric.batch.MetricsTestApplication;
+import de.codecentric.batch.metrics.MetricsListener;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 
 /**
- * This test class starts a batch job configured in JavaConfig and tests a simple metrics
- * use case.
+ * This test class starts a batch job configured in JavaConfig and tests a simple metrics use case.
  *
  * @author Tobias Flohre
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = MetricsTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = { "batch.metrics.enabled=true",
-		"batch.metrics.profiling.readprocesswrite.enabled=true", "batch.metrics.export.console.enabled=true" })
+@SpringBootTest(classes = MetricsTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+		"batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true",
+		"batch.metrics.export.console.enabled=true" })
 public class BatchMetricsExporterIntegrationTest {
 
 	private TestRestTemplate restTemplate = new TestRestTemplate();
 
 	@Autowired
 	private JobExplorer jobExplorer;
+
 	@Autowired
-	private MetricReader metricReader;
+	private MeterRegistry meterRegistry;
 
 	@Value("${local.server.port}")
 	int port;
@@ -63,29 +65,31 @@ public class BatchMetricsExporterIntegrationTest {
 	public void testRunJob() throws InterruptedException {
 		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "run=2");
-		Long executionId = restTemplate.postForObject("http://localhost:" + port
-				+ "/batch/operations/jobs/simpleBatchMetricsJob", requestMap, Long.class);
-		while (!restTemplate.getForObject(
-				"http://localhost:" + port
-						+ "/batch/operations/jobs/executions/{executionId}",
-				String.class, executionId).equals("COMPLETED")) {
+		Long executionId = restTemplate.postForObject(
+				"http://localhost:" + port + "/batch/operations/jobs/simpleBatchMetricsJob", requestMap, Long.class);
+		while (!restTemplate
+				.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}",
+						String.class, executionId)
+				.equals("COMPLETED")) {
 			Thread.sleep(1000);
 		}
-		String log = restTemplate.getForObject("http://localhost:" + port
-				+ "/batch/operations/jobs/executions/{executionId}/log", String.class,
+		String log = restTemplate.getForObject(
+				"http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}/log", String.class,
 				executionId);
 		assertThat(log.length() > 20, is(true));
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
-		String jobExecutionString = restTemplate.getForObject("http://localhost:" + port
-				+ "/batch/monitoring/jobs/executions/{executionId}", String.class,
+		String jobExecutionString = restTemplate.getForObject(
+				"http://localhost:" + port + "/batch/monitoring/jobs/executions/{executionId}", String.class,
 				executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"), is(true));
-		Metric<?> metric = metricReader
-				.findOne("gauge.batch.simpleBatchMetricsJob.simpleBatchMetricsStep.processor");
-		assertThat(metric, is(notNullValue()));
-		assertThat((Double) metric.getValue(), is(notNullValue()));
-		assertThat((Double) metric.getValue(), is(7.0));
+		Gauge gauge = meterRegistry.find(MetricsListener.METRIC_NAME)//
+				.tag("context", "simpleBatchMetricsJob.simpleBatchMetricsStep")//
+				.tag("name", "processor")//
+				.gauge();
+		assertThat(gauge, is(notNullValue()));
+		assertThat((Double) gauge.value(), is(notNullValue()));
+		assertThat((Double) gauge.value(), is(7.0));
 	}
 
 }

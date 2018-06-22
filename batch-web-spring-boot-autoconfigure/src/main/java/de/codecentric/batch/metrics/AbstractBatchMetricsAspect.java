@@ -15,58 +15,51 @@
  */
 package de.codecentric.batch.metrics;
 
+import java.util.Arrays;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
-import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.StopWatch;
+
+import io.micrometer.core.instrument.ImmutableTag;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 /**
  * This is a helper class for implementing method level profiling. See {@link ReaderProcessorWriterMetricsAspect} for an
- * aspect extending this class. All calls to an adviced method are tracked in a RichGauge, so you'll see average duration time,
- * maximum / minimum time, number of method calls and so on. For the name of the metric a special naming scheme is used so that
- * our {@link MetricsListener} picks up the gauge and writes it to the ExecutionContext of the StepExecution and to the log.
+ * aspect extending this class. All calls to an adviced method are tracked in a RichGauge, so you'll see average
+ * duration time, maximum / minimum time, number of method calls and so on. For the name of the metric a special naming
+ * scheme is used so that our {@link MetricsListener} picks up the gauge and writes it to the ExecutionContext of the
+ * StepExecution and to the log.
  * 
  * Job configurations need to enable auto-proxying so that aspects may be applied. In JavaConfig just add
  * {@code @EnableAspectJAutoProxy(proxyTargetClass=true)} as a class level annotation. In xml add
- * {@code <aop:aspectj-autoproxy proxy-target-class="true"/>} to the xml configuration file. This needs to be done because jobs reside
- * in child application contexts and don't inherit this kind of configuration from the parent. proxyTargetClass=true means using
- * CGLIB as proxy mechanism which allows us to proxy classes without interfaces.
+ * {@code <aop:aspectj-autoproxy proxy-target-class="true"/>} to the xml configuration file. This needs to be done
+ * because jobs reside in child application contexts and don't inherit this kind of configuration from the parent.
+ * proxyTargetClass=true means using CGLIB as proxy mechanism which allows us to proxy classes without interfaces.
  * 
  * @author Tobias Flohre
  */
 public abstract class AbstractBatchMetricsAspect {
 
-	private GaugeService gaugeService;
+	private MeterRegistry meterRegistry;
 
-	public static final String TIMER_PREFIX = "timer.batch.";
-
-	public AbstractBatchMetricsAspect(GaugeService gaugeService) {
-		this.gaugeService = gaugeService;
+	public AbstractBatchMetricsAspect(MeterRegistry meterRegistry) {
+		this.meterRegistry = meterRegistry;
 	}
 
 	protected Object profileMethod(ProceedingJoinPoint pjp) throws Throwable {
-		StopWatch stopWatch = startStopWatch();
+		Timer.Sample sample = Timer.start(meterRegistry);
 		try {
 			return pjp.proceed();
 		} finally {
-			gaugeService.submit(TIMER_PREFIX + getStepIdentifier() + "." + ClassUtils.getShortName(pjp.getTarget().getClass()) + "."
-					+ pjp.getSignature().getName(), getTotalTimeMillis(stopWatch));
+			sample.stop(meterRegistry.timer(MetricsListener.METRIC_NAME, Arrays.asList(//
+					new ImmutableTag("context", getStepIdentifier()), //
+					new ImmutableTag("method", ClassUtils.getShortName(pjp.getTarget().getClass()) + "."
+							+ pjp.getSignature().getName()))));
 		}
-	}
-
-	private long getTotalTimeMillis(StopWatch stopWatch) {
-		stopWatch.stop();
-		long duration = stopWatch.getTotalTimeMillis();
-		return duration;
-	}
-
-	private StopWatch startStopWatch() {
-		StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
-		return stopWatch;
 	}
 
 	private String getStepIdentifier() {
