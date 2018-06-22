@@ -19,8 +19,8 @@ package de.codecentric.batch.configuration;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.BatchConfigurer;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
@@ -41,9 +41,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * This batch infrastructure configuration is quite similar to the
- * {@link org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer}, it only
- * references a {@link org.springframework.core.task.TaskExecutor} used in the {@link org.springframework.batch.core.launch.support.SimpleJobLauncher}
- * for starting jobs asynchronously. 
+ * {@link org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer}, it only references a
+ * {@link org.springframework.core.task.TaskExecutor} used in the
+ * {@link org.springframework.batch.core.launch.support.SimpleJobLauncher} for starting jobs asynchronously.
  * 
  * @author Tobias Flohre
  * @author Dennis Schulte
@@ -53,20 +53,24 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 
-	private static final Log logger = LogFactory.getLog(TaskExecutorBatchConfigurer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TaskExecutorBatchConfigurer.class);
 
 	@Autowired
 	private Environment env;
-	
-	// Created by TaskExecutorConfiguration if it is used. If an alternative TaskExecutor is configured, 
+
+	// Created by TaskExecutorConfiguration if it is used. If an alternative TaskExecutor is configured,
 	// it will be injected here.
 	@Autowired
 	private TaskExecutor taskExecutor;
-	
+
 	private DataSource dataSource;
+
 	private PlatformTransactionManager transactionManager;
+
 	private JobRepository jobRepository;
+
 	private JobLauncher jobLauncher;
+
 	private JobExplorer jobExplorer;
 
 	@Autowired
@@ -122,7 +126,7 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 	@PostConstruct
 	public void initialize() throws Exception {
 		if (dataSource == null) {
-			logger.warn("No datasource was provided...using a Map based JobRepository");
+			LOGGER.warn("No datasource was provided...using a Map based JobRepository");
 
 			if (this.transactionManager == null) {
 				this.transactionManager = new ResourcelessTransactionManager();

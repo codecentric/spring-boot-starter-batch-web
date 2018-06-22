@@ -20,8 +20,8 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.JobParameter;
@@ -39,8 +39,10 @@ import org.springframework.core.Ordered;
 public class ProtocolListener implements JobExecutionListener, Ordered {
 
 	private static final int DEFAULT_WIDTH = 80;
-	private static final Log LOGGER = LogFactory.getLog(ProtocolListener.class);
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProtocolListener.class);
+
+	@Override
 	public void afterJob(JobExecution jobExecution) {
 		StringBuilder protocol = new StringBuilder();
 		protocol.append("\n");
@@ -81,10 +83,12 @@ public class ProtocolListener implements JobExecutionListener, Ordered {
 		LOGGER.info(protocol.toString());
 	}
 
+	@Override
 	public void beforeJob(JobExecution jobExecution) {
 		StringBuilder protocol = new StringBuilder();
 		protocol.append(createFilledLine('-'));
-		protocol.append("Job " + jobExecution.getJobInstance().getJobName() + " started with Job-Execution-Id " + jobExecution.getId() + " \n");
+		protocol.append("Job " + jobExecution.getJobInstance().getJobName() + " started with Job-Execution-Id "
+				+ jobExecution.getId() + " \n");
 		protocol.append("Job-Parameter: \n");
 		JobParameters jp = jobExecution.getJobParameters();
 		for (Iterator<Entry<String, JobParameter>> iter = jp.getParameters().entrySet().iterator(); iter.hasNext();) {

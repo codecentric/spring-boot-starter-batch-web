@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
@@ -49,7 +49,7 @@ import io.micrometer.core.instrument.search.Search;
  */
 public class MetricsListener extends StepExecutionListenerSupport implements Ordered, JobExecutionListener {
 
-	private static final Log LOGGER = LogFactory.getLog(MetricsListener.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MetricsListener.class);
 
 	public static final String METRIC_NAME = "batch.metrics";
 

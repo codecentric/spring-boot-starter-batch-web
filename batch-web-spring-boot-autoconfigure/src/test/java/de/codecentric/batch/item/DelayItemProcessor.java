@@ -15,22 +15,22 @@
  */
 package de.codecentric.batch.item;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
-
 
 /**
  * Dummy {@link ItemProcessor} which waits some time before proceeding.
  * 
  * @author Tobias Flohre
  */
-public class DelayItemProcessor implements ItemProcessor<String,String> {
+public class DelayItemProcessor implements ItemProcessor<String, String> {
 
-	private static final Log log = LogFactory.getLog(DelayItemProcessor.class);
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(DelayItemProcessor.class);
+
+	@Override
 	public String process(String item) throws Exception {
-		log.info(item);
+		LOGGER.info(item);
 		Thread.sleep(1000);
 		return item;
 	}

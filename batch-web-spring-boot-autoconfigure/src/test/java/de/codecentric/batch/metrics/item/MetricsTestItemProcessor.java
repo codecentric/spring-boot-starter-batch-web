@@ -15,8 +15,8 @@
  */
 package de.codecentric.batch.metrics.item;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 
 import de.codecentric.batch.metrics.Action;
@@ -29,32 +29,32 @@ import de.codecentric.batch.metrics.MetricsTestException;
  * @author Tobias Flohre
  */
 public class MetricsTestItemProcessor implements ItemProcessor<Item, Item> {
-	
-	private static final Log log = LogFactory.getLog(MetricsTestItemProcessor.class);
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTestItemProcessor.class);
 
 	private BatchMetrics businessMetrics;
+
 	private boolean processorTransactional;
 
-	public MetricsTestItemProcessor(BatchMetrics businessMetrics,
-			boolean processorTransactional) {
+	public MetricsTestItemProcessor(BatchMetrics businessMetrics, boolean processorTransactional) {
 		this.businessMetrics = businessMetrics;
 		this.processorTransactional = processorTransactional;
 	}
 
 	@Override
 	public Item process(Item item) throws Exception {
-		log.debug("Processed item: "+item.toString());
-		if (!processorTransactional || item.getActions().contains(Action.FILTER)){
+		LOGGER.debug("Processed item: {}", item.toString());
+		if (!processorTransactional || item.getActions().contains(Action.FILTER)) {
 			businessMetrics.incrementNonTransactional(MetricNames.PROCESS_COUNT.getName());
 			businessMetrics.submitNonTransactional(MetricNames.PROCESS_GAUGE.getName(), 5);
 		} else {
 			businessMetrics.increment(MetricNames.PROCESS_COUNT.getName());
 			businessMetrics.submit(MetricNames.PROCESS_GAUGE.getName(), 5);
 		}
-		if (item.getActions().contains(Action.FAIL_ON_PROCESS)){
+		if (item.getActions().contains(Action.FAIL_ON_PROCESS)) {
 			throw new MetricsTestException(Action.FAIL_ON_PROCESS);
 		}
-		if (item.getActions().contains(Action.FILTER)){
+		if (item.getActions().contains(Action.FILTER)) {
 			return null;
 		}
 		return item;

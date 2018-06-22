@@ -15,8 +15,8 @@
  */
 package de.codecentric.batch.metrics.item;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
@@ -34,24 +34,25 @@ import de.codecentric.batch.metrics.MetricsTestException;
  * @author Tobias Flohre
  */
 public class MetricsTestItemReader implements ItemStreamReader<Item> {
-	
-	private static final Log log = LogFactory.getLog(MetricsTestItemReader.class);
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTestItemReader.class);
 
 	private ItemStreamReader<Item> delegate;
+
 	private BatchMetrics businessMetrics;
+
 	private boolean readerTransactional;
 
-	public MetricsTestItemReader(ItemStreamReader<Item> delegate,
-			BatchMetrics businessMetrics, boolean readerTransactional) {
+	public MetricsTestItemReader(ItemStreamReader<Item> delegate, BatchMetrics businessMetrics,
+			boolean readerTransactional) {
 		this.delegate = delegate;
 		this.businessMetrics = businessMetrics;
 		this.readerTransactional = readerTransactional;
 	}
 
 	@Override
-	public Item read() throws Exception, UnexpectedInputException, ParseException,
-			NonTransientResourceException {
-		if (readerTransactional){
+	public Item read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+		if (readerTransactional) {
 			businessMetrics.increment(MetricNames.READ_COUNT.getName());
 			businessMetrics.submit(MetricNames.READ_GAUGE.getName(), 5);
 		} else {
@@ -59,24 +60,22 @@ public class MetricsTestItemReader implements ItemStreamReader<Item> {
 			businessMetrics.submitNonTransactional(MetricNames.READ_GAUGE.getName(), 5);
 		}
 		Item item = delegate.read();
-		if (item != null && item.getActions().contains(Action.FAIL_ON_READ)){
+		if (item != null && item.getActions().contains(Action.FAIL_ON_READ)) {
 			throw new MetricsTestException(Action.FAIL_ON_READ);
 		}
-		log.debug("Read item: "+item);
+		LOGGER.debug("Read item: {}", item);
 		return item;
 	}
 
 	@Override
-	public void open(ExecutionContext executionContext)
-			throws ItemStreamException {
+	public void open(ExecutionContext executionContext) throws ItemStreamException {
 		businessMetrics.increment(MetricNames.STREAM_OPEN_COUNT.getName());
 		businessMetrics.submit(MetricNames.STREAM_OPEN_GAUGE.getName(), 5);
 		delegate.open(executionContext);
 	}
 
 	@Override
-	public void update(ExecutionContext executionContext)
-			throws ItemStreamException {
+	public void update(ExecutionContext executionContext) throws ItemStreamException {
 		businessMetrics.increment(MetricNames.STREAM_UPDATE_COUNT.getName());
 		businessMetrics.submit(MetricNames.STREAM_UPDATE_GAUGE.getName(), 5);
 		delegate.update(executionContext);

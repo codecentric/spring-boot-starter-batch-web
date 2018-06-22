@@ -17,35 +17,35 @@ package de.codecentric.batch.item;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ItemWriteListener;
 
 /**
  * @author Tobias Flohre
  */
 public class LogItemWriteListener implements ItemWriteListener<String> {
-	
-	private static final Log log = LogFactory.getLog(LogItemWriteListener.class);
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(LogItemWriteListener.class);
 
 	@Override
 	public void beforeWrite(List<? extends String> items) {
-		for (String item: items){
-			log.debug("Item: " +item);
+		for (String item : items) {
+			LOGGER.debug("Item: {}", item);
 		}
 	}
 
 	@Override
 	public void afterWrite(List<? extends String> items) {
-		for (String item: items){
-			log.debug("Item: " +item);
+		for (String item : items) {
+			LOGGER.debug("Item: {}", item);
 		}
 	}
 
 	@Override
 	public void onWriteError(Exception exception, List<? extends String> items) {
-		for (String item: items){
-			log.debug("Item: " +item);
+		for (String item : items) {
+			LOGGER.debug("Item: {}", item);
 		}
 	}
 

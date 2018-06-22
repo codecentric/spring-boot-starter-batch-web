@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -34,9 +34,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class BatchMetricsImpl extends TransactionSynchronizationAdapter implements BatchMetrics {
 
-	private static final Log LOG = LogFactory.getLog(BatchMetricsImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BatchMetricsImpl.class);
 
 	private ThreadLocal<MetricContainer> metricContainer;
+
 	private final Object serviceKey;
 
 	public BatchMetricsImpl() {
@@ -127,25 +128,25 @@ public class BatchMetricsImpl extends TransactionSynchronizationAdapter implemen
 
 	@Override
 	public void afterCompletion(int status) {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("Entered afterCompletion with status " + status + ".");
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Entered afterCompletion with status {}.", status);
 		}
 		if (status == STATUS_COMMITTED) {
 			MetricContainer currentMetricContainer = metricContainer.get();
 			for (Pair<String, ? extends Number> metric : currentMetricContainer.metrics) {
 				if (metric.getRight() instanceof Long) {
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("Increment " + metric + ".");
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Increment {}.", metric);
 					}
 					incrementNonTransactional(metric.getLeft(), (Long) metric.getRight());
 				} else if (metric.getRight() instanceof Double) {
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("Gauge " + metric + ".");
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Gauge {}.", metric);
 					}
 					set(metric.getLeft(), (Double) metric.getRight());
 				} else if (metric.getRight() == null) {
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("Reset " + metric + ".");
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("Reset {}.", metric);
 					}
 					remove(metric.getLeft());
 				}
@@ -179,6 +180,7 @@ public class BatchMetricsImpl extends TransactionSynchronizationAdapter implemen
 	}
 
 	private static class MetricContainer {
+
 		List<Pair<String, ? extends Number>> metrics = new ArrayList<Pair<String, ? extends Number>>();
 	}
 

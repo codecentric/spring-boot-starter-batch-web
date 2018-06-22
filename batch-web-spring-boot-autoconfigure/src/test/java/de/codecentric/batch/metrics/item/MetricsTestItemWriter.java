@@ -17,8 +17,8 @@ package de.codecentric.batch.metrics.item;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 
 import de.codecentric.batch.metrics.Action;
@@ -32,13 +32,13 @@ import de.codecentric.batch.metrics.MetricsTestException;
  */
 public class MetricsTestItemWriter implements ItemWriter<Item> {
 
-	private static final Log log = LogFactory.getLog(MetricsTestItemWriter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MetricsTestItemWriter.class);
 
 	private ItemWriter<Item> delegate;
+
 	private BatchMetrics businessMetrics;
 
-	public MetricsTestItemWriter(ItemWriter<Item> delegate,
-			BatchMetrics businessMetrics) {
+	public MetricsTestItemWriter(ItemWriter<Item> delegate, BatchMetrics businessMetrics) {
 		this.delegate = delegate;
 		this.businessMetrics = businessMetrics;
 	}
@@ -46,11 +46,11 @@ public class MetricsTestItemWriter implements ItemWriter<Item> {
 	@Override
 	public void write(List<? extends Item> items) throws Exception {
 		delegate.write(items);
-		for (Item item: items){
-			log.debug("Written item: "+item);
+		for (Item item : items) {
+			LOGGER.debug("Written item: {}", item);
 			businessMetrics.increment(MetricNames.WRITE_COUNT.getName());
 			businessMetrics.submit(MetricNames.WRITE_GAUGE.getName(), 5);
-			if (item.getActions().contains(Action.FAIL_ON_WRITE)){
+			if (item.getActions().contains(Action.FAIL_ON_WRITE)) {
 				throw new MetricsTestException(Action.FAIL_ON_WRITE);
 			}
 		}
