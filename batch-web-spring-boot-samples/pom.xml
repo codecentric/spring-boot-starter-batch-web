@@ -3,23 +3,18 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>batch-web-spring-boot-starter</artifactId>
+	<artifactId>batch-web-spring-boot-samples</artifactId>
 	<packaging>pom</packaging>
-	<name>Spring Boot Starter Batch Starter</name>
+	<name>Spring Boot Starter Batch Samples</name>
 	<parent>
 		<groupId>de.codecentric</groupId>
 		<artifactId>batch-web-spring-boot-build</artifactId>
 		<version>${revision}</version>
 		<relativePath>../batch-web-spring-boot-build</relativePath>
 	</parent>
-	<dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>batch-web-spring-boot-autoconfigure</artifactId>
-        </dependency>
-    </dependencies>
+	<modules>
+		<module>batch-boot-simple</module>
+		<module>batch-boot-simple-jsr352</module>
+		<module>batch-boot-file-to-db</module>
+	</modules>
 </project>

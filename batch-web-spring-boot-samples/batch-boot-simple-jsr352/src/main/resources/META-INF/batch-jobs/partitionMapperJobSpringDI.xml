@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+                              http://www.springframework.org/schema/beans/spring-beans.xsd
+                              http://xmlns.jcp.org/xml/ns/javaee
+                              http://xmlns.jcp.org/xml/ns/javaee/jobXML_1_0.xsd">
+
+    <bean id="reader" class="de.codecentric.batch.item.PartitionedItemReader" scope="step"/>
+    <bean id="processor" class="de.codecentric.batch.item.LogItemProcessor"/>
+    <bean id="writer" class="de.codecentric.batch.item.LogItemWriter"/>
+    <bean id="mapper" class="de.codecentric.batch.item.SimplePartitionMapper"/>
+	
+    <!-- Job is defined using the JSL schema provided in JSR-352 -->
+    <job id="partitionMapperJobSpringDI" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+	    <step id="chunkStep">
+	        <chunk item-count="2">
+	            <reader ref="reader">
+	            	<properties>
+	            		<property name="datakey" value="#{partitionPlan['datakeyPartition']}"/>
+	            	</properties>
+	            </reader>
+	            <processor ref="processor"/>
+	            <writer ref="writer"/>
+	        </chunk>
+	        <partition>
+	        	<mapper ref="mapper" />
+	        </partition>
+	    </step>
+    </job>
+</beans>

@@ -6,7 +6,6 @@
 	<artifactId>batch-web-spring-boot-docs</artifactId>
 	<packaging>pom</packaging>
 	<name>Spring Boot Starter Batch Docs</name>
-	<description>Spring Boot Starter Batch Docs</description>
 	<parent>
 		<groupId>de.codecentric</groupId>
 		<artifactId>batch-web-spring-boot-build</artifactId>

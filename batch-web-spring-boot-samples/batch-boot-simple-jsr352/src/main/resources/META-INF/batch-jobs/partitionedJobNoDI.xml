@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job id="partitionedJobNoDI" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/jobXML_1_0.xsd">
+    <step id="chunkStep">
+        <chunk item-count="2">
+            <reader ref="de.codecentric.batch.item.PartitionedItemReader">
+            	<properties>
+            		<property name="datakey" value="#{partitionPlan['datakeyPartition']}"/>
+            	</properties>
+            </reader>
+            <processor ref="de.codecentric.batch.item.LogItemProcessor"/>
+            <writer ref="de.codecentric.batch.item.LogItemWriter"/>
+        </chunk>
+        <partition>
+        	<plan partitions="3" threads="2">
+        		<properties partition="0">
+        			<property name="datakeyPartition" value="key1"/>
+        		</properties>
+        		<properties partition="1">
+        			<property name="datakeyPartition" value="key2"/>
+        		</properties>
+        		<properties partition="2">
+        			<property name="datakeyPartition" value="key3"/>
+        		</properties>
+        	</plan>
+        </partition>
+    </step>
+</job>
