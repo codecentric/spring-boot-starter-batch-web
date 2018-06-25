@@ -61,7 +61,7 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  */
 @Configuration
 @EnableBatchProcessing(modular = true)
-@PropertySource("classpath:spring-boot-starter-batch-web.properties")
+@PropertySource("classpath:batch-web-spring-boot-autoconfigure.properties")
 @AutoConfigureAfter({ MetricsAutoConfiguration.class })
 @Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class,
 		BaseConfiguration.class, Jsr352BatchConfiguration.class, MetricsConfiguration.class,
