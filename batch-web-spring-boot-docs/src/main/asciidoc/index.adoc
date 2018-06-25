@@ -27,6 +27,8 @@ https://blog.codecentric.de/en/2014/11/spring-boot-starter-batch-web-1-3-0-relea
 
 https://blog.codecentric.de/en/2014/11/enterprise-java-batch-best-practice-architecture/[Enterprise Java Batch - A best practice architecture]
 
+https://blog.codecentric.de/en/2018/06/spring-boot-starter-batch-web-2-0-0-released/[spring-boot-starter-batch-web 2.0.0 released]
+
 == Getting Started
 
 . Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-samples/blob/master/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to spring-boot-starter-batch-web like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
@@ -36,17 +38,17 @@ https://blog.codecentric.de/en/2014/11/enterprise-java-batch-best-practice-archi
 <dependency>
 	<groupId>de.codecentric</groupId>
 	<artifactId>spring-boot-starter-batch-web</artifactId>
-	<version>1.4.0.RELEASE</version>
+	<version>2.0.0.RELEASE</version>
 </dependency>
 ----
 
-. If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in https://github.com/codecentric/spring-samples/blob/master/batch-boot-file-to-db/src/main/resources/application.properties[this example]. If you don't specify these properties you'll get an in-memory database for the Spring Batch meta data tables.
-. Add a simple logback.xml for logging. Here's an https://github.com/codecentric/spring-samples/blob/master/batch-boot-file-to-db/src/main/resources/logback.xml[example] inheriting from our basic log configuration to support log file separation.
+. If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/application.properties[this example]. If you don't specify these properties you'll get an in-memory database for the Spring Batch meta data tables.
+. Add a simple logback.xml for logging. Here's an https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/logback.xml[example] inheriting from our basic log configuration to support log file separation.
 . Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path.xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package.javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.
-. Add an entry point to the application, a class with a main method invoking SpringApplication.run(...). Take a look at this https://github.com/codecentric/spring-samples/blob/master/batch-boot-simple/src/main/java/de/codecentric/batch/Application.java[example].
+. Add an entry point to the application, a class with a main method invoking SpringApplication.run(...). Take a look at this https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/src/main/java/de/codecentric/batch/Application.java[example].
 . Build the application via maven package. Then start the application using java -jar xxx.jar.
 
-Default port is 8080. Take a look at the JavaDoc of these controllers to get to know the endpoints for starting jobs etc.: https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/src/main/java/de/codecentric/batch/web/JobOperationsController.java[JobOperationsController] and https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/src/main/java/de/codecentric/batch/web/JobMonitoringController.java[JobMonitoringController].
+Default port is 8080. Take a look at the JavaDoc of these controllers to get to know the endpoints for starting jobs etc.: https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/web/JobOperationsController.java[JobOperationsController] and https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/web/JobMonitoringController.java[JobMonitoringController].
 
 == Configuration options
 
@@ -111,9 +113,9 @@ There are two ways to influence spring-boot-starter-batch-web's behaviour. The f
 
 Now let’s take a look at the interfaces / abstract classes you may implement to add those implemented components to the ApplicationContext:
 
-https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/src/main/java/de/codecentric/batch/configuration/ListenerProvider.java[ListenerProvider]
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/configuration/ListenerProvider.java[ListenerProvider]
 
-https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/src/main/java/de/codecentric/batch/metrics/MetricsOutputFormatter.java[MetricsOutputFormatter]
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/metrics/MetricsOutputFormatter.java[MetricsOutputFormatter]
 
 Example:
 [source,java]
@@ -121,9 +123,9 @@ Example:
 include::{sourcedir}/de/codecentric/batch/metrics/MetricsListener.java[tags=contains,indent=0]
 ----
 
-https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/src/main/java/de/codecentric/batch/metrics/AbstractBatchMetricsAspect.java[AbstractBatchMetricsAspect]
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/metrics/AbstractBatchMetricsAspect.java[AbstractBatchMetricsAspect]
 
-https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/src/main/java/de/codecentric/batch/logging/JobLogFileNameCreator.java[JobLogFileNameCreator]
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/logging/JobLogFileNameCreator.java[JobLogFileNameCreator]
 
 
 == Initscript Template
