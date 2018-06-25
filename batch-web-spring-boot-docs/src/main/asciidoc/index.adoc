@@ -4,7 +4,7 @@
 :toc: left
 :numbered: true
 
-== What is spring-boot-starter-batch-web?
+== What is batch-web-spring-boot-starter?
 
 Java batch is becoming a hot topic in enterprise environments these days, but how do you do it the right way? The project spring-boot-starter-batch-web offers a best practice approach to modern batch architectures, answering the following questions:
 
@@ -27,17 +27,17 @@ https://blog.codecentric.de/en/2014/11/spring-boot-starter-batch-web-1-3-0-relea
 
 https://blog.codecentric.de/en/2014/11/enterprise-java-batch-best-practice-architecture/[Enterprise Java Batch - A best practice architecture]
 
-https://blog.codecentric.de/en/2018/06/spring-boot-starter-batch-web-2-0-0-released/[spring-boot-starter-batch-web 2.0.0 released]
+https://blog.codecentric.de/en/2018/06/batch-web-spring-boot-starter-2-0-0-released/[batch-web-spring-boot-starter 2.0.0 released]
 
 == Getting Started
 
-. Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-samples/blob/master/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to spring-boot-starter-batch-web like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
+. Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to spring-boot-starter-batch-web like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
 
 [source,xml]
 ----
 <dependency>
 	<groupId>de.codecentric</groupId>
-	<artifactId>spring-boot-starter-batch-web</artifactId>
+	<artifactId>batch-web-spring-boot-starter</artifactId>
 	<version>2.0.0.RELEASE</version>
 </dependency>
 ----
@@ -264,35 +264,33 @@ batch.metrics.enabled=true
 ==== Job duration for a specific job name
 [indent=0]
 ----
-timer.batch.simpleJob.duration
+name: batch.metrics, tags: {context=simpleJob, name=duration}
 ----
 ==== Step duration for a specific job name
 [indent=0]
 ----
-timer.batch.simpleJob.step.simpleStep.duration
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=duration}
 ----
 ==== Chunk duration/count for a specific job name
 [indent=0]
 ----
-timer.batch.simpleJob.step.simpleStep.chunk.duration
-gauge.batch.simpleJob.step.simpleStep.chunk.count
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=chunk.duration}
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=chunk.count}
 ----
 ==== Item duration/count for a specific job name
 [indent=0]
 ----
-timer.batch.simpleJob.step.simpleStep.item.duration
-gauge.batch.simpleJob.step.simpleStep.item.count
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=item.duration}
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=item.count}
 ----
 ==== Read/Process/Write methods
 [indent=0]
 ----
-timer.batch.simpleJob.step.simpleStep.DummyItemReader.read.duration
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=DummyItemReader.read.duration}
 ----
 ==== Custom
 [indent=0]
 ----
-timer.batch.simpleJob.step.simpleStep.ExampleService.callExternalRemoteService.duration
-gauge.batch.simpleJob.step.simpleStep.businesscounter
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=ExampleService.callExternalRemoteService.duration}
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=businesscounter}
 ----
-
-
