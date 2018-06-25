@@ -19,7 +19,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>batch-web-spring-boot-autoconfigure</artifactId>
-	<name>Spring Boot Starter Batch Autoconfigure</name>
+	<name>Batch Web Spring Boot Autoconfigure</name>
 	<parent>
 		<groupId>de.codecentric</groupId>
 		<artifactId>batch-web-spring-boot-build</artifactId>

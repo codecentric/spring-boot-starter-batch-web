@@ -20,7 +20,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>batch-web-spring-boot-dependencies</artifactId>
 	<packaging>pom</packaging>
-	<name>Spring Boot Starter Batch Dependencies</name>
+	<name>Batch Web Spring Boot Dependencies</name>
 	<parent>
 		<groupId>de.codecentric</groupId>
 		<artifactId>batch-web-spring-boot</artifactId>

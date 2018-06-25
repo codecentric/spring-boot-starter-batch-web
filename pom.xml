@@ -7,7 +7,7 @@
 	<artifactId>batch-web-spring-boot</artifactId>
 	<version>${revision}</version>
 	<packaging>pom</packaging>
-	<name>Spring Boot Starter Batch</name>
+	<name>Batch Web Spring Boot</name>
 	<description>Spring Boot Starter Batch for Web</description>
 	<url>https://github.com/codecentric/spring-boot-admin/</url>
 	<modules>
@@ -52,7 +52,7 @@
 		<url>https://github.com/codecentric/spring-boot-starter-batch-web</url>
 	</scm>
 	<properties>
-		<revision>2.0.0-SNAPSHOT</revision>
+		<revision>2.0.1-SNAPSHOT</revision>
 		<spring-boot.version>2.0.3.RELEASE</spring-boot.version>
 		<java.version>1.8</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
