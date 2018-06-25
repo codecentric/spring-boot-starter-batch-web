@@ -22,50 +22,62 @@ import java.util.Set;
  * @author Tobias Flohre
  */
 public class Item {
-	
+
 	private Action firstAction;
+
 	private Action secondAction;
+
 	private String description;
+
 	private Long id;
+
 	public Set<Action> getActions() {
 		Set<Action> actions = new HashSet<>();
-		if (firstAction != null){
+		if (firstAction != null) {
 			actions.add(firstAction);
 		}
-		if (secondAction != null){
+		if (secondAction != null) {
 			actions.add(secondAction);
 		}
 		return actions;
 	}
+
 	public String getDescription() {
 		return description;
 	}
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
 	public Action getFirstAction() {
 		return firstAction;
 	}
+
 	public void setFirstAction(Action firstAction) {
 		this.firstAction = firstAction;
 	}
+
 	public Action getSecondAction() {
 		return secondAction;
 	}
+
 	public void setSecondAction(Action secondAction) {
 		this.secondAction = secondAction;
 	}
+
 	@Override
 	public String toString() {
-		return "Item [firstAction=" + firstAction + ", secondAction="
-				+ secondAction + ", description=" + description + ", id=" + id
-				+ "]";
+		return "Item [firstAction=" + firstAction + ", secondAction=" + secondAction + ", description=" + description
+				+ ", id=" + id + "]";
 	}
 
 }

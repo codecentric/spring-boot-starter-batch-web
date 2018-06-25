@@ -39,7 +39,7 @@ public abstract class AutomaticJobRegistrarConfigurationSupport {
 		// listeners after the jobs are registered through the AutomaticJobRegistrar, we need to decrement its
 		// order value by one. The creation of the AutomaticJobRegistrar bean is hidden deep in the automatic
 		// batch configuration, so we unfortunately have to do it here.
-		automaticJobRegistrar.setOrder(Ordered.LOWEST_PRECEDENCE-1);
+		automaticJobRegistrar.setOrder(Ordered.LOWEST_PRECEDENCE - 1);
 		addApplicationContextFactories(automaticJobRegistrar);
 	}
 

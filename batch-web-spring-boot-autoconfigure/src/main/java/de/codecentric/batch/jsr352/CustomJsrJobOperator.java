@@ -57,29 +57,34 @@ import de.codecentric.batch.listener.AddListenerToJobService;
 /**
  * We cannot use Spring Batch's JsrJobOperator out of two reasons:
  *
- * <p>In the current implementation it's not possible to use an existing ApplicationContext
- * as base context for the batch job contexts.<br>
- * Second reason is that we want to add listeners automatically to the job for having features
- * like log file separation and standard batch protocols.<br>
+ * <p>
+ * In the current implementation it's not possible to use an existing ApplicationContext as base context for the batch
+ * job contexts.<br>
+ * Second reason is that we want to add listeners automatically to the job for having features like log file separation
+ * and standard batch protocols.<br>
  *
  * That's why I patched it to add the functionality we need.
  *
  * @author Tobias Flohre
  */
 public class CustomJsrJobOperator extends JsrJobOperator {
+
 	private static final String JSR_JOB_CONTEXT_BEAN_NAME = "jsr_jobContext";
 
 	private ApplicationContext parentContext;
+
 	private JobRepository jobRepository;
+
 	private TaskExecutor taskExecutor;
+
 	private JobParametersConverter jobParametersConverter;
+
 	private static ExecutingJobRegistry jobRegistry = new ExecutingJobRegistry();
+
 	private AddListenerToJobService addListenerToJobService;
 
-	public CustomJsrJobOperator(JobExplorer jobExplorer,
-			JobRepository jobRepository,
-			JobParametersConverter jobParametersConverter,
-			AddListenerToJobService addListenerToJobService,
+	public CustomJsrJobOperator(JobExplorer jobExplorer, JobRepository jobRepository,
+			JobParametersConverter jobParametersConverter, AddListenerToJobService addListenerToJobService,
 			PlatformTransactionManager transactionManager) {
 		super(jobExplorer, jobRepository, jobParametersConverter, transactionManager);
 		this.jobRepository = jobRepository;
@@ -94,14 +99,12 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.parentContext = applicationContext;
 	}
 
 	@Override
-	public long start(String jobName, Properties params)
-			throws JobStartException, JobSecurityException {
+	public long start(String jobName, Properties params) throws JobStartException, JobSecurityException {
 		final JsrXmlApplicationContext batchContext = new JsrXmlApplicationContext(params);
 		batchContext.setValidating(false);
 
@@ -109,15 +112,17 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 		String jobConfigurationLocation = "/META-INF/batch-jobs/" + jobName + ".xml";
 		Resource jobXml = new ClassPathResource(jobConfigurationLocation);
 
-		if(batchXml.exists()) {
+		if (batchXml.exists()) {
 			batchContext.load(batchXml);
 		}
 
-		if(jobXml.exists()) {
+		if (jobXml.exists()) {
 			batchContext.load(jobXml);
 		}
 
-		AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition("org.springframework.batch.core.jsr.JsrJobContextFactoryBean").getBeanDefinition();
+		AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+				.genericBeanDefinition("org.springframework.batch.core.jsr.JsrJobContextFactoryBean")
+				.getBeanDefinition();
 		beanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
 		batchContext.registerBeanDefinition(JSR_JOB_CONTEXT_BEAN_NAME, beanDefinition);
 
@@ -135,13 +140,14 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 
 		try {
 			JobParameters jobParameters = jobParametersConverter.getJobParameters(params);
-			String [] jobNames = batchContext.getBeanNamesForType(Job.class);
+			String[] jobNames = batchContext.getBeanNamesForType(Job.class);
 
-			if(jobNames == null || jobNames.length <= 0) {
+			if (jobNames == null || jobNames.length <= 0) {
 				throw new BatchRuntimeException("No Job defined in current context");
 			}
 
-			org.springframework.batch.core.JobInstance jobInstance = jobRepository.createJobInstance(jobNames[0], jobParameters);
+			org.springframework.batch.core.JobInstance jobInstance = jobRepository.createJobInstance(jobNames[0],
+					jobParameters);
 			jobExecution = jobRepository.createJobExecution(jobInstance, jobParameters, jobConfigurationLocation);
 		} catch (Exception e) {
 			throw new JobStartException(e);
@@ -167,17 +173,16 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 						jobRegistry.register(job, jobExecution);
 						job.execute(jobExecution);
 						jobRegistry.remove(jobExecution);
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						exceptionHolder.add(e);
 					} finally {
-						if(factoryBean != null) {
+						if (factoryBean != null) {
 							factoryBean.close();
 						}
 
 						batchContext.close();
 
-						if(semaphore.availablePermits() == 0) {
+						if (semaphore.availablePermits() == 0) {
 							semaphore.release();
 						}
 					}
@@ -185,13 +190,12 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 			});
 
 			semaphore.acquire();
-			if(exceptionHolder.size() > 0) {
+			if (exceptionHolder.size() > 0) {
 				semaphore.release();
 				throw new JobStartException(exceptionHolder.get(0));
 			}
-		}
-		catch (Exception e) {
-			if(jobRegistry.exists(jobExecution.getId())) {
+		} catch (Exception e) {
+			if (jobRegistry.exists(jobExecution.getId())) {
 				jobRegistry.remove(jobExecution);
 			}
 			jobExecution.upgradeStatus(BatchStatus.FAILED);
@@ -200,7 +204,7 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 			}
 			jobRepository.update(jobExecution);
 
-			if(batchContext.isActive()) {
+			if (batchContext.isActive()) {
 				batchContext.close();
 			}
 
@@ -213,9 +217,10 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 
 		private Map<Long, Job> registry = new ConcurrentHashMap<Long, Job>();
 
-		public void register(Job job, org.springframework.batch.core.JobExecution jobExecution) throws DuplicateJobException {
+		public void register(Job job, org.springframework.batch.core.JobExecution jobExecution)
+				throws DuplicateJobException {
 
-			if(registry.containsKey(jobExecution.getId())) {
+			if (registry.containsKey(jobExecution.getId())) {
 				throw new DuplicateJobException("This job execution has already been registered");
 			} else {
 				registry.put(jobExecution.getId(), job);
@@ -223,7 +228,7 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 		}
 
 		public void remove(org.springframework.batch.core.JobExecution jobExecution) {
-			if(!registry.containsKey(jobExecution.getId())) {
+			if (!registry.containsKey(jobExecution.getId())) {
 				throw new NoSuchJobExecutionException("The job execution " + jobExecution.getId() + " was not found");
 			} else {
 				registry.remove(jobExecution.getId());
@@ -235,6 +240,5 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 		}
 
 	}
-
 
 }

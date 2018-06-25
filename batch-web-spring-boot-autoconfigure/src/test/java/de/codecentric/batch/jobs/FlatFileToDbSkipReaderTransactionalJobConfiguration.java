@@ -56,115 +56,115 @@ import de.codecentric.batch.metrics.item.MetricsTestSkipListener;
 public class FlatFileToDbSkipReaderTransactionalJobConfiguration {
 
 	private static final String OVERRIDDEN_BY_EXPRESSION = null;
-	
+
 	@Autowired
 	private JobBuilderFactory jobBuilders;
-	
+
 	@Autowired
 	private StepBuilderFactory stepBuilders;
-	
+
 	@Autowired
 	private BatchMetrics businessMetrics;
-	
+
 	@Autowired
 	private DataSource dataSource;
-	
+
 	@Bean
-	public Job flatFileToDbNoSkipJob(){
-		return jobBuilders.get("flatFileToDbSkipReaderTransactionalJob")
-				.start(step())
+	public Job flatFileToDbNoSkipJob() {
+		return jobBuilders.get("flatFileToDbSkipReaderTransactionalJob")//
+				.start(step())//
 				.build();
 	}
-	
+
 	@Bean
-	public Step step(){
-		return stepBuilders.get("step")
-				.<Item,Item>chunk(3)
-    			.reader(reader())
-				.processor(processor())
-				.writer(writer())
-				.readerIsTransactionalQueue()
-				.listener(readListener())
-				.listener(processListener())
-				.listener(writeListener())
-				.faultTolerant()
-				.skip(MetricsTestException.class)
-				.skipLimit(4)
-				.listener(skipListener())
-				.listener(chunkListener())
+	public Step step() {
+		return stepBuilders.get("step")//
+				.<Item, Item>chunk(3)//
+				.reader(reader())//
+				.processor(processor())//
+				.writer(writer())//
+				.readerIsTransactionalQueue()//
+				.listener(readListener())//
+				.listener(processListener())//
+				.listener(writeListener())//
+				.faultTolerant()//
+				.skip(MetricsTestException.class)//
+				.skipLimit(4)//
+				.listener(skipListener())//
+				.listener(chunkListener())//
 				.build();
 	}
-	
+
 	@Bean
 	@StepScope
-	public MetricsTestItemReader reader(){
+	public MetricsTestItemReader reader() {
 		return new MetricsTestItemReader(flatFileItemReader(OVERRIDDEN_BY_EXPRESSION), businessMetrics, true);
 	}
-	
+
 	@Bean
 	@StepScope
-	public FlatFileItemReader<Item> flatFileItemReader(@Value("#{jobParameters[pathToFile]}") String pathToFile){
+	public FlatFileItemReader<Item> flatFileItemReader(@Value("#{jobParameters[pathToFile]}") String pathToFile) {
 		FlatFileItemReader<Item> itemReader = new FlatFileItemReader<Item>();
 		itemReader.setLineMapper(lineMapper());
-		itemReader.setResource(new FileSystemResource("src/test/resources/"+pathToFile));
+		itemReader.setResource(new FileSystemResource("src/test/resources/" + pathToFile));
 		return itemReader;
 	}
-	
+
 	@Bean
-	public LineMapper<Item> lineMapper(){
+	public LineMapper<Item> lineMapper() {
 		DefaultLineMapper<Item> lineMapper = new DefaultLineMapper<Item>();
 		DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
-		lineTokenizer.setNames(new String[]{"id","description","firstAction","secondAction"});
-		lineTokenizer.setIncludedFields(new int[]{0,1,2,3});
+		lineTokenizer.setNames(new String[] { "id", "description", "firstAction", "secondAction" });
+		lineTokenizer.setIncludedFields(new int[] { 0, 1, 2, 3 });
 		BeanWrapperFieldSetMapper<Item> fieldSetMapper = new BeanWrapperFieldSetMapper<Item>();
 		fieldSetMapper.setTargetType(Item.class);
 		lineMapper.setLineTokenizer(lineTokenizer);
 		lineMapper.setFieldSetMapper(fieldSetMapper);
 		return lineMapper;
 	}
-	
+
 	@Bean
-	public MetricsTestItemProcessor processor(){
+	public MetricsTestItemProcessor processor() {
 		return new MetricsTestItemProcessor(businessMetrics, true);
 	}
-	
+
 	@Bean
-	public MetricsTestItemWriter writer(){
+	public MetricsTestItemWriter writer() {
 		return new MetricsTestItemWriter(jdbcBatchItemWriter(), businessMetrics);
 	}
-	
+
 	@Bean
-	public JdbcBatchItemWriter<Item> jdbcBatchItemWriter(){
+	public JdbcBatchItemWriter<Item> jdbcBatchItemWriter() {
 		JdbcBatchItemWriter<Item> itemWriter = new JdbcBatchItemWriter<Item>();
 		itemWriter.setSql("INSERT INTO ITEM (ID, DESCRIPTION) VALUES (:id,:description)");
 		itemWriter.setDataSource(dataSource);
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Item>());
 		return itemWriter;
 	}
-	
+
 	@Bean
-	public MetricsTestItemReadListener readListener(){
+	public MetricsTestItemReadListener readListener() {
 		return new MetricsTestItemReadListener(businessMetrics, true);
 	}
-	
+
 	@Bean
-	public MetricsTestItemProcessListener processListener(){
+	public MetricsTestItemProcessListener processListener() {
 		return new MetricsTestItemProcessListener(businessMetrics, true);
 	}
-	
+
 	@Bean
-	public MetricsTestItemWriteListener writeListener(){
+	public MetricsTestItemWriteListener writeListener() {
 		return new MetricsTestItemWriteListener(businessMetrics);
 	}
-	
+
 	@Bean
-	public MetricsTestChunkListener chunkListener(){
+	public MetricsTestChunkListener chunkListener() {
 		return new MetricsTestChunkListener(businessMetrics);
 	}
-	
+
 	@Bean
-	public MetricsTestSkipListener skipListener(){
+	public MetricsTestSkipListener skipListener() {
 		return new MetricsTestSkipListener(businessMetrics);
 	}
-	
+
 }

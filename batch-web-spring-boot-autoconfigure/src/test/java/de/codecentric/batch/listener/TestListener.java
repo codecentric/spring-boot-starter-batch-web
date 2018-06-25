@@ -24,20 +24,14 @@ import org.springframework.batch.core.JobExecutionListener;
  * @author Tobias Flohre
  */
 public class TestListener implements JobExecutionListener {
-	
+
 	private int counter = 0;
 
-	/* (non-Javadoc)
-	 * @see org.springframework.batch.core.JobExecutionListener#beforeJob(org.springframework.batch.core.JobExecution)
-	 */
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
 		counter++;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.batch.core.JobExecutionListener#afterJob(org.springframework.batch.core.JobExecution)
-	 */
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		counter++;
@@ -46,5 +40,5 @@ public class TestListener implements JobExecutionListener {
 	public int getCounter() {
 		return counter;
 	}
-	
+
 }

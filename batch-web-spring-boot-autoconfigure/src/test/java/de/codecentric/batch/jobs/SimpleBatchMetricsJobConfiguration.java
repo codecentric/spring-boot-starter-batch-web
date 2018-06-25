@@ -48,13 +48,20 @@ public class SimpleBatchMetricsJobConfiguration {
 
 	@Bean
 	public Job simpleBusinessMetricsJob() {
-		return jobBuilderFactory.get("simpleBatchMetricsJob").start(step()).build();
+		return jobBuilderFactory.get("simpleBatchMetricsJob")//
+				.start(step())//
+				.build();
 	}
 
 	@Bean
 	public Step step() {
-		return stepBuilderFactory.get("simpleBatchMetricsStep").<String, String> chunk(3).reader(reader()).processor(processor()).writer(writer())
-				.listener(writeListener()).build();
+		return stepBuilderFactory.get("simpleBatchMetricsStep")//
+				.<String, String>chunk(3)//
+				.reader(reader())//
+				.processor(processor())//
+				.writer(writer())//
+				.listener(writeListener())//
+				.build();
 	}
 
 	@Bean

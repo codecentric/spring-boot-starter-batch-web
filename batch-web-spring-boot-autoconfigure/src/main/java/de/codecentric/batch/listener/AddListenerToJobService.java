@@ -26,31 +26,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import de.codecentric.batch.configuration.ListenerProvider;
 
 /**
- * This service adds listeners to jobs. Listeners provided by beans implementing
- * ListenerProvider are added automatically.
+ * This service adds listeners to jobs. Listeners provided by beans implementing ListenerProvider are added
+ * automatically.
  * 
  * @author Tobias Flohre
  */
 public class AddListenerToJobService {
-	
+
 	/**
 	 * All beans implementing ListenerProvider are injected here.
 	 */
-	@Autowired(required=false)
+	@Autowired(required = false)
 	private Set<ListenerProvider> listenerProviders;
-	
+
 	private boolean addProtocolListener;
+
 	private boolean addLoggingListener;
+
 	private ProtocolListener protocolListener;
+
 	private RunningExecutionTrackerListener runningExecutionTrackerListener;
+
 	private LoggingListener loggingListener;
+
 	private LoggingAfterJobListener loggingAfterJobListener;
 
-	public AddListenerToJobService(boolean addProtocolListener,
-			boolean addLoggingListener, ProtocolListener protocolListener,
-			RunningExecutionTrackerListener runningExecutionTrackerListener,
-			LoggingListener loggingListener,
-			LoggingAfterJobListener loggingAfterJobListener) {
+	public AddListenerToJobService(boolean addProtocolListener, boolean addLoggingListener,
+			ProtocolListener protocolListener, RunningExecutionTrackerListener runningExecutionTrackerListener,
+			LoggingListener loggingListener, LoggingAfterJobListener loggingAfterJobListener) {
 		super();
 		this.addProtocolListener = addProtocolListener;
 		this.addLoggingListener = addLoggingListener;
@@ -60,35 +63,35 @@ public class AddListenerToJobService {
 		this.loggingAfterJobListener = loggingAfterJobListener;
 	}
 
-	public void addListenerToJob(AbstractJob job){
-		if (addProtocolListener){
+	public void addListenerToJob(AbstractJob job) {
+		if (addProtocolListener) {
 			job.registerJobExecutionListener(protocolListener);
 		}
 		job.registerJobExecutionListener(runningExecutionTrackerListener);
-		if (addLoggingListener){
+		if (addLoggingListener) {
 			job.registerJobExecutionListener(loggingListener);
 			job.registerJobExecutionListener(loggingAfterJobListener);
-			for (String stepName: job.getStepNames()){
-				AbstractStep step = (AbstractStep)job.getStep(stepName);
+			for (String stepName : job.getStepNames()) {
+				AbstractStep step = (AbstractStep) job.getStep(stepName);
 				step.registerStepExecutionListener(loggingListener);
 			}
 		}
-		if (listenerProviders != null){
-			for (ListenerProvider listenerProvider: listenerProviders){
-				for (JobExecutionListener jobExecutionListener: listenerProvider.jobExecutionListeners()){
+		if (listenerProviders != null) {
+			for (ListenerProvider listenerProvider : listenerProviders) {
+				for (JobExecutionListener jobExecutionListener : listenerProvider.jobExecutionListeners()) {
 					job.registerJobExecutionListener(jobExecutionListener);
 				}
-				for (StepExecutionListener stepExecutionListener: listenerProvider.stepExecutionListeners()){
-					for (String stepName: job.getStepNames()){
-						AbstractStep step = (AbstractStep)job.getStep(stepName);
+				for (StepExecutionListener stepExecutionListener : listenerProvider.stepExecutionListeners()) {
+					for (String stepName : job.getStepNames()) {
+						AbstractStep step = (AbstractStep) job.getStep(stepName);
 						step.registerStepExecutionListener(stepExecutionListener);
 					}
 				}
 			}
 		}
 	}
-	
-	public void setListenerProviders(Set<ListenerProvider> listenerProviders){
+
+	public void setListenerProviders(Set<ListenerProvider> listenerProviders) {
 		this.listenerProviders = listenerProviders;
 	}
 

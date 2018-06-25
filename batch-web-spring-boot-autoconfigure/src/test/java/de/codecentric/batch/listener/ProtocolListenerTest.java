@@ -22,7 +22,8 @@ public class ProtocolListenerTest {
 	@Test
 	public void createProtocol() throws Exception {
 		// Given
-		JobExecution jobExecution = new JobExecution(1L, new JobParametersBuilder().addString("test", "value").toJobParameters());
+		JobExecution jobExecution = new JobExecution(1L,
+				new JobParametersBuilder().addString("test", "value").toJobParameters());
 		jobExecution.setJobInstance(new JobInstance(1L, "test-job"));
 		jobExecution.setCreateTime(new Date());
 		jobExecution.setStartTime(new Date());

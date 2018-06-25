@@ -45,12 +45,18 @@ public class FlatFileJobConfiguration {
 
 	@Bean
 	public Job flatFileJob() {
-		return jobBuilderFactory.get("flatFileJob").start(step()).build();
+		return jobBuilderFactory.get("flatFileJob")//
+				.start(step())//
+				.build();
 	}
 
 	@Bean
 	public Step step() {
-		return stepBuilderFactory.get("step").<String, String> chunk(1).reader(reader()).writer(writer()).build();
+		return stepBuilderFactory.get("step")//
+				.<String, String> chunk(1)//
+				.reader(reader())//
+				.writer(writer())//
+				.build();
 	}
 
 	@Bean

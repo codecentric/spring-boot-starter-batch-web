@@ -27,12 +27,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 
 /**
- * I don't like autowiring of business components, I prefer to reference them from a
- * JavaConfig configuration class. But since some components are created through other
- * Spring Boot components or by special mechanisms (for example the BatchConfigurer
- * mechanism) I want to have one place where I autowire all of those components and
- * explain where they are coming from. Whenever I need one of those components I
- * import this configuration class and reference those components via method call.
+ * I don't like autowiring of business components, I prefer to reference them from a JavaConfig configuration class. But
+ * since some components are created through other Spring Boot components or by special mechanisms (for example the
+ * BatchConfigurer mechanism) I want to have one place where I autowire all of those components and explain where they
+ * are coming from. Whenever I need one of those components I import this configuration class and reference those
+ * components via method call.
  *
  * @author Tobias Flohre
  */
@@ -42,12 +41,16 @@ public class BaseConfiguration {
 	// Created by spring-boot-starter-batch in combination with our TaskExecutorBatchConfigurer
 	@Autowired
 	private JobOperator jobOperator;
+
 	@Autowired
 	private JobExplorer jobExplorer;
+
 	@Autowired
 	private JobRegistry jobRegistry;
+
 	@Autowired
 	private JobRepository jobRepository;
+
 	@Autowired
 	private JobLauncher jobLauncher;
 
@@ -63,21 +66,27 @@ public class BaseConfiguration {
 	public JobOperator jobOperator() {
 		return jobOperator;
 	}
+
 	public JobExplorer jobExplorer() {
 		return jobExplorer;
 	}
+
 	public JobRegistry jobRegistry() {
 		return jobRegistry;
 	}
+
 	public JobRepository jobRepository() {
 		return jobRepository;
 	}
+
 	public JobLauncher jobLauncher() {
 		return jobLauncher;
 	}
+
 	public DataSource dataSource() {
 		return dataSource;
 	}
+
 	public TaskExecutor taskExecutor() {
 		return taskExecutor;
 	}

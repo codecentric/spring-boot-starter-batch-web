@@ -34,4 +34,3 @@ public abstract class StepExecutionJacksonMixIn {
 	@JsonIgnore
 	abstract JobExecution getJobExecution();
 }
-

@@ -37,12 +37,12 @@ public class MetricsTestException extends RuntimeException {
 		super(message, cause);
 	}
 
-	public MetricsTestException(String message, Throwable cause,
-			boolean enableSuppression, boolean writableStackTrace) {
+	public MetricsTestException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
-	
-	public MetricsTestException(Action action){
+
+	public MetricsTestException(Action action) {
 		super(action.name());
 	}
 

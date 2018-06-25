@@ -9,8 +9,8 @@ package de.codecentric.batch.test.metrics;
 
 import org.springframework.batch.item.ExecutionContext;
 
-public class MetricValidatorBuilder extends
-		MetricValidatorBuilderBase<MetricValidatorBuilder> {
+public class MetricValidatorBuilder extends MetricValidatorBuilderBase<MetricValidatorBuilder> {
+
 	public static MetricValidatorBuilder metricValidator() {
 		return new MetricValidatorBuilder();
 	}
@@ -25,6 +25,7 @@ public class MetricValidatorBuilder extends
 }
 
 class MetricValidatorBuilderBase<GeneratorT extends MetricValidatorBuilderBase<GeneratorT>> {
+
 	private MetricValidator instance;
 
 	protected MetricValidatorBuilderBase(MetricValidator aInstance) {

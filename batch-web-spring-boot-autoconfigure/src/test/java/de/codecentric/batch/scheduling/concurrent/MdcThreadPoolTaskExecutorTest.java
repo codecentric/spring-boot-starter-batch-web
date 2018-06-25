@@ -24,12 +24,15 @@ public class MdcThreadPoolTaskExecutorTest {
 
 		// Simple task which returns always the key from the MDC
 		final FutureTask<String> innerTask = new FutureTask<String>(new Callable<String>() {
+
+			@Override
 			public String call() throws Exception {
 				return MDC.get("key");
 			}
 		});
 
 		taskExecutor.execute(new Runnable() {
+
 			@Override
 			public void run() {
 				MDC.put("key", "1");
@@ -44,12 +47,15 @@ public class MdcThreadPoolTaskExecutorTest {
 
 		// Simple task which returns always the key from the MDC
 		final FutureTask<String> innerTask2 = new FutureTask<String>(new Callable<String>() {
+
+			@Override
 			public String call() throws Exception {
 				return MDC.get("key");
 			}
 		});
 
 		taskExecutor.execute(new Runnable() {
+
 			@Override
 			public void run() {
 				MDC.put("key", "2");

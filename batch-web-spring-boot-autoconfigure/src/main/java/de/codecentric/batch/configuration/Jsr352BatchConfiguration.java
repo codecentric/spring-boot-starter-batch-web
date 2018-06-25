@@ -30,21 +30,24 @@ import de.codecentric.batch.jsr352.CustomJsrJobOperator;
  */
 @Configuration
 public class Jsr352BatchConfiguration {
-	
+
 	@Autowired
 	private BaseConfiguration baseConfig;
+
 	@Autowired
 	private BatchWebAutoConfiguration batchWebAutoConfiguration;
-	
+
 	@Bean
-	public CustomJsrJobOperator jsrJobOperator(PlatformTransactionManager transactionManager) throws Exception{
-		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(baseConfig.jobExplorer(), baseConfig.jobRepository(), jsrJobParametersConverter(), batchWebAutoConfiguration.addListenerToJobService(), transactionManager);
+	public CustomJsrJobOperator jsrJobOperator(PlatformTransactionManager transactionManager) throws Exception {
+		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(baseConfig.jobExplorer(),
+				baseConfig.jobRepository(), jsrJobParametersConverter(),
+				batchWebAutoConfiguration.addListenerToJobService(), transactionManager);
 		jsrJobOperator.setTaskExecutor(baseConfig.taskExecutor());
 		return jsrJobOperator;
 	}
-	
-	public JsrJobParametersConverter jsrJobParametersConverter() throws Exception{
-		JsrJobParametersConverter jsrJobParametersConverter = new JsrJobParametersConverter(baseConfig.dataSource()); 
+
+	public JsrJobParametersConverter jsrJobParametersConverter() throws Exception {
+		JsrJobParametersConverter jsrJobParametersConverter = new JsrJobParametersConverter(baseConfig.dataSource());
 		jsrJobParametersConverter.afterPropertiesSet();
 		return jsrJobParametersConverter;
 	}

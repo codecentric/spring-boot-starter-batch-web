@@ -29,27 +29,27 @@ import de.codecentric.batch.item.LogItemWriter;
 
 @Configuration
 public class DelayJobConfiguration {
-	
+
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
-	
+
 	@Autowired
 	private StepBuilderFactory stepBuilderFactory;
-	
+
 	@Bean
-	public Job delayJob(){
-		return jobBuilderFactory.get("delayJob")
-				.start(step())
+	public Job delayJob() {
+		return jobBuilderFactory.get("delayJob")//
+				.start(step())//
 				.build();
 	}
-	
+
 	@Bean
-	public Step step(){
-		return stepBuilderFactory.get("step")
-				.<String,String>chunk(1)
-				.reader(reader())
-				.processor(processor())
-				.writer(writer())
+	public Step step() {
+		return stepBuilderFactory.get("step")//
+				.<String, String>chunk(1)//
+				.reader(reader())//
+				.processor(processor())//
+				.writer(writer())//
 				.build();
 	}
 
@@ -67,5 +67,5 @@ public class DelayJobConfiguration {
 	public DummyItemReader reader() {
 		return new DummyItemReader();
 	}
-	
+
 }

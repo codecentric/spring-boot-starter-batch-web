@@ -30,33 +30,33 @@ import de.codecentric.batch.item.LogItemWriter;
 
 @Configuration
 public class IncrementerJobConfiguration {
-	
+
 	@Autowired
 	private JobBuilderFactory jobBuilderFactory;
-	
+
 	@Autowired
 	private StepBuilderFactory stepBuilderFactory;
-	
+
 	@Bean
-	public Job incrementerJob(){
-		return jobBuilderFactory.get("incrementerJob")
-				.start(step())
-				.incrementer(incrementer())
+	public Job incrementerJob() {
+		return jobBuilderFactory.get("incrementerJob")//
+				.start(step())//
+				.incrementer(incrementer())//
 				.build();
 	}
-	
+
 	@Bean
-	public Step step(){
-		return stepBuilderFactory.get("step")
-				.<String,String>chunk(1)
-				.reader(reader())
-				.processor(processor())
-				.writer(writer())
+	public Step step() {
+		return stepBuilderFactory.get("step")//
+				.<String, String>chunk(1)//
+				.reader(reader())//
+				.processor(processor())//
+				.writer(writer())//
 				.build();
 	}
-	
+
 	@Bean
-	public RunIdIncrementer incrementer(){
+	public RunIdIncrementer incrementer() {
 		return new RunIdIncrementer();
 	}
 
@@ -74,5 +74,5 @@ public class IncrementerJobConfiguration {
 	public DummyItemReader reader() {
 		return new DummyItemReader();
 	}
-	
+
 }

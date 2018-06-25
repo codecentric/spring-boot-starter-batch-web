@@ -25,7 +25,7 @@ import de.codecentric.batch.metrics.MetricNames;
  * @author Tobias Flohre
  */
 public class MetricsTestChunkListener implements ChunkListener {
-	
+
 	private BatchMetrics businessMetrics;
 
 	public MetricsTestChunkListener(BatchMetrics businessMetrics) {

@@ -19,6 +19,7 @@ package de.codecentric.batch.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -53,8 +54,9 @@ public class FlatFileJobTest {
 		while (jobRepository.getLastJobExecution("flatFileJob", new JobParameters()).getStatus().isRunning()) {
 			Thread.sleep(100);
 		}
-		assertEquals(BatchStatus.COMPLETED, jobRepository.getLastJobExecution("flatFileJob", new JobParameters()).getStatus());
-		assertEquals(3, FileUtils.readLines(file).size());
+		assertEquals(BatchStatus.COMPLETED,
+				jobRepository.getLastJobExecution("flatFileJob", new JobParameters()).getStatus());
+		assertEquals(3, FileUtils.readLines(file, StandardCharsets.UTF_8).size());
 	}
 
 	@Test
@@ -65,8 +67,9 @@ public class FlatFileJobTest {
 		while (jobRepository.getLastJobExecution("flatFileJobXml", new JobParameters()).getStatus().isRunning()) {
 			Thread.sleep(100);
 		}
-		assertEquals(BatchStatus.COMPLETED, jobRepository.getLastJobExecution("flatFileJobXml", new JobParameters()).getStatus());
-		assertEquals(10, FileUtils.readLines(file).size());
+		assertEquals(BatchStatus.COMPLETED,
+				jobRepository.getLastJobExecution("flatFileJobXml", new JobParameters()).getStatus());
+		assertEquals(10, FileUtils.readLines(file, StandardCharsets.UTF_8).size());
 	}
 
 }

@@ -30,28 +30,49 @@ import de.codecentric.batch.metrics.MetricNames;
 public class MetricValidator {
 
 	private ExecutionContext executionContext;
+
 	private boolean validateGauge = true;
 
 	private long beforeChunkCount;
+
 	private long afterChunkCount;
+
 	private long chunkErrorCount;
+
 	private long streamOpenCount;
+
 	private long streamUpdateCount;
+
 	private long streamCloseCount;
+
 	private long beforeReadCount;
+
 	private long readCount;
+
 	private long afterReadCount;
+
 	private long readErrorCount;
+
 	private long beforeProcessCount;
+
 	private long processCount;
+
 	private long afterProcessCount;
+
 	private long processErrorCount;
+
 	private long beforeWriteCount;
+
 	private long writeCount;
+
 	private long afterWriteCount;
+
 	private long writeErrorCount;
+
 	private long skipInReadCount;
+
 	private long skipInProcessCount;
+
 	private long skipInWriteCount;
 
 	public void validate() {

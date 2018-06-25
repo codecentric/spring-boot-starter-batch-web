@@ -29,38 +29,38 @@ import de.codecentric.batch.metrics.MetricsTestException;
 public class MetricsTestItemProcessListener implements ItemProcessListener<Item, Item> {
 
 	private BatchMetrics businessMetrics;
+
 	private boolean processorTransactional;
 
-	public MetricsTestItemProcessListener(BatchMetrics businessMetrics,
-			boolean processorTransactional) {
+	public MetricsTestItemProcessListener(BatchMetrics businessMetrics, boolean processorTransactional) {
 		this.businessMetrics = businessMetrics;
 		this.processorTransactional = processorTransactional;
 	}
 
 	@Override
 	public void beforeProcess(Item item) {
-		if (processorTransactional){
+		if (processorTransactional) {
 			businessMetrics.increment(MetricNames.BEFORE_PROCESS_COUNT.getName());
 			businessMetrics.submit(MetricNames.BEFORE_PROCESS_GAUGE.getName(), 5);
 		} else {
 			businessMetrics.incrementNonTransactional(MetricNames.BEFORE_PROCESS_COUNT.getName());
 			businessMetrics.submitNonTransactional(MetricNames.BEFORE_PROCESS_GAUGE.getName(), 5);
 		}
-		if (item != null && item.getActions().contains(Action.FAIL_ON_BEFORE_PROCESS)){
+		if (item != null && item.getActions().contains(Action.FAIL_ON_BEFORE_PROCESS)) {
 			throw new MetricsTestException(Action.FAIL_ON_BEFORE_PROCESS);
 		}
 	}
 
 	@Override
 	public void afterProcess(Item item, Item result) {
-		if (processorTransactional){
+		if (processorTransactional) {
 			businessMetrics.increment(MetricNames.AFTER_PROCESS_COUNT.getName());
 			businessMetrics.submit(MetricNames.AFTER_PROCESS_GAUGE.getName(), 5);
 		} else {
 			businessMetrics.incrementNonTransactional(MetricNames.AFTER_PROCESS_COUNT.getName());
 			businessMetrics.submitNonTransactional(MetricNames.AFTER_PROCESS_GAUGE.getName(), 5);
 		}
-		if (item != null && item.getActions().contains(Action.FAIL_ON_AFTER_PROCESS)){
+		if (item != null && item.getActions().contains(Action.FAIL_ON_AFTER_PROCESS)) {
 			throw new MetricsTestException(Action.FAIL_ON_AFTER_PROCESS);
 		}
 	}
@@ -69,7 +69,7 @@ public class MetricsTestItemProcessListener implements ItemProcessListener<Item,
 	public void onProcessError(Item item, Exception e) {
 		businessMetrics.incrementNonTransactional(MetricNames.PROCESS_ERROR_COUNT.getName());
 		businessMetrics.submitNonTransactional(MetricNames.PROCESS_ERROR_GAUGE.getName(), 5);
-		if (item != null && item.getActions().contains(Action.FAIL_ON_PROCESS_ERROR)){
+		if (item != null && item.getActions().contains(Action.FAIL_ON_PROCESS_ERROR)) {
 			throw new MetricsTestException(Action.FAIL_ON_PROCESS_ERROR);
 		}
 	}

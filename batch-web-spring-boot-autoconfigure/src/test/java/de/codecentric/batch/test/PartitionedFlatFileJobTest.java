@@ -45,10 +45,12 @@ public class PartitionedFlatFileJobTest {
 	@Test
 	public void runXmlJob() throws Exception {
 		jobOperator.start("partitionedFlatFileJobXml", "");
-		while (jobRepository.getLastJobExecution("partitionedFlatFileJobXml", new JobParameters()).getStatus().isRunning()) {
+		while (jobRepository.getLastJobExecution("partitionedFlatFileJobXml", new JobParameters()).getStatus()
+				.isRunning()) {
 			Thread.sleep(100);
 		}
-		assertEquals(BatchStatus.COMPLETED, jobRepository.getLastJobExecution("partitionedFlatFileJobXml", new JobParameters()).getStatus());
+		assertEquals(BatchStatus.COMPLETED,
+				jobRepository.getLastJobExecution("partitionedFlatFileJobXml", new JobParameters()).getStatus());
 	}
 
 }

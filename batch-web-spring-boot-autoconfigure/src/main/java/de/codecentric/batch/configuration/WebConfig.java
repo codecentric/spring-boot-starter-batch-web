@@ -31,9 +31,8 @@ import de.codecentric.batch.web.JobMonitoringController;
 import de.codecentric.batch.web.JobOperationsController;
 
 /**
- * This configuration adds the controllers for the two endpoints, and it adds a Jackson MixIn to the
- * message converter to avoid a stack overflow through circular references in the JobExecution /
- * StepExecution.
+ * This configuration adds the controllers for the two endpoints, and it adds a Jackson MixIn to the message converter
+ * to avoid a stack overflow through circular references in the JobExecution / StepExecution.
  *
  * @author Tobias Flohre
  *
@@ -43,9 +42,11 @@ public class WebConfig implements WebMvcConfigurer {
 
 	@Autowired
 	private BaseConfiguration baseConfig;
+
 	@Autowired
 	private BatchWebAutoConfiguration batchWebAutoConfiguration;
-	@Autowired(required=false)
+
+	@Autowired(required = false)
 	private JsrJobOperator jsrJobOperator;
 
 	@Override
@@ -59,13 +60,15 @@ public class WebConfig implements WebMvcConfigurer {
 	}
 
 	@Bean
-	public JobMonitoringController jobMonitoringController(){
-		return new JobMonitoringController(baseConfig.jobOperator(),baseConfig.jobExplorer(),batchWebAutoConfiguration.runningExecutionTracker());
+	public JobMonitoringController jobMonitoringController() {
+		return new JobMonitoringController(baseConfig.jobOperator(), baseConfig.jobExplorer(),
+				batchWebAutoConfiguration.runningExecutionTracker());
 	}
 
 	@Bean
-	public JobOperationsController jobOperationsController(){
-		return new JobOperationsController(baseConfig.jobOperator(),baseConfig.jobExplorer(),baseConfig.jobRegistry(),baseConfig.jobRepository(),baseConfig.jobLauncher(),jsrJobOperator);
+	public JobOperationsController jobOperationsController() {
+		return new JobOperationsController(baseConfig.jobOperator(), baseConfig.jobExplorer(), baseConfig.jobRegistry(),
+				baseConfig.jobRepository(), baseConfig.jobLauncher(), jsrJobOperator);
 	}
 
 }

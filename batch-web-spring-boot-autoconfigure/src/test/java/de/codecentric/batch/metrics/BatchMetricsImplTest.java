@@ -17,7 +17,8 @@ public class BatchMetricsImplTest {
 	@Before
 	public void beforeTest() {
 		batchMetrics = new BatchMetricsImpl();
-		StepSynchronizationManager.register(new StepExecution("step", new JobExecution(new JobInstance(1L, "jobname"), 1L, null, null)));
+		StepSynchronizationManager
+				.register(new StepExecution("step", new JobExecution(new JobInstance(1L, "jobname"), 1L, null, null)));
 	}
 
 	@Test

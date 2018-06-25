@@ -40,13 +40,13 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.SystemPropertyUtils;
 
 /**
- * Configuration for registration of {@link ApplicationContextFactory} with the {@link AutomaticJobRegistrar} that
- * is instantiated inside the {@link ModularBatchConfiguration}.
+ * Configuration for registration of {@link ApplicationContextFactory} with the {@link AutomaticJobRegistrar} that is
+ * instantiated inside the {@link ModularBatchConfiguration}.
  *
  * This configuration looks for jobs in a modular fashion, meaning that every job configuration file gets its own
  * Child-ApplicationContext. Configuration files can be XML files in the location /META-INF/spring/batch/jobs,
- * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs,
- * overridable via property batch.config.package.javaconfig.
+ * overridable via property batch.config.path.xml, and JavaConfig classes in the package spring.batch.jobs, overridable
+ * via property batch.config.package.javaconfig.
  *
  * Customization is done by adding a Configuration class that extends {@link AutomaticJobRegistrarConfigurationSupport}.
  * This will disable this auto configuration.
@@ -74,16 +74,16 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 	protected void registerJobsFromXml(AutomaticJobRegistrar automaticJobRegistrar) throws IOException {
 		// Add all XML-Configurations to the AutomaticJobRegistrar
 		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-		Resource[] xmlConfigurations = resourcePatternResolver.getResources("classpath*:"
-				+ env.getProperty("batch.config.path.xml", "/META-INF/spring/batch/jobs") + "/*.xml");
+		Resource[] xmlConfigurations = resourcePatternResolver.getResources(
+				"classpath*:" + env.getProperty("batch.config.path.xml", "/META-INF/spring/batch/jobs") + "/*.xml");
 		for (Resource resource : xmlConfigurations) {
 			LOGGER.info("Register jobs from {}", resource);
 			automaticJobRegistrar.addApplicationContextFactory(new GenericApplicationContextFactory(resource));
 		}
 	}
 
-	protected void registerJobsFromJavaConfig(AutomaticJobRegistrar automaticJobRegistrar) throws ClassNotFoundException,
-	IOException {
+	protected void registerJobsFromJavaConfig(AutomaticJobRegistrar automaticJobRegistrar)
+			throws ClassNotFoundException, IOException {
 		List<Class<?>> classes = findMyTypes(env.getProperty("batch.config.package.javaconfig", "spring.batch.jobs"));
 		for (Class<?> clazz : classes) {
 			LOGGER.info("Register jobs from {}", clazz);
@@ -97,7 +97,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 
 		List<Class<?>> candidates = new ArrayList<Class<?>>();
 		String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + resolveBasePackage(basePackage)
-		+ "/" + "**/*.class";
+				+ "/" + "**/*.class";
 		Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
 		for (Resource resource : resources) {
 			if (resource.isReadable()) {

@@ -51,14 +51,18 @@ public class ListenerProviderIntegrationTest {
 	int port;
 
 	@Test
-	public void testRunJob() throws InterruptedException{
+	public void testRunJob() throws InterruptedException {
 		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "param1=value1");
-		Long executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/simpleJob", requestMap,Long.class);
-		while (!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+		Long executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/simpleJob",
+				requestMap, Long.class);
+		while (!restTemplate
+				.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}",
+						String.class, executionId)
+				.equals("COMPLETED")) {
 			Thread.sleep(1000);
 		}
-		assertThat(testListener.getCounter()>1,is(true));
+		assertThat(testListener.getCounter() > 1, is(true));
 	}
 
 }

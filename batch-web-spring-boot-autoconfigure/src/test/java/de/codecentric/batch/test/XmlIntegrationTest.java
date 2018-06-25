@@ -40,8 +40,8 @@ import de.codecentric.batch.TestApplication;
  * @author Tobias Flohre
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = { "batch.metrics.enabled=true",
-		"batch.metrics.profiling.readprocesswrite.enabled=true" })
+@SpringBootTest(classes = TestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+		"batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true" })
 public class XmlIntegrationTest {
 
 	private TestRestTemplate restTemplate = new TestRestTemplate();
@@ -54,25 +54,31 @@ public class XmlIntegrationTest {
 
 	@Test
 	public void testRunJob() throws InterruptedException {
-		Long executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/flatFile2JobXml", "", Long.class);
-		while (!restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}", String.class, executionId)
+		Long executionId = restTemplate
+				.postForObject("http://localhost:" + port + "/batch/operations/jobs/flatFile2JobXml", "", Long.class);
+		while (!restTemplate
+				.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}",
+						String.class, executionId)
 				.equals("COMPLETED")) {
 			Thread.sleep(1000);
 		}
-		String log = restTemplate.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}/log", String.class,
+		String log = restTemplate.getForObject(
+				"http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}/log", String.class,
 				executionId);
 		assertThat(log.length() > 20, is(true));
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
-		String jobExecutionString = restTemplate.getForObject("http://localhost:" + port + "/batch/monitoring/jobs/executions/{executionId}",
-				String.class, executionId);
+		String jobExecutionString = restTemplate.getForObject(
+				"http://localhost:" + port + "/batch/monitoring/jobs/executions/{executionId}", String.class,
+				executionId);
 		assertThat(jobExecutionString.contains("COMPLETED"), is(true));
 	}
 
 	@Test
 	public void testGetJobNames() {
 		@SuppressWarnings("unchecked")
-		List<String> jobNames = restTemplate.getForObject("http://localhost:" + port + "/batch/monitoring/jobs", List.class);
+		List<String> jobNames = restTemplate.getForObject("http://localhost:" + port + "/batch/monitoring/jobs",
+				List.class);
 		assertThat(jobNames.contains("flatFile2JobXml"), is(true));
 	}
 

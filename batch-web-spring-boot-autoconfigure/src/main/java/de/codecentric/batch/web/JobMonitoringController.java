@@ -42,11 +42,12 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 /**
  * Controller for delivering monitoring information, like
  * <ul>
- * <li>	which jobs are deployed?</li>
- * <li>	which jobs are currently running on this machine?</li>
- * <li>	detailed information on any running or finished job.</li>
+ * <li>which jobs are deployed?</li>
+ * <li>which jobs are currently running on this machine?</li>
+ * <li>detailed information on any running or finished job.</li>
  * </ul>
- * <p>The base url can be set via property batch.web.monitoring.base, its default is /batch/monitoring.
+ * <p>
+ * The base url can be set via property batch.web.monitoring.base, its default is /batch/monitoring.
  * 
  * There are four endpoints available:
  * 
@@ -61,14 +62,14 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * 
  * <li>Retrieving the ids of JobExecutions running on this server for a certain job name<br>
  * {base_url}/jobs/runningexecutions/{jobName} / GET<br>
- * On success, it returns a JSON array containing the ids of the JobExecutions running on this server
- * belonging to the specified job.</li>
+ * On success, it returns a JSON array containing the ids of the JobExecutions running on this server belonging to the
+ * specified job.</li>
  * 
  * <li>Retrieving the JobExecution<br>
  * {base_url}/jobs/executions/{executionId} / GET<br>
- * On success, it returns a JSON representation of the JobExecution specified by the id. This representation
- * contains everything you need to know about that job, from job name and BatchStatus to the number of 
- * processed items and time used and so on.<br>
+ * On success, it returns a JSON representation of the JobExecution specified by the id. This representation contains
+ * everything you need to know about that job, from job name and BatchStatus to the number of processed items and time
+ * used and so on.<br>
  * If the JobExecution cannot be found, a HTTP response code 404 is returned.</li>
  * </ol>
  * 
@@ -83,11 +84,12 @@ public class JobMonitoringController {
 	private static final Logger LOG = LoggerFactory.getLogger(JobMonitoringController.class);
 
 	private JobOperator jobOperator;
+
 	private JobExplorer jobExplorer;
+
 	private RunningExecutionTracker runningExecutionTracker;
-	
-	public JobMonitoringController(JobOperator jobOperator,
-			JobExplorer jobExplorer,
+
+	public JobMonitoringController(JobOperator jobOperator, JobExplorer jobExplorer,
 			RunningExecutionTracker runningExecutionTracker) {
 		super();
 		this.jobOperator = jobOperator;
@@ -95,14 +97,14 @@ public class JobMonitoringController {
 		this.runningExecutionTracker = runningExecutionTracker;
 	}
 
-	@RequestMapping(value="/jobs", method = RequestMethod.GET)
+	@RequestMapping(value = "/jobs", method = RequestMethod.GET)
 	public Set<String> findRegisteredJobs() throws IOException {
 		Set<String> registeredJobs = new HashSet<>(jobOperator.getJobNames());
 		// Add JSR-352 jobs
 		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 		Resource[] xmlConfigurations = resourcePatternResolver.getResources("classpath*:/META-INF/batch-jobs/*.xml");
 		for (Resource resource : xmlConfigurations) {
-			registeredJobs.add(resource.getFilename().substring(0, resource.getFilename().length()-4));
+			registeredJobs.add(resource.getFilename().substring(0, resource.getFilename().length() - 4));
 		}
 		return registeredJobs;
 	}
@@ -120,8 +122,8 @@ public class JobMonitoringController {
 	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.GET)
 	public JobExecution findExecution(@PathVariable long executionId) throws NoSuchJobExecutionException {
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
-		if (jobExecution == null){
-			throw new NoSuchJobExecutionException("JobExecution with id "+executionId+" not found.");
+		if (jobExecution == null) {
+			throw new NoSuchJobExecutionException("JobExecution with id " + executionId + " not found.");
 		}
 		return jobExecution;
 	}
@@ -129,8 +131,8 @@ public class JobMonitoringController {
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ExceptionHandler(NoSuchJobExecutionException.class)
 	public String handleNotFound(Exception ex) {
-		LOG.warn("JobExecution not found.",ex);
-	    return ex.getMessage();
+		LOG.warn("JobExecution not found.", ex);
+		return ex.getMessage();
 	}
 
 }

@@ -27,19 +27,19 @@ import de.codecentric.batch.metrics.MetricsTestException;
  * @author Tobias Flohre
  */
 public class MetricsTestItemReadListener implements ItemReadListener<Item> {
-	
+
 	private BatchMetrics businessMetrics;
+
 	private boolean readerTransactional;
 
-	public MetricsTestItemReadListener(BatchMetrics businessMetrics,
-			boolean readerTransactional) {
+	public MetricsTestItemReadListener(BatchMetrics businessMetrics, boolean readerTransactional) {
 		this.businessMetrics = businessMetrics;
 		this.readerTransactional = readerTransactional;
 	}
 
 	@Override
 	public void beforeRead() {
-		if (readerTransactional){
+		if (readerTransactional) {
 			businessMetrics.increment(MetricNames.BEFORE_READ_COUNT.getName());
 			businessMetrics.submit(MetricNames.BEFORE_READ_GAUGE.getName(), 5);
 		} else {
@@ -50,14 +50,14 @@ public class MetricsTestItemReadListener implements ItemReadListener<Item> {
 
 	@Override
 	public void afterRead(Item item) {
-		if (readerTransactional){
+		if (readerTransactional) {
 			businessMetrics.increment(MetricNames.AFTER_READ_COUNT.getName());
 			businessMetrics.submit(MetricNames.AFTER_READ_GAUGE.getName(), 5);
 		} else {
 			businessMetrics.incrementNonTransactional(MetricNames.AFTER_READ_COUNT.getName());
 			businessMetrics.submitNonTransactional(MetricNames.AFTER_READ_GAUGE.getName(), 5);
 		}
-		if (item != null && item.getActions().contains(Action.FAIL_ON_AFTER_READ)){
+		if (item != null && item.getActions().contains(Action.FAIL_ON_AFTER_READ)) {
 			throw new MetricsTestException(Action.FAIL_ON_AFTER_READ);
 		}
 	}

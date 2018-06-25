@@ -52,35 +52,47 @@ public class JobParametersIncrementerIntegrationTest {
 	int port;
 
 	@Test
-	public void testRunJob() throws InterruptedException{
+	public void testRunJob() throws InterruptedException {
 		MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "param1=value1");
-		Long executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/incrementerJob", requestMap,Long.class);
-		while (!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+		Long executionId = restTemplate.postForObject(
+				"http://localhost:" + port + "/batch/operations/jobs/incrementerJob", requestMap, Long.class);
+		while (!restTemplate
+				.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}",
+						String.class, executionId)
+				.equals("COMPLETED")) {
 			Thread.sleep(1000);
 		}
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
-		assertThat(jobExecution.getStatus(),is(BatchStatus.COMPLETED));
-		assertThat(jobExecution.getJobParameters().getLong("run.id"),is(1l));
-		assertThat(jobExecution.getJobParameters().getString("param1"),is("value1"));
-		executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/incrementerJob", "",Long.class);
-		while (!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+		assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
+		assertThat(jobExecution.getJobParameters().getLong("run.id"), is(1l));
+		assertThat(jobExecution.getJobParameters().getString("param1"), is("value1"));
+		executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/incrementerJob",
+				"", Long.class);
+		while (!restTemplate
+				.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}",
+						String.class, executionId)
+				.equals("COMPLETED")) {
 			Thread.sleep(1000);
 		}
 		jobExecution = jobExplorer.getJobExecution(executionId);
-		assertThat(jobExecution.getStatus(),is(BatchStatus.COMPLETED));
-		assertThat(jobExecution.getJobParameters().getLong("run.id"),is(2l));
+		assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
+		assertThat(jobExecution.getJobParameters().getLong("run.id"), is(2l));
 		requestMap = new LinkedMultiValueMap<>();
 		requestMap.add("jobParameters", "param1=value1,param2=value2");
-		executionId = restTemplate.postForObject("http://localhost:"+port+"/batch/operations/jobs/incrementerJob", requestMap,Long.class);
-		while (!restTemplate.getForObject("http://localhost:"+port+"/batch/operations/jobs/executions/{executionId}", String.class, executionId).equals("COMPLETED")){
+		executionId = restTemplate.postForObject("http://localhost:" + port + "/batch/operations/jobs/incrementerJob",
+				requestMap, Long.class);
+		while (!restTemplate
+				.getForObject("http://localhost:" + port + "/batch/operations/jobs/executions/{executionId}",
+						String.class, executionId)
+				.equals("COMPLETED")) {
 			Thread.sleep(1000);
 		}
 		jobExecution = jobExplorer.getJobExecution(executionId);
-		assertThat(jobExecution.getStatus(),is(BatchStatus.COMPLETED));
-		assertThat(jobExecution.getJobParameters().getLong("run.id"),is(3l));
-		assertThat(jobExecution.getJobParameters().getString("param1"),is("value1"));
-		assertThat(jobExecution.getJobParameters().getString("param2"),is("value2"));
+		assertThat(jobExecution.getStatus(), is(BatchStatus.COMPLETED));
+		assertThat(jobExecution.getJobParameters().getLong("run.id"), is(3l));
+		assertThat(jobExecution.getJobParameters().getString("param1"), is("value1"));
+		assertThat(jobExecution.getJobParameters().getString("param2"), is("value2"));
 	}
 
 }

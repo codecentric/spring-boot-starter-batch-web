@@ -29,7 +29,7 @@ import de.codecentric.batch.metrics.MetricsTestException;
  * @author Tobias Flohre
  */
 public class MetricsTestItemWriteListener implements ItemWriteListener<Item> {
-	
+
 	private BatchMetrics businessMetrics;
 
 	public MetricsTestItemWriteListener(BatchMetrics businessMetrics) {
@@ -38,10 +38,10 @@ public class MetricsTestItemWriteListener implements ItemWriteListener<Item> {
 
 	@Override
 	public void beforeWrite(List<? extends Item> items) {
-		for (Item item: items){
+		for (Item item : items) {
 			businessMetrics.increment(MetricNames.BEFORE_WRITE_COUNT.getName());
 			businessMetrics.submit(MetricNames.BEFORE_WRITE_GAUGE.getName(), 5);
-			if (item != null && item.getActions().contains(Action.FAIL_ON_BEFORE_WRITE)){
+			if (item != null && item.getActions().contains(Action.FAIL_ON_BEFORE_WRITE)) {
 				throw new MetricsTestException(Action.FAIL_ON_BEFORE_WRITE);
 			}
 		}
@@ -49,10 +49,10 @@ public class MetricsTestItemWriteListener implements ItemWriteListener<Item> {
 
 	@Override
 	public void afterWrite(List<? extends Item> items) {
-		for (Item item: items){
+		for (Item item : items) {
 			businessMetrics.increment(MetricNames.AFTER_WRITE_COUNT.getName());
 			businessMetrics.submit(MetricNames.AFTER_WRITE_GAUGE.getName(), 5);
-			if (item != null && item.getActions().contains(Action.FAIL_ON_AFTER_WRITE)){
+			if (item != null && item.getActions().contains(Action.FAIL_ON_AFTER_WRITE)) {
 				throw new MetricsTestException(Action.FAIL_ON_AFTER_WRITE);
 			}
 		}
@@ -60,10 +60,10 @@ public class MetricsTestItemWriteListener implements ItemWriteListener<Item> {
 
 	@Override
 	public void onWriteError(Exception exception, List<? extends Item> items) {
-		for (Item item: items){
+		for (Item item : items) {
 			businessMetrics.incrementNonTransactional(MetricNames.WRITE_ERROR_COUNT.getName());
 			businessMetrics.submitNonTransactional(MetricNames.WRITE_ERROR_GAUGE.getName(), 5);
-			if (item != null && item.getActions().contains(Action.FAIL_ON_WRITE_ERROR)){
+			if (item != null && item.getActions().contains(Action.FAIL_ON_WRITE_ERROR)) {
 				throw new MetricsTestException(Action.FAIL_ON_WRITE_ERROR);
 			}
 		}

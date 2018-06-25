@@ -32,7 +32,9 @@ import de.codecentric.batch.listener.TestListener;
 @Configuration
 public class TestListenerConfiguration implements ListenerProvider {
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.codecentric.batch.configuration.ListenerProvider#jobExecutionListeners()
 	 */
 	@Override
@@ -42,16 +44,18 @@ public class TestListenerConfiguration implements ListenerProvider {
 		return listeners;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.codecentric.batch.configuration.ListenerProvider#stepExecutionListeners()
 	 */
 	@Override
 	public Set<StepExecutionListener> stepExecutionListeners() {
 		return new HashSet<StepExecutionListener>();
 	}
-	
+
 	@Bean
-	public TestListener testListener(){
+	public TestListener testListener() {
 		return new TestListener();
 	}
 
