@@ -1,4 +1,4 @@
-package de.codecentric.batch;
+package de.codecentric.batch.simplejsr;
 
 import java.util.concurrent.TimeoutException;
 

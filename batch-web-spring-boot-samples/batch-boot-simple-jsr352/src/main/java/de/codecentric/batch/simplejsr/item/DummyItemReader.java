@@ -1,11 +1,11 @@
-package de.codecentric.batch.item;
+package de.codecentric.batch.simplejsr.item;
 
 import javax.batch.api.chunk.AbstractItemReader;
 
 public class DummyItemReader extends AbstractItemReader {
 
-	private String[] input = {"Good", "morning!","This","is","your","ItemReader","speaking!",null};
-	
+	private String[] input = { "Good", "morning!", "This", "is", "your", "ItemReader", "speaking!", null };
+
 	private int index = 0;
 
 	@Override

@@ -1,4 +1,4 @@
-package de.codecentric.batch.job;
+package de.codecentric.batch.simple.job;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import de.codecentric.batch.item.DummyItemReader;
-import de.codecentric.batch.item.LogItemProcessor;
-import de.codecentric.batch.item.LogItemWriter;
+import de.codecentric.batch.simple.item.DummyItemReader;
+import de.codecentric.batch.simple.item.LogItemProcessor;
+import de.codecentric.batch.simple.item.LogItemWriter;
 
 @Configuration
 public class SimpleJobConfiguration {

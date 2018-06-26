@@ -1,8 +1,9 @@
-package de.codecentric.batch.domain;
+package de.codecentric.batch.filetodb.domain;
 
 public class Partner {
-	
+
 	private String name;
+
 	private String email;
 
 	public String getName() {
@@ -25,5 +26,5 @@ public class Partner {
 	public String toString() {
 		return "Partner [name=" + name + ", email=" + email + "]";
 	}
-	
+
 }

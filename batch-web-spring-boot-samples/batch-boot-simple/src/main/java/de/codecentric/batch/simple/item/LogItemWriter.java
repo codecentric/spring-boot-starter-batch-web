@@ -1,4 +1,4 @@
-package de.codecentric.batch.item;
+package de.codecentric.batch.simple.item;
 
 import java.util.List;
 

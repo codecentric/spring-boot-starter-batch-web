@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/jobXML_1_0.xsd">
     <step id="chunkStep">
         <chunk item-count="2">
-            <reader ref="de.codecentric.batch.item.DummyItemReader"/>
-            <processor ref="de.codecentric.batch.item.LogItemProcessor"/>
-            <writer ref="de.codecentric.batch.item.LogItemWriter"/>
+            <reader ref="de.codecentric.batch.simplejsr.item.DummyItemReader"/>
+            <processor ref="de.codecentric.batch.simplejsr.item.LogItemProcessor"/>
+            <writer ref="de.codecentric.batch.simplejsr.item.LogItemWriter"/>
         </chunk>
     </step>
 </job>

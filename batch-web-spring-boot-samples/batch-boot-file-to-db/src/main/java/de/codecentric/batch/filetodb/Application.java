@@ -1,11 +1,11 @@
-package de.codecentric.batch;
+package de.codecentric.batch.filetodb;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-import de.codecentric.batch.configuration.DataSourceConfiguration;
+import de.codecentric.batch.filetodb.configuration.DataSourceConfiguration;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration

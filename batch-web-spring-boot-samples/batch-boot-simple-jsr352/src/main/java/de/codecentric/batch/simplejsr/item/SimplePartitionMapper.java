@@ -1,4 +1,4 @@
-package de.codecentric.batch.item;
+package de.codecentric.batch.simplejsr.item;
 
 import java.util.Properties;
 
@@ -14,9 +14,9 @@ public class SimplePartitionMapper implements PartitionMapper {
 		partitionPlan.setPartitions(3);
 		partitionPlan.setThreads(2);
 		Properties[] propertiesArray = new Properties[3];
-		for (int i = 0;i<3;i++){
+		for (int i = 0; i < 3; i++) {
 			Properties properties = new Properties();
-			properties.put("datakeyPartition","key"+(i+1));
+			properties.put("datakeyPartition", "key" + (i + 1));
 			propertiesArray[i] = properties;
 		}
 		partitionPlan.setPartitionProperties(propertiesArray);

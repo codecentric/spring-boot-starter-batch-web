@@ -1,4 +1,4 @@
-package de.codecentric.batch.item;
+package de.codecentric.batch.filetodb.item;
 
 public class ExampleService {
 

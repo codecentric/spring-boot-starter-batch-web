@@ -1,4 +1,4 @@
-package de.codecentric.batch;
+package de.codecentric.batch.simple;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

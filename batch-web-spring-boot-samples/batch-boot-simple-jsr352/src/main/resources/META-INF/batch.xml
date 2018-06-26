@@ -4,9 +4,9 @@
           xsi:schemaLocation="http://www.springframework.org/schema/beans
                               http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="partitionedItemReader" class="de.codecentric.batch.item.PartitionedItemReader" scope="step"/>
-    <bean id="logItemProcessor" class="de.codecentric.batch.item.LogItemProcessor"/>
-    <bean id="logItemWriter" class="de.codecentric.batch.item.LogItemWriter"/>
-    <bean id="simplePartitionMapper" class="de.codecentric.batch.item.SimplePartitionMapper"/>
-	
+    <bean id="partitionedItemReader" class="de.codecentric.batch.simplejsr.item.PartitionedItemReader" scope="step"/>
+    <bean id="logItemProcessor" class="de.codecentric.batch.simplejsr.item.LogItemProcessor"/>
+    <bean id="logItemWriter" class="de.codecentric.batch.simplejsr.item.LogItemWriter"/>
+    <bean id="simplePartitionMapper" class="de.codecentric.batch.simplejsr.item.SimplePartitionMapper"/>
+
 </beans>

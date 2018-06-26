@@ -6,10 +6,10 @@
                               http://xmlns.jcp.org/xml/ns/javaee
                               http://xmlns.jcp.org/xml/ns/javaee/jobXML_1_0.xsd">
 
-    <bean id="reader" class="de.codecentric.batch.item.PartitionedItemReader" scope="step"/>
-    <bean id="processor" class="de.codecentric.batch.item.LogItemProcessor"/>
-    <bean id="writer" class="de.codecentric.batch.item.LogItemWriter"/>
-	
+    <bean id="reader" class="de.codecentric.batch.simplejsr.item.PartitionedItemReader" scope="step"/>
+    <bean id="processor" class="de.codecentric.batch.simplejsr.item.LogItemProcessor"/>
+    <bean id="writer" class="de.codecentric.batch.simplejsr.item.LogItemWriter"/>
+
     <!-- Job is defined using the JSL schema provided in JSR-352 -->
     <job id="partitionedJobSpringDI" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
 	    <step id="chunkStep">

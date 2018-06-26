@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.codecentric.batch;
+package de.codecentric.batch.filetodb;
 
 import static org.junit.Assert.assertEquals;
 

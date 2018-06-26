@@ -1,4 +1,4 @@
-package de.codecentric.batch;
+package de.codecentric.batch.simple;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;

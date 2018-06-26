@@ -1,4 +1,4 @@
-package de.codecentric.batch.item;
+package de.codecentric.batch.simple.item;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

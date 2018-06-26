@@ -1,4 +1,4 @@
-package de.codecentric.batch.configuration;
+package de.codecentric.batch.filetodb.configuration;
 
 import javax.sql.DataSource;
 
@@ -12,10 +12,11 @@ public class DataSourceConfiguration {
 
 	@Bean
 	public DataSource dataSourcePartner() {
-		return new EmbeddedDatabaseBuilder()
-				.setType(EmbeddedDatabaseType.HSQL)
-				.ignoreFailedDrops(true)
+		return new EmbeddedDatabaseBuilder()//
+				.setType(EmbeddedDatabaseType.HSQL)//
+				.ignoreFailedDrops(true)//
 				.addScripts("classpath:org/springframework/batch/core/schema-drop-hsqldb.sql",
-						"classpath:org/springframework/batch/core/schema-hsqldb.sql", "classpath:schema-partner.sql").build();
+						"classpath:org/springframework/batch/core/schema-hsqldb.sql", "classpath:schema-partner.sql")//
+				.build();
 	}
 }

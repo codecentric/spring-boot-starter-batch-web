@@ -3,16 +3,16 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/jobXML_1_0.xsd">
     <step id="chunkStep">
         <chunk item-count="2">
-            <reader ref="de.codecentric.batch.item.PartitionedItemReader">
+            <reader ref="de.codecentric.batch.simplejsr.item.PartitionedItemReader">
             	<properties>
             		<property name="datakey" value="#{partitionPlan['datakeyPartition']}"/>
             	</properties>
             </reader>
-            <processor ref="de.codecentric.batch.item.LogItemProcessor"/>
-            <writer ref="de.codecentric.batch.item.LogItemWriter"/>
+            <processor ref="de.codecentric.batch.simplejsr.item.LogItemProcessor"/>
+            <writer ref="de.codecentric.batch.simplejsr.item.LogItemWriter"/>
         </chunk>
         <partition>
-        	<mapper ref="de.codecentric.batch.item.SimplePartitionMapper" />
+        	<mapper ref="de.codecentric.batch.simplejsr.item.SimplePartitionMapper" />
         </partition>
     </step>
 </job>

@@ -1,4 +1,4 @@
-package de.codecentric.batch.item;
+package de.codecentric.batch.simplejsr.item;
 
 import java.util.List;
 
@@ -13,13 +13,13 @@ import org.springframework.util.Assert;
 
 /**
  * Dummy {@link ItemWriter} which only logs data it receives.
- * 
+ *
  * It also serves as an example how to inject resources (Spring beans) from the parent context into batch artifacts even
  * if they are referenced by full class name in the batch job xml.
  */
 public class LogItemWriter extends AbstractItemWriter {
 
-	private static final Logger log = LoggerFactory.getLogger(LogItemWriter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LogItemWriter.class);
 
 	@Inject
 	private DataSource dataSource;
@@ -27,7 +27,7 @@ public class LogItemWriter extends AbstractItemWriter {
 	@Override
 	public void writeItems(List<Object> items) throws Exception {
 		Assert.notNull(dataSource, "DataSource should not be null");
-		log.info("ItemWriter: " + items.toString());
+		LOGGER.info("ItemWriter: {}", items);
 	}
 
 }

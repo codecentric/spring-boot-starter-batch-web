@@ -7,9 +7,9 @@
 	http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-	
+
 	<context:annotation-config/>
-	
+
 	<bean id="reader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
 		<property name="resource" value="#{jobParameters[pathToFile]}"></property>
 		<property name="lineMapper" ref="lineMapper"/>
@@ -23,16 +23,16 @@
 		</property>
 		<property name="fieldSetMapper">
 			<bean class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
-				<property name="targetType" value="de.codecentric.batch.domain.Partner"/>
+				<property name="targetType" value="de.codecentric.batch.filetodb.domain.Partner"/>
 			</bean>
 		</property>
 	</bean>
 
-	<bean id="processor" class="de.codecentric.batch.item.LogItemProcessor">
+	<bean id="processor" class="de.codecentric.batch.filetodb.item.LogItemProcessor">
 		<property name="exampleService" ref="exampleService"/>
 	</bean>
-	
-	<bean id="exampleService" class="de.codecentric.batch.item.ExampleService"/>
+
+	<bean id="exampleService" class="de.codecentric.batch.filetodb.item.ExampleService"/>
 
 	<bean id="writer" class="org.springframework.batch.item.database.JdbcBatchItemWriter">
 		<property name="sql" value="INSERT INTO PARTNER (NAME, EMAIL) VALUES (:name,:email)"/>
@@ -41,13 +41,13 @@
 			<bean class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider"/>
 		</property>
 	</bean>
-	
+
 	<batch:job id="flatfileJob">
-		<batch:step id="step">			
+		<batch:step id="step">
 			<batch:tasklet>
 				<batch:chunk reader="reader" processor="processor" writer="writer" commit-interval="3" />
 			</batch:tasklet>
 		</batch:step>
-	</batch:job> 
+	</batch:job>
 
 </beans>
