@@ -13,6 +13,10 @@ env:
     - # GPG_PASSPHRASE
     - secure: "cienghDGHLBnoB+aIgD8f8gwFf1V1x+QCjqKLzu4DkDR/wTd+1zZhfz4ggWavo+CFqjHwAJ2S38WLzA15ENSs0sfe28Qp3eaCAYz7tg9LqHWWX53OQ/B8K8tVikMkrn+V1lztS0OxP3aacsch3MFl8CX5hOCpCm9T1WiIiy4vRI="
 
+cache:
+  directories:
+    - $HOME/.m2
+    
 before_install:
   - openssl aes-256-cbc -K $encrypted_b6c74d7f8e86_key -iv $encrypted_b6c74d7f8e86_iv -in codesigning.asc.enc -out codesigning.asc -d
   - gpg --fast-import codesigning.asc
