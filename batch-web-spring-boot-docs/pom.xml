@@ -88,7 +88,7 @@
 							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<executable>./gh-pages.sh</executable>
+							<executable>./deploy-gh-pages.sh</executable>
 						</configuration>
 					</execution>
 				</executions>
