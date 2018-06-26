@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2018 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>batch-web-spring-boot-docs</artifactId>
+	<packaging>pom</packaging>
+	<name>Batch Web Spring Boot Docs</name>
+	<parent>
+		<groupId>de.codecentric</groupId>
+		<artifactId>batch-web-spring-boot-build</artifactId>
+		<version>${revision}</version>
+		<relativePath>../batch-web-spring-boot-build</relativePath>
+	</parent>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<configuration>
+							<failOnNoGitDirectory>false</failOnNoGitDirectory>
+							<skipPoms>false</skipPoms>
+							<generateGitPropertiesFile>false</generateGitPropertiesFile>
+							<dateFormat>dd.MM.yyyy</dateFormat>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.asciidoctor</groupId>
+				<artifactId>asciidoctor-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>output-html</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<sourceDocumentName>index.adoc</sourceDocumentName>
+							<backend>html5</backend>
+							<sourceHighlighter>coderay</sourceHighlighter>
+							<resources>
+								<resource>
+									<directory>src/main/asciidoc</directory>
+									<excludes>
+										<exclude>**/*.adoc</exclude>
+									</excludes>
+								</resource>
+							</resources>
+							<attributes>
+								<project-version>${project.version}</project-version>
+								<commit-time>${git.commit.time}</commit-time>
+								<source-dir>${project.build.sourceDirectory}</source-dir>
+							</attributes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>deploy-gh-pages</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>./deploy-gh-pages.sh</executable>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

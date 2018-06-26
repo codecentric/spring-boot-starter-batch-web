@@ -16,15 +16,14 @@ env:
 cache:
   directories:
     - $HOME/.m2
-
+    
 before_install:
   - openssl aes-256-cbc -K $encrypted_b6c74d7f8e86_key -iv $encrypted_b6c74d7f8e86_iv -in codesigning.asc.enc -out codesigning.asc -d
   - gpg --fast-import codesigning.asc
-  - 'if [[ ${TRAVIS_TAG} != "" ]]; then mvn versions:set -DnewVersion="${TRAVIS_TAG}"; fi'
 
-script: mvn clean verify
+script: mvn clean verify ${TRAVIS_TAG:+-Drevision=${TRAVIS_TAG}}
 
 after_success:
   - mvn jacoco:report coveralls:report
   - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn deploy -DreposityId=sonatype-nexus-snapshots -Psign-artifacts -DskipTests --settings deploy-settings.xml"
-  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests --settings deploy-settings.xml"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"

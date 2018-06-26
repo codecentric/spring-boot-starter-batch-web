@@ -6,7 +6,7 @@ Enterprise-ready production-ready batch applications powered by Spring Boot
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 
-The project spring-boot-starter-batch-web is a Spring Boot starter for Spring Batch taking care of everything except writing the jobs.
+The project batch-web-spring-boot-starter is a Spring Boot starter for Spring Batch taking care of everything except writing the jobs.
 
 See the [Documentation](http://codecentric.github.io/spring-boot-starter-batch-web/) for detailed infos, examples and operational details.
 
@@ -21,8 +21,8 @@ Take a look at the [Getting Started page](http://codecentric.github.io/spring-bo
 
 There are the following samples available:
 
-[batch-boot-simple](https://github.com/codecentric/spring-samples/tree/master/batch-boot-simple): a very simple JavaConfig sample with an embedded database.
+[batch-boot-simple](/batch-web-spring-boot-samples/batch-boot-simple): a very simple JavaConfig sample with an embedded database.
 
-[batch-boot-file-to-db](https://github.com/codecentric/spring-samples/tree/master/batch-boot-file-to-db): a job configured in xml using job parameters that reads from a file and writes to a database. This sample demonstrates the usage of an external database.
+[batch-boot-file-to-db](/batch-web-spring-boot-samples/batch-boot-file-to-db): a job configured in xml using job parameters that reads from a file and writes to a database. This sample demonstrates the usage of an external database.
 
-[batch-boot-simple-jsr352](https://github.com/codecentric/spring-samples/tree/master/batch-boot-simple-jsr352): job samples in JSR-352 style.
+[batch-boot-simple-jsr352](/batch-web-spring-boot-samples/batch-boot-simple-jsr352): job samples in JSR-352 style.

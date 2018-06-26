@@ -1,0 +1,296 @@
+= Batch Web Spring Boot Starter Reference Guide
+:revnumber: {project-version}
+:revdate: {commit-time}
+:toc: left
+:numbered: true
+
+== What is batch-web-spring-boot-starter?
+
+Java batch is becoming a hot topic in enterprise environments these days, but how do you do it the right way? The project batch-web-spring-boot-starter offers a best practice approach to modern batch architectures, answering the following questions:
+
+* How do I actually deploy jobs?
+* How do I start, stop and monitor them?
+* How do I integrate them into my companies' infrastructure?
+* How do I build job artifacts?
+
+It builds on Spring Batch, Spring Boot and JSR-352.
+
+You may want to switch to the Getting Started page. If you want to know about the possibilities for configuring the application, switch to Configuration options.
+
+== Blog roll
+
+Most information about this project will be covered in blog posts. You find them here:
+
+https://blog.codecentric.de/en/2014/05/enterprise-ready-production-ready-java-batch-applications-powered-spring-boot/[Enterprise-ready production-ready Java batch applications powered by Spring Boot]
+
+https://blog.codecentric.de/en/2014/11/spring-boot-starter-batch-web-1-3-0-released/[spring-boot-starter-batch-web 1.3.0 released]
+
+https://blog.codecentric.de/en/2014/11/enterprise-java-batch-best-practice-architecture/[Enterprise Java Batch - A best practice architecture]
+
+https://blog.codecentric.de/en/2018/06/batch-web-spring-boot-starter-2-0-0-released/[batch-web-spring-boot-starter 2.0.0 released]
+
+== Getting Started
+
+. Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to batch-web-spring-boot-starter like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
+
+[source,xml]
+----
+<dependency>
+	<groupId>de.codecentric</groupId>
+	<artifactId>batch-web-spring-boot-starter</artifactId>
+	<version>2.0.0.RELEASE</version>
+</dependency>
+----
+
+. If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/application.properties[this example]. If you don't specify these properties you'll get an in-memory database for the Spring Batch meta data tables.
+. Add a simple logback.xml for logging. Here's an https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/logback.xml[example] inheriting from our basic log configuration to support log file separation.
+. Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path.xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package.javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.
+. Add an entry point to the application, a class with a main method invoking SpringApplication.run(...). Take a look at this https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/src/main/java/de/codecentric/batch/Application.java[example].
+. Build the application via maven package. Then start the application using java -jar xxx.jar.
+
+Default port is 8080. Take a look at the JavaDoc of these controllers to get to know the endpoints for starting jobs etc.: https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/web/JobOperationsController.java[JobOperationsController] and https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/web/JobMonitoringController.java[JobMonitoringController].
+
+== Configuration options
+
+There are two ways to influence batch-web-spring-boot-starter's behaviour. The first way is to set certain properties, the second way is to add certain components to the ApplicationContext. Let's take a look at the available properties first. Note that these are only the properties of batch-web-spring-boot-starter, there are more properties from Spring Boot described in the Spring Boot reference documentation.
+
+|===
+|Property name |Description |Default value
+
+|batch.config.path.xml
+|Location in the classpath where Spring Batch job definitions in XML are picked up.
+|/META-INF/spring/batch/jobs
+
+|batch.config.package.javaconfig
+|Package where Spring Batch job definitions in JavaConfig are picked up.
+|spring.batch.jobs
+
+|batch.defaultprotocol.enabled
+|Whether the default job protocol printed into the log is activated.
+|true
+
+|batch.logfileseparation.enabled
+|Whether writing one log file for each job execution is activated.
+|true
+
+|batch.metrics.enabled
+|Whether the transaction safe batch metrics framework is activated so that BatchMetrics may be injected and used.
+|false
+
+|batch.metrics.profiling.readprocesswrite.enabled
+|Readers, Processors and Writers are profiled with RichGauges when set to true.
+|false
+
+|batch.core.pool.size
+|Core pool size of the thread pool.
+|5
+
+|batch.queue.capacity
+|Queue capacity of the task executor.
+|Integer.MAX_VALUE
+
+|batch.max.pool.size
+|Max pool size of the thread pool.
+|Integer.MAX_VALUE
+
+|batch.repository.isolationlevelforcreate
+|Database isolation level for creating job executions.
+|Spring Batch’s default
+
+|batch.repository.tableprefix
+|Prefix for Spring Batch meta data tables.
+|Not set
+
+|batch.web.operations.base
+|Base URL for the operations endpoint.
+|/batch/operations
+
+|batch.web.monitoring.base
+|Base URL for the monitoring endpoint.
+|/batch/monitoring
+
+|===
+
+Now let’s take a look at the interfaces / abstract classes you may implement to add those implemented components to the ApplicationContext:
+
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/configuration/ListenerProvider.java[ListenerProvider]
+
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/metrics/MetricsOutputFormatter.java[MetricsOutputFormatter]
+
+Example:
+[source,java]
+----
+include::{sourcedir}/de/codecentric/batch/metrics/MetricsListener.java[tags=contains,indent=0]
+----
+
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/metrics/AbstractBatchMetricsAspect.java[AbstractBatchMetricsAspect]
+
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/logging/JobLogFileNameCreator.java[JobLogFileNameCreator]
+
+
+== Initscript Template
+
+This is a simple example for an initscript template to control your Spring Boot batch application:
+
+[source,shell]
+----
+#!/bin/sh
+#
+# Simple initscript for a Java application
+#
+
+# Verifies the status of the application
+verify_status() {
+  [...]
+}
+
+# Starts the application
+start() {
+  # First check if the application is already started
+  verify_status
+  # Start JVM
+  java -jar /opt/batch/example-batch/example-batch.jar >> /var/log/example-batch.log 2>&1 &
+}
+
+# Stopps the application
+stop() {
+  [...]
+}
+
+# Shows the application status on the console
+status() {
+  [...]
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+esac
+
+exit 0
+----
+
+== RPM
+
+The following code snippet may help you to configure the http://mojo.codehaus.org/rpm-maven-plugin/[Maven RPM Plugin], which creates an RPM during the build process for you. In this example the RPM will be created as an attached artifact. For more information see the http://mojo.codehaus.org/rpm-maven-plugin/usage.html[documentation] of the plugin.
+
+[source,xml]
+----
+<plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rpm-maven-plugin</artifactId>
+        <version>2.1-alpha-4</version>
+        <extensions>true</extensions>
+        <executions>
+                <execution>
+                        <phase>package</phase>
+                        <goals>
+                                <goal>attached-rpm</goal>
+                        </goals>
+                </execution>
+        </executions>
+        <configuration>
+                <name>${project.name}</name>
+                <version>${project.version}</version>
+                <copyright>2014,codecentric</copyright>
+                <distribution>sles11</distribution>
+                <group>Application/codecentric</group>
+                <packager>jenkins</packager>
+                <changelogFile>src/changelog</changelogFile>
+                <vendor>sles</vendor>
+                <defineStatements>
+                        <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                </defineStatements>
+                <mappings>
+                        <mapping>
+                                <directory>/opt/batch/${project.name}/</directory>
+                                <filemode>755</filemode>
+                                <username>batch</username>
+                                <groupname>batch</groupname>
+                                <sources>
+                                        <source>
+                                                <destination>${project.name}.jar</destination>
+                                                <location>target/${project.artifactId}-${project.version}.jar</location>
+                                        </source>
+                                </sources>
+                        </mapping>
+                        <mapping>
+                                <directory>/etc/init.d/</directory>
+                                <username>root</username>
+                                <groupname>root</groupname>
+                                <sources>
+                                        <source>
+                                                <destination>${project.name}</destination>
+                                                <location>target/classes/initscript-template</location>
+                                        </source>
+                                </sources>
+                        </mapping>
+                </mappings>
+                <preremoveScriptlet>
+                        <script><![CDATA[ if [ "$1" = "0" ]; then /etc/init.d/example-batch stop; fi]]></script>
+                </preremoveScriptlet>
+        </configuration>
+</plugin>
+----
+
+== Metrics
+
+In this Starter there are a lot of metrics that will be written during jobruns (see below).
+
+=== Configuration
+
+==== Enable Metrics in the Starter
+
+[indent=0]
+----
+batch.metrics.enabled=true
+----
+
+=== Gauges
+==== Job duration for a specific job name
+[indent=0]
+----
+name: batch.metrics, tags: {context=simpleJob, name=duration}
+----
+==== Step duration for a specific job name
+[indent=0]
+----
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=duration}
+----
+==== Chunk duration/count for a specific job name
+[indent=0]
+----
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=chunk.duration}
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=chunk.count}
+----
+==== Item duration/count for a specific job name
+[indent=0]
+----
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=item.duration}
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=item.count}
+----
+==== Read/Process/Write methods
+[indent=0]
+----
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=DummyItemReader.read.duration}
+----
+==== Custom
+[indent=0]
+----
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=ExampleService.callExternalRemoteService.duration}
+name: batch.metrics, tags: {context=simpleJob.simpleStep, name=businesscounter}
+----
