@@ -1,46 +1,45 @@
-#!/bin/bash -x
+#!/bin/bash
+##
+# Makes a shallow clone for gh-pages branch, copies the new docs, adds, commits and pushes 'em.
+#
+# Requires the environment variable GH_TOKEN to be set to a valid GitHub-api-token.
+#
+# Usage:
+# ./deploy-gh-pages.sh <project-version>
+#
+# project-version    The version folder to use in gh-pages
+##
+set -o errexit -o nounset
 
-git remote set-url --push origin `git config remote.origin.url | sed -e 's/^git:/https:/'`
+GH_URL="https://${GH_TOKEN}@github.com/codecentric/spring-boot-starter-batch-web.git"
+TEMPDIR="$(mktemp -d /tmp/gh-pages.XXX)"
+TARGET_DIR="${TRAVIS_BRANCH/master/current}"
 
-if ! (git remote set-branches --add origin gh-pages && git fetch -q); then
-    echo "No gh-pages, so not syncing"
-    exit 0
+echo "Cloning gh-pages branch..."
+git clone --branch gh-pages --single-branch --depth 1 "$GH_URL" "$TEMPDIR"
+
+if [[ -d "$TEMPDIR"/"${TARGET_DIR}" ]]; then
+   echo "Cleaning ${TARGET_DIR}..."
+   rm -rf "$TEMPDIR"/"${TARGET_DIR}"
 fi
 
-if ! [ -d target/generated-docs ]; then
-    echo "No gh-pages sources in target/generated-docs, so not syncing"
-    exit 0
+echo "Copying new docs..."
+mkdir -p "$TEMPDIR"/"${TARGET_DIR}"
+cp -r target/generated-docs/* "$TEMPDIR"/"${TARGET_DIR}"/
+
+pushd "$TEMPDIR" >/dev/null
+git add --all .
+
+if git diff-index --quiet HEAD; then
+  echo "No changes detected."
+else
+  echo "Commit changes..."
+  git commit --message "Docs for ${TARGET_DIR}"
+  echo "Pushing gh-pages..."
+  git push origin gh-pages
 fi
 
-# Stash any outstanding changes
-###################################################################
-git diff-index --quiet HEAD
-dirty=$?
-if [ "$dirty" != "0" ]; then git stash; fi
+popd >/dev/null
 
-# Switch to gh-pages branch to sync it with master
-###################################################################
-git checkout gh-pages
-
-for f in target/generated-docs/*; do
-    file=${f#target/generated-docs/*}
-    if ! git ls-files -i -o --exclude-standard --directory | grep -q ^$file$; then
-        # Not ignored...
-        cp -rf $f .
-        git add -A $file
-    fi
-done
-
-git commit -a -m "Sync docs from master to gh-pages"
-
-# Uncomment the following push if you want to auto push to
-# the gh-pages branch whenever you commit to master locally.
-# This is a little extreme. Use with care!
-###################################################################
-git push origin gh-pages
-
-# Finally, switch back to the master branch and exit block
-git checkout master
-if [ "$dirty" != "0" ]; then git stash pop; fi
-
+rm -rf "$TEMPDIR"
 exit 0
