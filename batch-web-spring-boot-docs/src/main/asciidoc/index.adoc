@@ -1,4 +1,4 @@
-= Spring Boot Starter Batch Web Reference Guide
+= Batch Web Spring Boot Starter Reference Guide
 :revnumber: {project-version}
 :revdate: {commit-time}
 :toc: left
@@ -6,7 +6,7 @@
 
 == What is batch-web-spring-boot-starter?
 
-Java batch is becoming a hot topic in enterprise environments these days, but how do you do it the right way? The project spring-boot-starter-batch-web offers a best practice approach to modern batch architectures, answering the following questions:
+Java batch is becoming a hot topic in enterprise environments these days, but how do you do it the right way? The project batch-web-spring-boot-starter offers a best practice approach to modern batch architectures, answering the following questions:
 
 * How do I actually deploy jobs?
 * How do I start, stop and monitor them?
@@ -31,7 +31,7 @@ https://blog.codecentric.de/en/2018/06/batch-web-spring-boot-starter-2-0-0-relea
 
 == Getting Started
 
-. Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to spring-boot-starter-batch-web like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
+. Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to batch-web-spring-boot-starter like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
 
 [source,xml]
 ----
