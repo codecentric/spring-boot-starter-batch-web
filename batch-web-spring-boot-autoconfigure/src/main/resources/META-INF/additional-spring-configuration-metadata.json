@@ -1,0 +1,28 @@
+{
+	"properties": [
+		{
+			"name": "batch.metrics.enabled",
+			"type": "java.lang.Boolean",
+			"description": "Whether the transaction safe batch metrics framework is activated so that BatchMetrics may be injected and used",
+			"default": false
+		},
+		{
+			"name": "batch.web.operations.base",
+			"type": "java.lang.String",
+			"description": "URL part to operational methods on batch jobs, like starting, stopping, etc. of jobs",
+			"default": "/batch/operations"
+		},
+		{
+			"name": "batch.web.monitoring.base",
+			"type": "java.lang.String",
+			"description": "URL part to monitoring methods on batch jobs, like viewing the state of jobs",
+			"default": "/batch/monitoring"
+		},
+		{
+			"name": "batch.metrics.profiling.readprocesswrite.enabled",
+			"type": "java.lang.Boolean",
+			"description": "Readers, Processors and Writers are profiled with RichGauges when set to true",
+			"default": false
+		}
+	]
+}

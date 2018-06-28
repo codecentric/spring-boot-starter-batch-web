@@ -38,13 +38,13 @@ https://blog.codecentric.de/en/2018/06/batch-web-spring-boot-starter-2-0-0-relea
 <dependency>
 	<groupId>de.codecentric</groupId>
 	<artifactId>batch-web-spring-boot-starter</artifactId>
-	<version>2.0.0.RELEASE</version>
+	<version>{project-version}</version>
 </dependency>
 ----
 
 . If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/application.properties[this example]. If you don't specify these properties you'll get an in-memory database for the Spring Batch meta data tables.
 . Add a simple logback.xml for logging. Here's an https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/logback.xml[example] inheriting from our basic log configuration to support log file separation.
-. Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path.xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package.javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.
+. Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path-xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package-javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.
 . Add an entry point to the application, a class with a main method invoking SpringApplication.run(...). Take a look at this https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/src/main/java/de/codecentric/batch/Application.java[example].
 . Build the application via maven package. Then start the application using java -jar xxx.jar.
 
@@ -57,57 +57,55 @@ There are two ways to influence batch-web-spring-boot-starter's behaviour. The f
 |===
 |Property name |Description |Default value
 
-|batch.config.path.xml
+|batch.config.path-xml
 |Location in the classpath where Spring Batch job definitions in XML are picked up.
 |/META-INF/spring/batch/jobs
 
-|batch.config.package.javaconfig
+|batch.config.package-javaconfig
 |Package where Spring Batch job definitions in JavaConfig are picked up.
 |spring.batch.jobs
 
-|batch.defaultprotocol.enabled
+|batch.default-protocol.enabled
 |Whether the default job protocol printed into the log is activated.
-|true
+|`true`
 
-|batch.logfileseparation.enabled
+|batch.logfile-separation.enabled
 |Whether writing one log file for each job execution is activated.
-|true
+|`true`
+
+|batch.joblog.path
+|Path where the separate logfiles are stored. Can be used as `JOB_LOG_PATH` in logback configuration.
+|
 
 |batch.metrics.enabled
 |Whether the transaction safe batch metrics framework is activated so that BatchMetrics may be injected and used.
-|false
+|`false`
 
 |batch.metrics.profiling.readprocesswrite.enabled
 |Readers, Processors and Writers are profiled with RichGauges when set to true.
-|false
+|`false`
 
-|batch.core.pool.size
-|Core pool size of the thread pool.
-|5
+|batch.task-executor.*
+|Configure the used org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor instance
+|core-pool-size: 5 +
+max-pool-size: Integer.MAX_VALUE +
+queue-capacity: Integer.MAX_VALUE +
 
-|batch.queue.capacity
-|Queue capacity of the task executor.
-|Integer.MAX_VALUE
-
-|batch.max.pool.size
-|Max pool size of the thread pool.
-|Integer.MAX_VALUE
-
-|batch.repository.isolationlevelforcreate
+|batch.repository.isolation-level-for-create
 |Database isolation level for creating job executions.
 |Spring Batch’s default
 
-|batch.repository.tableprefix
+|batch.repository.table-prefix
 |Prefix for Spring Batch meta data tables.
-|Not set
+|
 
 |batch.web.operations.base
 |Base URL for the operations endpoint.
-|/batch/operations
+|`/batch/operations`
 
 |batch.web.monitoring.base
 |Base URL for the monitoring endpoint.
-|/batch/monitoring
+|`/batch/monitoring`
 
 |===
 
@@ -152,7 +150,7 @@ start() {
   java -jar /opt/batch/example-batch/example-batch.jar >> /var/log/example-batch.log 2>&1 &
 }
 
-# Stopps the application
+# Stops the application
 stop() {
   [...]
 }
