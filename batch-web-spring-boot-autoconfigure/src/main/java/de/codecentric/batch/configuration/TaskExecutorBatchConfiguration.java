@@ -64,6 +64,7 @@ public class TaskExecutorBatchConfiguration implements BatchConfigurer {
 
 	private DataSource dataSource;
 
+	@Autowired(required = false)
 	private PlatformTransactionManager transactionManager;
 
 	private JobRepository jobRepository;
