@@ -538,6 +538,12 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_gauges">7.2. Gauges</a></li>
 </ul>
 </li>
+<li><a href="#_migration_from_1_x_x">8. Migration from 1.x.x</a>
+<ul class="sectlevel2">
+<li><a href="#_properties">8.1. Properties</a></li>
+<li><a href="#_metrics_2">8.2. Metrics</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -649,9 +655,9 @@ table.CodeRay td.code>pre{padding:0}
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Property name</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top"><strong>Property name</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Description</strong></th>
+<th class="tableblock halign-left valign-top"><strong>Default value</strong></th>
 </tr>
 </thead>
 <tbody>
@@ -944,11 +950,78 @@ name: batch.metrics, tags: {context=simpleJob.simpleStep, name=businesscounter}<
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_migration_from_1_x_x">8. Migration from 1.x.x</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_properties">8.1. Properties</h3>
+<div class="paragraph">
+<p>Some properties have been renamed. This is the full mapping table.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><strong>old</strong></th>
+<th class="tableblock halign-left valign-top"><strong>new</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.config.path.xml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.config.path-xml</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.config.package.javaconfig</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.config.package-javaconfig</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.defaultprotocol.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.default-protocol.enabled</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.logfileseparation.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.logfile-separation.enabled</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.repository.isolationlevelforcreate</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.repository.isolation-level-for-create</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.max.pool.size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.task-executor.max-pool-size</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.batch.core.pool.size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.task-executor.core-pool-size</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.queue.capacity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.task-executor.queue-capacity</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.repository.tableprefix</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.repository.table-prefix</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_metrics_2">8.2. Metrics</h3>
+<div class="paragraph">
+<p>Metrics export is not done manually (implementing the Exporter interface) any more, since Spring Boot 2.x autoconfigures exporters for metrics. Take a look at the <a href="https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#production-ready-metrics">documentation</a> of Spring Boot.</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 2.0.1-SNAPSHOT<br>
-Last updated 2018-06-28 06:36:29 UTC
+Last updated 2018-06-28 06:51:39 UTC
 </div>
 </div>
 </body>
