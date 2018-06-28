@@ -55,7 +55,7 @@ Default port is 8080. Take a look at the JavaDoc of these controllers to get to 
 There are two ways to influence batch-web-spring-boot-starter's behaviour. The first way is to set certain properties, the second way is to add certain components to the ApplicationContext. Let's take a look at the available properties first. Note that these are only the properties of batch-web-spring-boot-starter, there are more properties from Spring Boot described in the Spring Boot reference documentation.
 
 |===
-|Property name |Description |Default value
+|*Property name* |*Description* |*Default value*
 
 |batch.config.path-xml
 |Location in the classpath where Spring Batch job definitions in XML are picked up.
@@ -292,3 +292,41 @@ name: batch.metrics, tags: {context=simpleJob.simpleStep, name=DummyItemReader.r
 name: batch.metrics, tags: {context=simpleJob.simpleStep, name=ExampleService.callExternalRemoteService.duration}
 name: batch.metrics, tags: {context=simpleJob.simpleStep, name=businesscounter}
 ----
+
+== Migration from 1.x.x
+=== Properties
+Some properties have been renamed. This is the full mapping table.
+
+|===
+| *old* | *new*
+
+| batch.config.path.xml
+| batch.config.path-xml
+
+| batch.config.package.javaconfig
+| batch.config.package-javaconfig
+
+| batch.defaultprotocol.enabled
+| batch.default-protocol.enabled
+
+| batch.logfileseparation.enabled
+| batch.logfile-separation.enabled
+
+| batch.repository.isolationlevelforcreate
+| batch.repository.isolation-level-for-create
+
+| batch.max.pool.size
+| batch.task-executor.max-pool-size
+
+| batch.batch.core.pool.size
+| batch.task-executor.core-pool-size
+
+| batch.queue.capacity
+| batch.task-executor.queue-capacity
+
+| batch.repository.tableprefix
+| batch.repository.table-prefix
+|===
+
+=== Metrics
+Metrics export is not done manually (implementing the Exporter interface) any more, since Spring Boot 2.x autoconfigures exporters for metrics. Take a look at the https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#production-ready-metrics[documentation] of Spring Boot.
