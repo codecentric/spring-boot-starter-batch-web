@@ -54,7 +54,6 @@ public class TaskExecutorConfiguration {
 	private BatchConfigurationProperties batchConfig;
 
 	@Bean
-	@ConfigurationProperties("batch.task-executor")
 	public TaskExecutor taskExecutor() {
 		ThreadPoolTaskExecutor taskExecutor = new MdcThreadPoolTaskExecutor();
 		taskExecutor.setCorePoolSize(batchConfig.getTaskExecutor().getCorePoolSize());
