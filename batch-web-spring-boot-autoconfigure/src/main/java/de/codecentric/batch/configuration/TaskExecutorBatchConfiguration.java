@@ -50,9 +50,9 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 @ConditionalOnMissingBean(BatchConfigurer.class)
 @Configuration
-public class TaskExecutorBatchConfigurer implements BatchConfigurer {
+public class TaskExecutorBatchConfiguration implements BatchConfigurer {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TaskExecutorBatchConfigurer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TaskExecutorBatchConfiguration.class);
 
 	@Autowired
 	private BatchConfigurationProperties batchConfig;

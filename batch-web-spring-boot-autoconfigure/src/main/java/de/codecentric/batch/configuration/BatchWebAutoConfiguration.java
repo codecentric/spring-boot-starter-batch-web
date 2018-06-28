@@ -42,7 +42,7 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * This configuration class will be picked up by Spring Boot's auto configuration capabilities as soon as it's on the
  * classpath.
  * <p>
- * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfigurer} and
+ * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfiguration} and
  * imports the web endpoint configuration ({@link WebConfig}.<br>
  * It also imports {@link AutomaticJobRegistrarConfiguration} which looks for jobs in a modular fashion, meaning that
  * every job configuration file gets its own Child-ApplicationContext. Configuration files can be XML files in the
@@ -63,7 +63,7 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @EnableBatchProcessing(modular = true)
 @PropertySource("classpath:batch-web-spring-boot-autoconfigure.properties")
 @AutoConfigureAfter({ MetricsAutoConfiguration.class })
-@Import({ WebConfig.class, TaskExecutorBatchConfigurer.class, AutomaticJobRegistrarConfiguration.class,
+@Import({ WebConfig.class, TaskExecutorBatchConfiguration.class, AutomaticJobRegistrarConfiguration.class,
 		BaseConfiguration.class, Jsr352BatchConfiguration.class, MetricsConfiguration.class,
 		TaskExecutorConfiguration.class })
 @EnableConfigurationProperties({ BatchConfigurationProperties.class })
