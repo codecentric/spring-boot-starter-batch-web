@@ -27,7 +27,7 @@ https://blog.codecentric.de/en/2014/11/spring-boot-starter-batch-web-1-3-0-relea
 
 https://blog.codecentric.de/en/2014/11/enterprise-java-batch-best-practice-architecture/[Enterprise Java Batch - A best practice architecture]
 
-https://blog.codecentric.de/en/2018/06/batch-web-spring-boot-starter-2-0-0-released/[batch-web-spring-boot-starter 2.0.0 released]
+https://blog.codecentric.de/en/2018/06/batch-web-spring-boot-starter-2-0-1-released/[batch-web-spring-boot-starter 2.0.1 released]
 
 == Getting Started
 
