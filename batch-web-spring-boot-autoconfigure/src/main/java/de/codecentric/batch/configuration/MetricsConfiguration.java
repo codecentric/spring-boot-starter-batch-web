@@ -60,14 +60,14 @@ public class MetricsConfiguration implements ListenerProvider {
 
 	@Override
 	public Set<JobExecutionListener> jobExecutionListeners() {
-		Set<JobExecutionListener> listeners = new HashSet<JobExecutionListener>();
+		Set<JobExecutionListener> listeners = new HashSet<>();
 		listeners.add(metricsListener());
 		return listeners;
 	}
 
 	@Override
 	public Set<StepExecutionListener> stepExecutionListeners() {
-		Set<StepExecutionListener> listeners = new HashSet<StepExecutionListener>();
+		Set<StepExecutionListener> listeners = new HashSet<>();
 		listeners.add(metricsListener());
 		return listeners;
 	}

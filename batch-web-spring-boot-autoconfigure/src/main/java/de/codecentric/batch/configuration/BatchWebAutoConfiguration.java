@@ -42,8 +42,8 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * This configuration class will be picked up by Spring Boot's auto configuration capabilities as soon as it's on the
  * classpath.
  * <p>
- * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfiguration} and
- * imports the web endpoint configuration ({@link WebConfig}.<br>
+ * It enables batch processing, imports the batch infrastructure configuration ({@link TaskExecutorBatchConfiguration}
+ * and imports the web endpoint configuration ({@link WebConfig}.<br>
  * It also imports {@link AutomaticJobRegistrarConfiguration} which looks for jobs in a modular fashion, meaning that
  * every job configuration file gets its own Child-ApplicationContext. Configuration files can be XML files in the
  * location /META-INF/spring/batch/jobs, overridable via property batch.config.path.xml, and JavaConfig classes in the
@@ -112,14 +112,14 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		try {
-			for (String jobName : baseConfig.jobRegistry().getJobNames()) {
+		baseConfig.jobRegistry().getJobNames().forEach(jobName -> {
+			try {
 				AbstractJob job = (AbstractJob) baseConfig.jobRegistry().getJob(jobName);
 				this.addListenerToJobService().addListenerToJob(job);
+			} catch (NoSuchJobException e) {
+				throw new IllegalStateException(e);
 			}
-		} catch (NoSuchJobException e) {
-			throw new IllegalStateException(e);
-		}
+		});
 	}
 
 	@Override

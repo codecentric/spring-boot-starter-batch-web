@@ -95,7 +95,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 
 		List<Class<?>> candidates = new ArrayList<>();
 		String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + resolveBasePackage(basePackage)
-				+ "/" + "**/*.class";
+				+ "/**/*.class";
 		Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
 		for (Resource resource : resources) {
 			if (resource.isReadable()) {

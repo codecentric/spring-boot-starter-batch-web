@@ -175,7 +175,7 @@ public class JobOperationsController {
 			JobRestartException, JobInstanceAlreadyCompleteException, JobParametersNotFoundException {
 		String parameters = payload.getFirst(JOB_PARAMETERS);
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Attempt to start job with name " + jobName + " and parameters " + parameters + ".");
+			LOG.debug("Attempt to start job with name {} and parameters {}", jobName, parameters);
 		}
 		try {
 			Job job = jobRegistry.getJob(jobName);
@@ -223,7 +223,7 @@ public class JobOperationsController {
 
 	/**
 	 * Borrowed from CommandLineJobRunner.
-	 * 
+	 *
 	 * @param job
 	 *            the job that we need to find the next parameters for
 	 * @return the next job parameters if they can be located
@@ -253,7 +253,7 @@ public class JobOperationsController {
 	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.GET)
 	public String getStatus(@PathVariable long executionId) throws NoSuchJobExecutionException {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Get ExitCode for JobExecution with id: " + executionId + ".");
+			LOG.debug("Get ExitCode for JobExecution with id: {} ", executionId);
 		}
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
 		if (jobExecution != null) {
@@ -267,7 +267,7 @@ public class JobOperationsController {
 	public void getLogFile(HttpServletResponse response, @PathVariable long executionId)
 			throws NoSuchJobExecutionException, IOException {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Get log file for job with executionId: " + executionId);
+			LOG.debug("Get log file for job with executionId: {}", executionId);
 		}
 		String loggingPath = createLoggingPath();
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
@@ -298,7 +298,7 @@ public class JobOperationsController {
 	public String stop(@PathVariable long executionId)
 			throws NoSuchJobExecutionException, JobExecutionNotRunningException {
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Stop JobExecution with id: " + executionId);
+			LOG.debug("Stop JobExecution with id: {}", executionId);
 		}
 		Boolean successful = jobOperator.stop(executionId);
 		return successful.toString();

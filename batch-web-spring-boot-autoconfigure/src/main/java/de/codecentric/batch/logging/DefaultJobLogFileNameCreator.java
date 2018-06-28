@@ -21,14 +21,14 @@ import org.springframework.batch.core.JobExecution;
 /**
  * Default implementation used when there's no other Spring bean implementing {@link JobLogFileNameCreator} in the
  * ApplicationContext.
- * 
+ *
  * @author Tobias Flohre
  * @author Dennis Schulte
  *
  */
 public class DefaultJobLogFileNameCreator implements JobLogFileNameCreator {
 
-	private final static String DEFAULT_EXTENSION = ".log";
+	private static final String DEFAULT_EXTENSION = ".log";
 
 	@Override
 	public String getName(JobExecution jobExecution) {

@@ -158,39 +158,35 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 			final List<Exception> exceptionHolder = Collections.synchronizedList(new ArrayList<Exception>());
 			semaphore.acquire();
 
-			taskExecutor.execute(new Runnable() {
+			taskExecutor.execute(() -> {
+				JsrJobContextFactoryBean factoryBean = null;
+				try {
+					factoryBean = (JsrJobContextFactoryBean) batchContext.getBean("&" + JSR_JOB_CONTEXT_BEAN_NAME);
+					factoryBean.setJobExecution(jobExecution);
+					final AbstractJob job = batchContext.getBean(AbstractJob.class);
+					addListenerToJobService.addListenerToJob(job);
+					semaphore.release();
+					// Initialization of the JobExecution for job level dependencies
+					jobRegistry.register(job, jobExecution);
+					job.execute(jobExecution);
+					jobRegistry.remove(jobExecution);
+				} catch (Exception e) {
+					exceptionHolder.add(e);
+				} finally {
+					if (factoryBean != null) {
+						factoryBean.close();
+					}
 
-				@Override
-				public void run() {
-					JsrJobContextFactoryBean factoryBean = null;
-					try {
-						factoryBean = (JsrJobContextFactoryBean) batchContext.getBean("&" + JSR_JOB_CONTEXT_BEAN_NAME);
-						factoryBean.setJobExecution(jobExecution);
-						final AbstractJob job = batchContext.getBean(AbstractJob.class);
-						addListenerToJobService.addListenerToJob(job);
+					batchContext.close();
+
+					if (semaphore.availablePermits() == 0) {
 						semaphore.release();
-						// Initialization of the JobExecution for job level dependencies
-						jobRegistry.register(job, jobExecution);
-						job.execute(jobExecution);
-						jobRegistry.remove(jobExecution);
-					} catch (Exception e) {
-						exceptionHolder.add(e);
-					} finally {
-						if (factoryBean != null) {
-							factoryBean.close();
-						}
-
-						batchContext.close();
-
-						if (semaphore.availablePermits() == 0) {
-							semaphore.release();
-						}
 					}
 				}
 			});
 
 			semaphore.acquire();
-			if (exceptionHolder.size() > 0) {
+			if (!exceptionHolder.isEmpty()) {
 				semaphore.release();
 				throw new JobStartException(exceptionHolder.get(0));
 			}
@@ -215,7 +211,7 @@ public class CustomJsrJobOperator extends JsrJobOperator {
 
 	private static class ExecutingJobRegistry {
 
-		private Map<Long, Job> registry = new ConcurrentHashMap<Long, Job>();
+		private Map<Long, Job> registry = new ConcurrentHashMap<>();
 
 		public void register(Job job, org.springframework.batch.core.JobExecution jobExecution)
 				throws DuplicateJobException {
