@@ -521,7 +521,7 @@ table.CodeRay td.code>pre{padding:0}
 <h1>Batch Web Spring Boot Starter Reference Guide</h1>
 <div class="details">
 <span id="revnumber">version 2.0.0.RELEASE,</span>
-<span id="revdate">28.06.2018</span>
+<span id="revdate">26.06.2018</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -607,7 +607,7 @@ table.CodeRay td.code>pre{padding:0}
 <pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;dependency&gt;</span>
         <span class="tag">&lt;groupId&gt;</span>de.codecentric<span class="tag">&lt;/groupId&gt;</span>
         <span class="tag">&lt;artifactId&gt;</span>batch-web-spring-boot-starter<span class="tag">&lt;/artifactId&gt;</span>
-        <span class="tag">&lt;version&gt;</span>{project-version}<span class="tag">&lt;/version&gt;</span>
+        <span class="tag">&lt;version&gt;</span>2.0.0.RELEASE<span class="tag">&lt;/version&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></code></pre>
 </div>
 </div>
@@ -620,7 +620,7 @@ table.CodeRay td.code>pre{padding:0}
 <p>Add a simple logback.xml for logging. Here&#8217;s an <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/logback.xml">example</a> inheriting from our basic log configuration to support log file separation.</p>
 </li>
 <li>
-<p>Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path-xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package-javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.</p>
+<p>Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path.xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package.javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.</p>
 </li>
 <li>
 <p>Add an entry point to the application, a class with a main method invoking SpringApplication.run(&#8230;&#8203;). Take a look at this <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/src/main/java/de/codecentric/batch/Application.java">example</a>.</p>
@@ -656,66 +656,69 @@ table.CodeRay td.code>pre{padding:0}
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">batch.config.path-xml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.config.path.xml</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Location in the classpath where Spring Batch job definitions in XML are picked up.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/META-INF/spring/batch/jobs</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">batch.config.package-javaconfig</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.config.package.javaconfig</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Package where Spring Batch job definitions in JavaConfig are picked up.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">spring.batch.jobs</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">batch.default-protocol.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.defaultprotocol.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Whether the default job protocol printed into the log is activated.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">batch.logfile-separation.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.logfileseparation.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Whether writing one log file for each job execution is activated.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">batch.joblog.path</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Path where the separate logfiles are stored. Can be used as <code>JOB_LOG_PATH</code> in logback configuration.</p></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">batch.metrics.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Whether the transaction safe batch metrics framework is activated so that BatchMetrics may be injected and used.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">batch.metrics.profiling.readprocesswrite.enabled</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Readers, Processors and Writers are profiled with RichGauges when set to true.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">batch.task-executor.*</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Configure the used org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor instance</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">core-pool-size: 5<br>
-max-pool-size: Integer.MAX_VALUE<br>
-queue-capacity: Integer.MAX_VALUE<br></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.core.pool.size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Core pool size of the thread pool.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">batch.repository.isolation-level-for-create</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.queue.capacity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Queue capacity of the task executor.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer.MAX_VALUE</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.max.pool.size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Max pool size of the thread pool.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer.MAX_VALUE</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.repository.isolationlevelforcreate</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Database isolation level for creating job executions.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Spring Batch’s default</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">batch.repository.table-prefix</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">batch.repository.tableprefix</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Prefix for Spring Batch meta data tables.</p></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Not set</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">batch.web.operations.base</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Base URL for the operations endpoint.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/batch/operations</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/batch/operations</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">batch.web.monitoring.base</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Base URL for the monitoring endpoint.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/batch/monitoring</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/batch/monitoring</p></td>
 </tr>
 </tbody>
 </table>
@@ -770,7 +773,7 @@ start() {
   java -jar /opt/batch/example-batch/example-batch.jar &gt;&gt; /var/log/example-batch.log 2&gt;&amp;1 &amp;
 }
 
-# Stops the application
+# Stopps the application
 stop() {
   [...]
 }
@@ -948,7 +951,7 @@ name: batch.metrics, tags: {context=simpleJob.simpleStep, name=businesscounter}<
 <div id="footer">
 <div id="footer-text">
 Version 2.0.0.RELEASE<br>
-Last updated 2018-06-28 06:35:26 UTC
+Last updated 2018-06-28 06:58:44 UTC
 </div>
 </div>
 </body>
