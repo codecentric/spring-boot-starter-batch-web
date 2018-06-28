@@ -75,7 +75,6 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
-		this.transactionManager = new DataSourceTransactionManager(dataSource);
 	}
 
 	@Override
@@ -139,11 +138,15 @@ public class TaskExecutorBatchConfigurer implements BatchConfigurer {
 			jobExplorerFactory.afterPropertiesSet();
 			this.jobExplorer = jobExplorerFactory.getObject();
 		} else {
+			if (this.transactionManager == null) {
+				this.transactionManager = new DataSourceTransactionManager(dataSource);
+			}
+
 			this.jobRepository = createJobRepository();
 
 			JobExplorerFactoryBean jobExplorerFactoryBean = new JobExplorerFactoryBean();
 			jobExplorerFactoryBean.setDataSource(this.dataSource);
-			String tablePrefix =batchConfig.getRepository().getTablePrefix();
+			String tablePrefix = batchConfig.getRepository().getTablePrefix();
 			if (tablePrefix != null) {
 				jobExplorerFactoryBean.setTablePrefix(tablePrefix);
 			}
