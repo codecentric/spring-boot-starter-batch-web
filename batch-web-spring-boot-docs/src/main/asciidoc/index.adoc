@@ -31,7 +31,7 @@ https://blog.codecentric.de/en/2018/06/batch-web-spring-boot-starter-2-0-1-relea
 
 == Getting Started
 
-. Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to batch-web-spring-boot-starter like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
+. Create a Spring Boot maven project. Take a look at https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-samples/batch-boot-simple/pom.xml[this] example, it's pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to batch-web-spring-boot-starter like in the example. Check for the current version in the https://github.com/codecentric/spring-boot-starter-batch-web/releases[Release Notes].
 
 [source,xml]
 ----
@@ -42,10 +42,10 @@ https://blog.codecentric.de/en/2018/06/batch-web-spring-boot-starter-2-0-1-relea
 </dependency>
 ----
 
-. If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/application.properties[this example]. If you don't specify these properties you'll get an in-memory database for the Spring Batch meta data tables.
-. Add a simple logback.xml for logging. Here's an https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/logback.xml[example] inheriting from our basic log configuration to support log file separation.
+. If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/application.properties[this example]. If you don't specify these properties you'll get an in-memory database for the Spring Batch meta data tables.
+. Add a simple logback.xml for logging. Here's an https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/logback.xml[example] inheriting from our basic log configuration to support log file separation.
 . Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path-xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package-javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.
-. Add an entry point to the application, a class with a main method invoking SpringApplication.run(...). Take a look at this https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/src/main/java/de/codecentric/batch/Application.java[example].
+. Add an entry point to the application, a class with a main method invoking SpringApplication.run(...). Take a look at this https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-samples/batch-boot-simple/src/main/java/de/codecentric/batch/simple/Application.java[example].
 . Build the application via maven package. Then start the application using java -jar xxx.jar.
 
 Default port is 8080. Take a look at the JavaDoc of these controllers to get to know the endpoints for starting jobs etc.: https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/web/JobOperationsController.java[JobOperationsController] and https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/web/JobMonitoringController.java[JobMonitoringController].
@@ -184,7 +184,7 @@ exit 0
 
 == RPM
 
-The following code snippet may help you to configure the http://mojo.codehaus.org/rpm-maven-plugin/[Maven RPM Plugin], which creates an RPM during the build process for you. In this example the RPM will be created as an attached artifact. For more information see the http://mojo.codehaus.org/rpm-maven-plugin/usage.html[documentation] of the plugin.
+The following code snippet may help you to configure the https://www.mojohaus.org/rpm-maven-plugin/[Maven RPM Plugin], which creates an RPM during the build process for you. In this example the RPM will be created as an attached artifact. For more information see the https://www.mojohaus.org/rpm-maven-plugin/usage.html[documentation] of the plugin.
 
 [source,xml]
 ----
