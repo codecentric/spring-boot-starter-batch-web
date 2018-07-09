@@ -604,7 +604,7 @@ table.CodeRay td.code>pre{padding:0}
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Create a Spring Boot maven project. Take a look at <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/pom.xml">this</a> example, it&#8217;s pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to batch-web-spring-boot-starter like in the example. Check for the current version in the <a href="https://github.com/codecentric/spring-boot-starter-batch-web/releases">Release Notes</a>.</p>
+<p>Create a Spring Boot maven project. Take a look at <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-samples/batch-boot-simple/pom.xml">this</a> example, it&#8217;s pretty much just using spring-boot-starter-parent as a parent und adding the Spring Boot build plugin. Then add the dependency to batch-web-spring-boot-starter like in the example. Check for the current version in the <a href="https://github.com/codecentric/spring-boot-starter-batch-web/releases">Release Notes</a>.</p>
 </li>
 </ol>
 </div>
@@ -620,16 +620,16 @@ table.CodeRay td.code>pre{padding:0}
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/application.properties">this example</a>. If you don&#8217;t specify these properties you&#8217;ll get an in-memory database for the Spring Batch meta data tables.</p>
+<p>If you have a database with the Spring Batch meta data tables and your business data, add the connection properties to the application.properties like in <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/application.properties">this example</a>. If you don&#8217;t specify these properties you&#8217;ll get an in-memory database for the Spring Batch meta data tables.</p>
 </li>
 <li>
-<p>Add a simple logback.xml for logging. Here&#8217;s an <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/logback.xml">example</a> inheriting from our basic log configuration to support log file separation.</p>
+<p>Add a simple logback.xml for logging. Here&#8217;s an <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-samples/batch-boot-file-to-db/src/main/resources/logback.xml">example</a> inheriting from our basic log configuration to support log file separation.</p>
 </li>
 <li>
 <p>Add a batch job. You may define it in XML and put it into META-INF/spring/batch/jobs (overridable via property batch.config.path-xml) or in JavaConfig and put it into the package spring.batch.jobs (overridable via property batch.config.package-javaconfig). Each XML file or class annotated with @Configuration in the specified locations will get its own child ApplicationContext. Third option is defining a JSR-352 style job in XML and adding it to META-INF/batch-jobs.</p>
 </li>
 <li>
-<p>Add an entry point to the application, a class with a main method invoking SpringApplication.run(&#8230;&#8203;). Take a look at this <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/blob/master/batch-web-spring-boot-samples/batch-boot-simple/src/main/java/de/codecentric/batch/Application.java">example</a>.</p>
+<p>Add an entry point to the application, a class with a main method invoking SpringApplication.run(&#8230;&#8203;). Take a look at this <a href="https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-samples/batch-boot-simple/src/main/java/de/codecentric/batch/simple/Application.java">example</a>.</p>
 </li>
 <li>
 <p>Build the application via maven package. Then start the application using java -jar xxx.jar.</p>
@@ -814,7 +814,7 @@ exit 0</code></pre>
 <h2 id="_rpm">6. RPM</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The following code snippet may help you to configure the <a href="http://mojo.codehaus.org/rpm-maven-plugin/">Maven RPM Plugin</a>, which creates an RPM during the build process for you. In this example the RPM will be created as an attached artifact. For more information see the <a href="http://mojo.codehaus.org/rpm-maven-plugin/usage.html">documentation</a> of the plugin.</p>
+<p>The following code snippet may help you to configure the <a href="https://www.mojohaus.org/rpm-maven-plugin/">Maven RPM Plugin</a>, which creates an RPM during the build process for you. In this example the RPM will be created as an attached artifact. For more information see the <a href="https://www.mojohaus.org/rpm-maven-plugin/usage.html">documentation</a> of the plugin.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1021,7 +1021,7 @@ name: batch.metrics, tags: {context=simpleJob.simpleStep, name=businesscounter}<
 <div id="footer">
 <div id="footer-text">
 Version 2.0.2-SNAPSHOT<br>
-Last updated 2018-07-09 05:33:15 UTC
+Last updated 2018-07-09 05:44:58 UTC
 </div>
 </div>
 </body>
