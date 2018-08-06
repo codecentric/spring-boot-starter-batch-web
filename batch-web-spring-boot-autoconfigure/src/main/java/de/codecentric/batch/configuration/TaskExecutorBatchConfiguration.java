@@ -27,6 +27,7 @@ import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
 import org.springframework.batch.core.explore.support.MapJobExplorerFactoryBean;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.repository.ExecutionContextSerializer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
@@ -72,6 +73,9 @@ public class TaskExecutorBatchConfiguration implements BatchConfigurer {
 
 	private JobExplorer jobExplorer;
 
+	@Autowired(required = false)
+	private ExecutionContextSerializer serializer;
+
 	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -98,17 +102,18 @@ public class TaskExecutorBatchConfiguration implements BatchConfigurer {
 	}
 
 	private JobLauncher createJobLauncher() throws Exception {
-		SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
-		jobLauncher.setJobRepository(jobRepository);
-		jobLauncher.setTaskExecutor(taskExecutor);
-		jobLauncher.afterPropertiesSet();
-		return jobLauncher;
+		SimpleJobLauncher simpleJobLauncher = new SimpleJobLauncher();
+		simpleJobLauncher.setJobRepository(jobRepository);
+		simpleJobLauncher.setTaskExecutor(taskExecutor);
+		simpleJobLauncher.afterPropertiesSet();
+		return simpleJobLauncher;
 	}
 
 	protected JobRepository createJobRepository() throws Exception {
 		JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
 		factory.setDataSource(dataSource);
 		factory.setTransactionManager(transactionManager);
+		factory.setSerializer(serializer);
 		String isolationLevelForCreate = batchConfig.getRepository().getIsolationLevelForCreate();
 		if (isolationLevelForCreate != null) {
 			factory.setIsolationLevelForCreate(isolationLevelForCreate);
@@ -146,6 +151,7 @@ public class TaskExecutorBatchConfiguration implements BatchConfigurer {
 
 			JobExplorerFactoryBean jobExplorerFactoryBean = new JobExplorerFactoryBean();
 			jobExplorerFactoryBean.setDataSource(this.dataSource);
+			jobExplorerFactoryBean.setSerializer(serializer);
 			String tablePrefix = batchConfig.getRepository().getTablePrefix();
 			if (tablePrefix != null) {
 				jobExplorerFactoryBean.setTablePrefix(tablePrefix);

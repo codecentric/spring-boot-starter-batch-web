@@ -113,18 +113,15 @@ Now let’s take a look at the interfaces / abstract classes you may implement t
 
 https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/configuration/ListenerProvider.java[ListenerProvider]
 
-https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/metrics/MetricsOutputFormatter.java[MetricsOutputFormatter]
-
-Example:
-[source,java]
-----
-include::{sourcedir}/de/codecentric/batch/metrics/MetricsListener.java[tags=contains,indent=0]
-----
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/metrics/MetricsOutputFormatter.java[MetricsOutputFormatter], Example:
+https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/metrics/MetricsListener.java[MetricsListener]
 
 https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/metrics/AbstractBatchMetricsAspect.java[AbstractBatchMetricsAspect]
 
 https://github.com/codecentric/spring-boot-starter-batch-web/blob/master/batch-web-spring-boot-autoconfigure/src/main/java/de/codecentric/batch/logging/JobLogFileNameCreator.java[JobLogFileNameCreator]
 
+=== Custom job data de-/serialization
+You also be able to use your own custom database serializer for job repository. You just have to add a bean of type ExecutionContextSerializer into the application context. See example in batch-boot-file-to-db (DataSourceConfiguration.java).
 
 == Initscript Template
 
