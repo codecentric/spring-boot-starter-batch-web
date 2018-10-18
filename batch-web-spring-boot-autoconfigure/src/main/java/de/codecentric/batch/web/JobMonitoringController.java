@@ -18,14 +18,17 @@ package de.codecentric.batch.web;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.NoSuchJobExecutionException;
+import org.springframework.batch.core.launch.NoSuchJobInstanceException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -34,6 +37,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -64,6 +68,20 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
  * {base_url}/jobs/runningexecutions/{jobName} / GET<br>
  * On success, it returns a JSON array containing the ids of the JobExecutions running on this server belonging to the
  * specified job.</li>
+ * 
+ * <li>Retrieving the JobInstance by job name<br>
+ * {base_url}/jobs/instances / GET<br>
+ * On success, it returns a JSON representation of the JobInstance specified by the job name. This representation contains
+ * each run of the job and contains the id to obtain the job executions.<br>
+ * If the JobInstance cannot be found, a HTTP response code 404 is returned.</li>
+ * 
+ * <li>Retrieving list of JobExecution by job instance id<br>
+ * {base_url}/jobs/executions / GET<br>
+ * On success, it returns a list of the JobExecution specified by the job instance id. This representation contains
+ * everything you need to know about that job, from job name and BatchStatus to the number of processed items and time
+ * used and so on.<br>
+ * If the JobExecution cannot be found, a HTTP response code 404 is returned.</li>
+ * </ol>
  * 
  * <li>Retrieving the JobExecution<br>
  * {base_url}/jobs/executions/{executionId} / GET<br>
@@ -119,6 +137,41 @@ public class JobMonitoringController {
 		return runningExecutionTracker.getRunningExecutionIdsForJobName(jobName);
 	}
 
+	@RequestMapping(value = "/jobs/instances", method = RequestMethod.GET)
+	public List<JobInstance> findInstances(@RequestParam(name="jobname") String jobName, @RequestParam(required=false) Integer start, @RequestParam(required=false) Integer count) throws NoSuchJobInstanceException {
+		
+		if(start == null){
+			start = 0;
+		}
+		
+		if(count == null){
+			count = 10;
+		}
+		
+		List<JobInstance> jobInstances = jobExplorer.getJobInstances(jobName, start, count);
+		if (jobInstances.isEmpty()) {
+			throw new NoSuchJobInstanceException("JobInstance for the job " + jobName + " not found.");
+		}
+		
+		return jobInstances;
+	}
+	
+	
+	@RequestMapping(value = "/jobs/executions", method = RequestMethod.GET)
+	public List<JobExecution> findExecutions(@RequestParam(name="instanceId", required=true) long instanceId) throws NoSuchJobExecutionException, NoSuchJobInstanceException {
+		
+		JobInstance jobInstance = jobExplorer.getJobInstance(instanceId);
+		if (jobInstance == null) {
+			throw new NoSuchJobInstanceException("JobInstance with id " + instanceId + " not found.");
+		}
+		
+		List<JobExecution> jobExecutions = jobExplorer.getJobExecutions(jobInstance);
+		if (jobExecutions.isEmpty()) {
+			throw new NoSuchJobExecutionException("JobExecution not found for jobInstance with id " + instanceId + ".");
+		}
+		return jobExecutions;
+	}
+	
 	@RequestMapping(value = "/jobs/executions/{executionId}", method = RequestMethod.GET)
 	public JobExecution findExecution(@PathVariable long executionId) throws NoSuchJobExecutionException {
 		JobExecution jobExecution = jobExplorer.getJobExecution(executionId);
@@ -130,8 +183,15 @@ public class JobMonitoringController {
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ExceptionHandler(NoSuchJobExecutionException.class)
-	public String handleNotFound(Exception ex) {
+	public String handleNotExecutionFound(Exception ex) {
 		LOG.warn("JobExecution not found.", ex);
+		return ex.getMessage();
+	}
+	
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	@ExceptionHandler(NoSuchJobInstanceException.class)
+	public String handleNotInstanceFound(Exception ex) {
+		LOG.warn("JobInstance not found.", ex);
 		return ex.getMessage();
 	}
 
