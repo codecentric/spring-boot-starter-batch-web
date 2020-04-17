@@ -75,6 +75,7 @@ public class AutomaticJobRegistrarConfiguration extends AutomaticJobRegistrarCon
 		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 		Resource[] xmlConfigurations = resourcePatternResolver.getResources(batchConfig.getConfig().getPathXml());
 		for (Resource resource : xmlConfigurations) {
+            System.out.println(resource);
 			LOGGER.info("Register jobs from {}", resource);
 			automaticJobRegistrar.addApplicationContextFactory(new GenericApplicationContextFactory(resource));
 		}

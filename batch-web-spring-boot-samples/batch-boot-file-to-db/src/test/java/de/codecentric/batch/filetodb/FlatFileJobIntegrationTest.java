@@ -30,7 +30,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT, properties = { "server.port=8090" })
+@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT, properties = {
+    "server.port=8090",
+    "spring.main.allow-bean-definition-overriding=true"
+})
 public class FlatFileJobIntegrationTest {
 
 	private RestTemplate restTemplate = new RestTemplateBuilder().build();
