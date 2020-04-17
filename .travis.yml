@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - oraclejdk8
+  - adoptopenjdk11
 sudo: false
 env:
   global:
