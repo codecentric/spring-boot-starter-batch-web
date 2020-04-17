@@ -52,7 +52,7 @@
 		<url>https://github.com/codecentric/spring-boot-starter-batch-web</url>
 	</scm>
 	<properties>
-		<revision>2.2.0-SNAPSHOT</revision>
+		<revision>2.0.4-SNAPSHOT</revision>
 		<spring-boot.version>2.2.6.RELEASE</spring-boot.version>
 		<java.version>11</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
