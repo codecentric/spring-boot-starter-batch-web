@@ -264,6 +264,7 @@
 					<version>${maven-surefire-plugin.version}</version>
 					<configuration>
 						<redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        <forkCount>0</forkCount>
 						<includes>
 							<include>**/*Tests.java</include>
 							<include>**/*Test.java</include>
