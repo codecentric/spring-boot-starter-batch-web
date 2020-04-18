@@ -86,7 +86,7 @@
 		<flatten-maven-plugin.version>1.0.1</flatten-maven-plugin.version>
 		<maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
 		<checkstyle.version>8.29</checkstyle.version>
-        <nexus-staging-maven-plugin>1.6.8</nexus-staging-maven-plugin>
+        <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
 	</properties>
 	<distributionManagement>
 		<snapshotRepository>
