@@ -26,5 +26,16 @@ script: mvn clean verify ${TRAVIS_TAG:+-Drevision=${TRAVIS_TAG}}
 after_success:
   - mvn jacoco:report coveralls:report
   - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn deploy -DreposityId=sonatype-nexus-snapshots -Psign-artifacts -DskipTests --settings deploy-settings.xml"
-  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
-  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -pl batch-web-spring-boot-starter -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && sleep 60"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -pl batch-web-spring-boot-autoconfigure -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && sleep 60"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -pl batch-web-spring-boot-build -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && sleep 60"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -pl batch-web-spring-boot-dependencies -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && sleep 60"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -pl batch-web-spring-boot-docs -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && sleep 60"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -pl batch-web-spring-boot-samples -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && sleep 60"
+  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} != '' ]] && mvn deploy -pl batch-web-spring-boot -DreposityId=sonatype-nexus-staging -Psign-artifacts -DskipTests -Drevision=${TRAVIS_TAG} --settings deploy-settings.xml"
