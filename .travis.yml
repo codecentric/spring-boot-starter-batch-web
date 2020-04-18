@@ -19,8 +19,6 @@ cache:
 
 addons:
   artifacts: true
-    paths:
-    - $(git ls-files -o | grep -E ".jar$|.pom$|.asc$" | tr "\n" ":")
 
 before_install:
   - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && openssl aes-256-cbc -K $encrypted_b6c74d7f8e86_key -iv $encrypted_b6c74d7f8e86_iv -in codesigning.asc.enc -out codesigning.asc -d"
