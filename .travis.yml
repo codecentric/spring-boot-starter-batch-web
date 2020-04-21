@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - openjdk11
+  - openjdk8
 sudo: false
 env:
   global:
