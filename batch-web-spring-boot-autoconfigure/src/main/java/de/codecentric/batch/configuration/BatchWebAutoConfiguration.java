@@ -17,11 +17,14 @@
 package de.codecentric.batch.configuration;
 
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.converter.DefaultJobParametersConverter;
+import org.springframework.batch.core.converter.JobParametersConverter;
 import org.springframework.batch.core.job.AbstractJob;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
@@ -126,5 +129,11 @@ public class BatchWebAutoConfiguration implements ApplicationListener<ContextRef
 	public int getOrder() {
 		return Ordered.LOWEST_PRECEDENCE;
 	}
+
+    @Bean
+    @ConditionalOnMissingBean
+    public JobParametersConverter jobParametersConverter() {
+	    return new DefaultJobParametersConverter();
+    }
 
 }

@@ -154,7 +154,8 @@ public class JobOperationsController {
 
 	private JsrJobOperator jsrJobOperator;
 
-	private JobParametersConverter jobParametersConverter = new DefaultJobParametersConverter();
+	@Autowired
+	private JobParametersConverter jobParametersConverter;
 
 	private JobLogFileNameCreator jobLogFileNameCreator = new DefaultJobLogFileNameCreator();
 

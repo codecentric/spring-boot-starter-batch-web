@@ -19,4 +19,13 @@ public class Application {
 	// public BatchConfigurer batchConfigurer(DataSource dataSource){
 	// return new DefaultBatchConfigurer(dataSource);
 	// }
+
+    // If you would like to use your own JobParametersConverter in JobOperationsController,
+    // just add a bean of that type to the JobParametersConverter, like in the following code.
+    // This starter's implementation will step aside then.
+    // @Bean
+    // public JobParametersConverter jobParametersConverter(){
+    // return new MyOwnJobParametersConverter();
+    // }
+
 }
