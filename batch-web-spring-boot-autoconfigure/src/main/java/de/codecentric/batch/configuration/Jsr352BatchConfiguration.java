@@ -15,41 +15,55 @@
  */
 package de.codecentric.batch.configuration;
 
+import org.springframework.batch.core.configuration.JobRegistry;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.jsr.JsrJobParametersConverter;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import de.codecentric.batch.jsr352.CustomJsrJobOperator;
 
+import javax.sql.DataSource;
+
 /**
  * This configuration creates the components needed for starting JSR-352 style jobs.
- * 
+ *
  * @author Tobias Flohre
  */
 @Configuration
 public class Jsr352BatchConfiguration {
 
-	@Autowired
-	private BaseConfiguration baseConfig;
+    @Autowired
+    private JobExplorer jobExplorer;
 
-	@Autowired
-	private BatchWebAutoConfiguration batchWebAutoConfiguration;
+    @Autowired
+    private JobRepository jobRepository;
 
-	@Bean
-	public CustomJsrJobOperator jsrJobOperator(PlatformTransactionManager transactionManager) throws Exception {
-		CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(baseConfig.jobExplorer(),
-				baseConfig.jobRepository(), jsrJobParametersConverter(),
-				batchWebAutoConfiguration.addListenerToJobService(), transactionManager);
-		jsrJobOperator.setTaskExecutor(baseConfig.taskExecutor());
-		return jsrJobOperator;
-	}
+    @Autowired
+    private DataSource dataSource;
 
-	public JsrJobParametersConverter jsrJobParametersConverter() throws Exception {
-		JsrJobParametersConverter jsrJobParametersConverter = new JsrJobParametersConverter(baseConfig.dataSource());
-		jsrJobParametersConverter.afterPropertiesSet();
-		return jsrJobParametersConverter;
-	}
+    @Autowired
+    private TaskExecutor taskExecutor;
+
+    @Autowired
+    private BatchWebAutoConfiguration batchWebAutoConfiguration;
+
+    @Bean
+    public CustomJsrJobOperator jsrJobOperator(PlatformTransactionManager transactionManager) throws Exception {
+        CustomJsrJobOperator jsrJobOperator = new CustomJsrJobOperator(jobExplorer, jobRepository, jsrJobParametersConverter(),
+                batchWebAutoConfiguration.addListenerToJobService(), transactionManager);
+        jsrJobOperator.setTaskExecutor(taskExecutor);
+        return jsrJobOperator;
+    }
+
+    public JsrJobParametersConverter jsrJobParametersConverter() throws Exception {
+        JsrJobParametersConverter jsrJobParametersConverter = new JsrJobParametersConverter(dataSource);
+        jsrJobParametersConverter.afterPropertiesSet();
+        return jsrJobParametersConverter;
+    }
 
 }

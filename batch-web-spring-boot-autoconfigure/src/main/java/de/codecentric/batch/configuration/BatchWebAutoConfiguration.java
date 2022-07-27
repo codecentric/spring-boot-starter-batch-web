@@ -16,6 +16,7 @@
 
 package de.codecentric.batch.configuration;
 
+import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.converter.DefaultJobParametersConverter;
 import org.springframework.batch.core.converter.JobParametersConverter;
@@ -67,73 +68,72 @@ import de.codecentric.batch.monitoring.RunningExecutionTracker;
 @PropertySource("classpath:batch-web-spring-boot-autoconfigure.properties")
 @AutoConfigureAfter({ MetricsAutoConfiguration.class })
 @Import({ WebConfig.class, TaskExecutorBatchConfiguration.class, AutomaticJobRegistrarConfiguration.class,
-		BaseConfiguration.class, Jsr352BatchConfiguration.class, MetricsConfiguration.class,
-		TaskExecutorConfiguration.class })
+        Jsr352BatchConfiguration.class, MetricsConfiguration.class, TaskExecutorConfiguration.class })
 @EnableConfigurationProperties({ BatchConfigurationProperties.class })
 public class BatchWebAutoConfiguration implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
-	@Autowired
-	private BatchConfigurationProperties batchConfig;
+    @Autowired
+    private BatchConfigurationProperties batchConfig;
 
-	@Autowired
-	private BaseConfiguration baseConfig;
+    @Autowired
+    private JobRegistry jobRegistry;
 
-	// ################### Listeners automatically added to each job #################################
+    // ################### Listeners automatically added to each job #################################
 
-	@Bean
-	public LoggingListener loggingListener() {
-		return new LoggingListener();
-	}
+    @Bean
+    public LoggingListener loggingListener() {
+        return new LoggingListener();
+    }
 
-	@Bean
-	public LoggingAfterJobListener loggingAfterJobListener() {
-		return new LoggingAfterJobListener();
-	}
+    @Bean
+    public LoggingAfterJobListener loggingAfterJobListener() {
+        return new LoggingAfterJobListener();
+    }
 
-	@Bean
-	public ProtocolListener protocolListener() {
-		return new ProtocolListener();
-	}
+    @Bean
+    public ProtocolListener protocolListener() {
+        return new ProtocolListener();
+    }
 
-	@Bean
-	public RunningExecutionTracker runningExecutionTracker() {
-		return new RunningExecutionTracker();
-	}
+    @Bean
+    public RunningExecutionTracker runningExecutionTracker() {
+        return new RunningExecutionTracker();
+    }
 
-	@Bean
-	public RunningExecutionTrackerListener runningExecutionTrackerListener() {
-		return new RunningExecutionTrackerListener(runningExecutionTracker());
-	}
+    @Bean
+    public RunningExecutionTrackerListener runningExecutionTrackerListener() {
+        return new RunningExecutionTrackerListener(runningExecutionTracker());
+    }
 
-	@Bean
-	public AddListenerToJobService addListenerToJobService() {
-		boolean addProtocolListener = batchConfig.getDefaultProtocol().isEnabled();
-		boolean addLoggingListener = batchConfig.getLogfileSeparation().isEnabled();
-		return new AddListenerToJobService(addProtocolListener, addLoggingListener, protocolListener(),
-				runningExecutionTrackerListener(), loggingListener(), loggingAfterJobListener());
-	}
+    @Bean
+    public AddListenerToJobService addListenerToJobService() {
+        boolean addProtocolListener = batchConfig.getDefaultProtocol().isEnabled();
+        boolean addLoggingListener = batchConfig.getLogfileSeparation().isEnabled();
+        return new AddListenerToJobService(addProtocolListener, addLoggingListener, protocolListener(),
+                runningExecutionTrackerListener(), loggingListener(), loggingAfterJobListener());
+    }
 
-	@Override
-	public void onApplicationEvent(ContextRefreshedEvent event) {
-		baseConfig.jobRegistry().getJobNames().forEach(jobName -> {
-			try {
-				AbstractJob job = (AbstractJob) baseConfig.jobRegistry().getJob(jobName);
-				this.addListenerToJobService().addListenerToJob(job);
-			} catch (NoSuchJobException e) {
-				throw new IllegalStateException(e);
-			}
-		});
-	}
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        jobRegistry.getJobNames().forEach(jobName -> {
+            try {
+                AbstractJob job = (AbstractJob) jobRegistry.getJob(jobName);
+                this.addListenerToJobService().addListenerToJob(job);
+            } catch (NoSuchJobException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
 
-	@Override
-	public int getOrder() {
-		return Ordered.LOWEST_PRECEDENCE;
-	}
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE;
+    }
 
     @Bean
     @ConditionalOnMissingBean
     public JobParametersConverter jobParametersConverter() {
-	    return new DefaultJobParametersConverter();
+        return new DefaultJobParametersConverter();
     }
 
 }

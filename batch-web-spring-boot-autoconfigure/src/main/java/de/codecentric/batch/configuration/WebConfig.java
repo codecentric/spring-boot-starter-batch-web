@@ -18,8 +18,14 @@ package de.codecentric.batch.configuration;
 
 import java.util.List;
 
+import de.codecentric.batch.monitoring.RunningExecutionTracker;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.configuration.JobRegistry;
+import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.jsr.launch.JsrJobOperator;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,40 +41,49 @@ import de.codecentric.batch.web.JobOperationsController;
  * to avoid a stack overflow through circular references in the JobExecution / StepExecution.
  *
  * @author Tobias Flohre
- *
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-	@Autowired
-	private BaseConfiguration baseConfig;
+    @Autowired
+    private JobOperator jobOperator;
 
-	@Autowired
-	private BatchWebAutoConfiguration batchWebAutoConfiguration;
+    @Autowired
+    private JobExplorer jobExplorer;
 
-	@Autowired(required = false)
-	private JsrJobOperator jsrJobOperator;
+    @Autowired
+    private JobRegistry jobRegistry;
 
-	@Override
-	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-		for (HttpMessageConverter<?> httpMessageConverter : converters) {
-			if (httpMessageConverter instanceof MappingJackson2HttpMessageConverter) {
-				final MappingJackson2HttpMessageConverter converter = (MappingJackson2HttpMessageConverter) httpMessageConverter;
-				converter.getObjectMapper().addMixIn(StepExecution.class, StepExecutionJacksonMixIn.class);
-			}
-		}
-	}
+    @Autowired
+    private JobRepository jobRepository;
 
-	@Bean
-	public JobMonitoringController jobMonitoringController() {
-		return new JobMonitoringController(baseConfig.jobOperator(), baseConfig.jobExplorer(),
-				batchWebAutoConfiguration.runningExecutionTracker());
-	}
+    @Autowired
+    private JobLauncher jobLauncher;
 
-	@Bean
-	public JobOperationsController jobOperationsController() {
-		return new JobOperationsController(baseConfig.jobOperator(), baseConfig.jobExplorer(), baseConfig.jobRegistry(),
-				baseConfig.jobRepository(), baseConfig.jobLauncher(), jsrJobOperator);
-	}
+    @Autowired
+    private RunningExecutionTracker runningExecutionTracker;
+
+    @Autowired(required = false)
+    private JsrJobOperator jsrJobOperator;
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        for (HttpMessageConverter<?> httpMessageConverter : converters) {
+            if (httpMessageConverter instanceof MappingJackson2HttpMessageConverter) {
+                final MappingJackson2HttpMessageConverter converter = (MappingJackson2HttpMessageConverter) httpMessageConverter;
+                converter.getObjectMapper().addMixIn(StepExecution.class, StepExecutionJacksonMixIn.class);
+            }
+        }
+    }
+
+    @Bean
+    public JobMonitoringController jobMonitoringController() {
+        return new JobMonitoringController(jobOperator, jobExplorer, runningExecutionTracker);
+    }
+
+    @Bean
+    public JobOperationsController jobOperationsController() {
+        return new JobOperationsController(jobOperator, jobExplorer, jobRegistry, jobRepository, jobLauncher, jsrJobOperator);
+    }
 
 }
