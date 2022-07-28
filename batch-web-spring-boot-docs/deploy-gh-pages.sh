@@ -11,7 +11,7 @@
 ##
 set -o errexit -o nounset
 
-GH_URL="https://${GH_TOKEN}@github.com/codecentric/spring-boot-starter-batch-web.git"
+GH_URL="https://${GITHUB_TOKEN}@github.com/codecentric/spring-boot-starter-batch-web.git"
 TEMPDIR="$(mktemp -d /tmp/gh-pages.XXX)"
 TARGET_DIR="${TRAVIS_BRANCH/master/current}"
 
