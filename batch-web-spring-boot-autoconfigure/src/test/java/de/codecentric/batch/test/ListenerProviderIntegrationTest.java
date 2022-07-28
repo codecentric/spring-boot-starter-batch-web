@@ -15,31 +15,26 @@
  */
 package de.codecentric.batch.test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import de.codecentric.batch.TestApplication;
+import de.codecentric.batch.listener.TestListener;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import de.codecentric.batch.TestApplication;
-import de.codecentric.batch.listener.TestListener;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * This test class starts a batch job configured in JavaConfig and tests the ListenerProvider concept.
  *
  * @author Tobias Flohre
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-
 public class ListenerProviderIntegrationTest {
 
 	private TestRestTemplate restTemplate = new TestRestTemplate();

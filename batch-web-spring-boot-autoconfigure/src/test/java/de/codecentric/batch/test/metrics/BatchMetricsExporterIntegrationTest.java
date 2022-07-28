@@ -15,12 +15,11 @@
  */
 package de.codecentric.batch.test.metrics;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import de.codecentric.batch.MetricsTestApplication;
+import de.codecentric.batch.metrics.MetricsListener;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -29,14 +28,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import de.codecentric.batch.MetricsTestApplication;
-import de.codecentric.batch.metrics.MetricsListener;
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.MeterRegistry;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * This test class starts a batch job configured in JavaConfig and tests a simple metrics use case.
@@ -44,7 +41,6 @@ import io.micrometer.core.instrument.MeterRegistry;
  * @author Tobias Flohre
  */
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = MetricsTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
 		"batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true",
 		"batch.metrics.export.console.enabled=true" })

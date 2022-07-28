@@ -15,19 +15,14 @@
  */
 package de.codecentric.batch.test.metrics;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.io.IOException;
-
-import javax.sql.DataSource;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import de.codecentric.batch.MetricsTestApplication;
+import de.codecentric.batch.metrics.MetricNames;
+import de.codecentric.batch.metrics.MetricsListener;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -41,16 +36,17 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptException;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import de.codecentric.batch.MetricsTestApplication;
-import de.codecentric.batch.metrics.MetricNames;
-import de.codecentric.batch.metrics.MetricsListener;
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.MeterRegistry;
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.IOException;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * This test class includes several tests that start a batch job configured in JavaConfig testing different metrics use
@@ -58,7 +54,6 @@ import io.micrometer.core.instrument.MeterRegistry;
  *
  * @author Tobias Flohre
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = MetricsTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
 		"batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true",
 		"spring.datasource.hikari.maximum-pool-size=20" })
@@ -80,7 +75,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 
 	private JdbcTemplate jdbcTemplate;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws ScriptException {
 		jdbcTemplate = new JdbcTemplate(dataSource);
 		try {
@@ -91,7 +86,7 @@ public class BatchMetricsFlatFileToDbIntegrationTest {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		jdbcTemplate.execute("DELETE FROM ITEM");
 	}

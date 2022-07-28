@@ -1,15 +1,15 @@
 package de.codecentric.batch.scheduling.concurrent;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-import org.junit.Test;
-import org.slf4j.MDC;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MdcThreadPoolTaskExecutorTest {
 

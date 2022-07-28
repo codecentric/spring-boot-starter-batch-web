@@ -1,26 +1,27 @@
 package de.codecentric.batch.listener;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
-
-import java.util.Date;
-
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.boot.test.rule.OutputCapture;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 
+import java.util.Date;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+@ExtendWith(OutputCaptureExtension.class)
 public class ProtocolListenerTest {
 
-	@Rule
-	public OutputCapture outputCapture = new OutputCapture();
+
 
 	@Test
-	public void createProtocol() throws Exception {
+	public void createProtocol(CapturedOutput output) throws Exception {
 		// Given
 		JobExecution jobExecution = new JobExecution(1L,
 				new JobParametersBuilder().addString("test", "value").toJobParameters());
@@ -36,8 +37,7 @@ public class ProtocolListenerTest {
 		// When
 		protocolListener.afterJob(jobExecution);
 		// Then
-		String output = this.outputCapture.toString();
-		assertThat(output, containsString("Protocol for test-job"));
-		assertThat(output, containsString("COMPLETED_WITH_ERRORS"));
+		assertThat(output.getOut(), containsString("Protocol for test-job"));
+		assertThat(output.getOut(), containsString("COMPLETED_WITH_ERRORS"));
 	}
 }

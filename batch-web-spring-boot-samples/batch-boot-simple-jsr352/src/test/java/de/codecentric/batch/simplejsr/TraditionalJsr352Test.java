@@ -1,9 +1,9 @@
 package de.codecentric.batch.simplejsr;
 
-import java.util.concurrent.TimeoutException;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.test.JsrTestUtils;
+
+import java.util.concurrent.TimeoutException;
 
 public class TraditionalJsr352Test {
 	

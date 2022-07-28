@@ -15,13 +15,8 @@
  */
 package de.codecentric.batch.test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import de.codecentric.batch.TestApplication;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -30,16 +25,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import de.codecentric.batch.TestApplication;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * This test class starts a batch job configured in XML and tests several endpoints.
  *
  * @author Tobias Flohre
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
 		"batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true" })
 public class XmlIntegrationTest {

@@ -16,22 +16,18 @@
 
 package de.codecentric.batch.test;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import de.codecentric.batch.AutoconfigureBatchWebStarter;
+import de.codecentric.batch.TestConfiguration;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import de.codecentric.batch.AutoconfigureBatchWebStarter;
-import de.codecentric.batch.TestConfiguration;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
 @AutoconfigureBatchWebStarter
 @SpringBootTest(classes = TestConfiguration.class, properties = { "batch.metrics.enabled=true" })
 public class PartitionedFlatFileJobTest {

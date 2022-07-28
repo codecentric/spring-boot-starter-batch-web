@@ -1,7 +1,7 @@
 package de.codecentric.batch.metrics;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.StepExecution;
@@ -14,7 +14,7 @@ public class BatchMetricsImplTest {
 
 	private BatchMetricsImpl batchMetrics;
 
-	@Before
+	@BeforeEach
 	public void beforeTest() {
 		batchMetrics = new BatchMetricsImpl();
 		StepSynchronizationManager

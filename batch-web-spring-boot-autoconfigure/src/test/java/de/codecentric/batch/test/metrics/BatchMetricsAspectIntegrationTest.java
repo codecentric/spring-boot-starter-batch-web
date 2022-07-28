@@ -15,15 +15,12 @@
  */
 package de.codecentric.batch.test.metrics;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
-
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import de.codecentric.batch.MetricsTestApplication;
+import de.codecentric.batch.metrics.MetricsListener;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -32,20 +29,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import de.codecentric.batch.MetricsTestApplication;
-import de.codecentric.batch.metrics.MetricsListener;
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 
 /**
  * This test class starts a batch job configured in JavaConfig and tests a simple metrics use case.
  *
  * @author Tobias Flohre
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = MetricsTestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
 		"batch.metrics.enabled=true", "batch.metrics.profiling.readprocesswrite.enabled=true" })
 public class BatchMetricsAspectIntegrationTest {
