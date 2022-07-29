@@ -54,9 +54,10 @@ jobs:
         run: |
           mvn -B clean verify -Pcoverage
 
-      - name: Publish coverage report
-        run: |
-          mvn jacoco:report coveralls:report
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   publish-snapshot:
     needs: build
