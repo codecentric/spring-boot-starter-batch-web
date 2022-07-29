@@ -54,10 +54,9 @@ jobs:
         run: |
           mvn -B clean verify -Pcoverage
 
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
+      - uses: codecov/codecov-action@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          files: ./**/target/site/jacoco/jacoco.xml
 
   publish-snapshot:
     needs: build
