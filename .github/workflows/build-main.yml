@@ -54,6 +54,10 @@ jobs:
         run: |
           mvn -B clean verify -Pcoverage
 
+      - name: Create coverage report
+        run: |
+          mvn -B jacoco:report
+
       - uses: codecov/codecov-action@v2
         with:
           files: ./**/target/site/jacoco/jacoco.xml
