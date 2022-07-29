@@ -54,9 +54,9 @@ jobs:
         run: |
           mvn -B clean verify -Pcoverage
 
-      - uses: codecov/codecov-action@v2
-        with:
-          files: "'*/jacoco.xml'"
+      - name: Publish coverage report
+        run: |
+          mvn jacoco:report coveralls:report
 
   publish-snapshot:
     needs: build
