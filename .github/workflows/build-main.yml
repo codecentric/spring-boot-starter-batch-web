@@ -56,7 +56,7 @@ jobs:
 
       - name: Create coverage report
         run: |
-          mvn -B jacoco:report
+          mvn -B jacoco:report && ls . && ls ./**/target/site/jacoco/jacoco.xml
 
       - uses: codecov/codecov-action@v2
         with:
