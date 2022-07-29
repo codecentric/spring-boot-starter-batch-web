@@ -13,7 +13,7 @@ set -o errexit -o nounset
 
 GH_URL="https://${GITHUB_TOKEN}@github.com/codecentric/spring-boot-starter-batch-web.git"
 TEMPDIR="$(mktemp -d /tmp/gh-pages.XXX)"
-TARGET_DIR="${TRAVIS_BRANCH/master/current}"
+TARGET_DIR="${GITHUB_REF_NAME/master/current}"
 
 echo "Cloning gh-pages branch..."
 git clone --branch gh-pages --single-branch --depth 1 "$GH_URL" "$TEMPDIR"

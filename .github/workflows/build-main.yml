@@ -44,9 +44,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
-      - name: Build with Maven
+      - name: Build Tag with Maven
+        if: ${{ github.ref_type == 'tag' }}
         run: |
-          mvn -B clean verify -Drevision=${TRAVIS_TAG}}
+          mvn -B clean verify -Drevision=${{ github.ref_name }}
+
+      - name: Build Branch with Maven
+        if: ${{ github.ref_type == 'branch' }}
+        run: |
+          mvn -B clean verify
 
       - uses: codecov/codecov-action@v2
         with:
@@ -93,6 +99,7 @@ jobs:
         run: mvn -B --no-transfer-progress deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
 
       - name: Extract Maven project version for Asciidoc GitHub Pages directory naming
         run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
