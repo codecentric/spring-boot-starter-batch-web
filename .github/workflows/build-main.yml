@@ -47,12 +47,12 @@ jobs:
       - name: Build Tag with Maven
         if: ${{ github.ref_type == 'tag' }}
         run: |
-          mvn -B clean verify -Drevision=${{ github.ref_name }}
+          mvn -B clean verify -Pcoverage -Drevision=${{ github.ref_name }}
 
       - name: Build Branch with Maven
         if: ${{ github.ref_type == 'branch' }}
         run: |
-          mvn -B clean verify
+          mvn -B clean verify -Pcoverage
 
       - uses: codecov/codecov-action@v2
         with:
