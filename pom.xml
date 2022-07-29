@@ -90,9 +90,9 @@
 	</properties>
 	<distributionManagement>
 		<snapshotRepository>
-			<id>sonatype-nexus-snapshots</id>
-			<name>Sonatype Nexus Snapshots</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/codecentric/spring-boot-starter-batch-web</url>
 		</snapshotRepository>
 		<repository>
 			<id>sonatype-nexus-staging</id>
