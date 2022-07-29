@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 	<name>Batch Web Spring Boot</name>
 	<description>Spring Boot Starter Batch for Web</description>
-	<url>https://github.com/codecentric/spring-boot-admin/</url>
+	<url>https://github.com/codecentric/spring-boot-starter-batch-web/</url>
 	<modules>
 		<module>batch-web-spring-boot-dependencies</module>
 		<module>batch-web-spring-boot-build</module>
